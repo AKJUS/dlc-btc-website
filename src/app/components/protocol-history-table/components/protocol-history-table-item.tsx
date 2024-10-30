@@ -60,18 +60,23 @@ export function ProtocolHistoryTableItem(
         </>
       ) : (
         <>
-          <HStack w={'25%'}>
+          <HStack w={'20%'}>
             <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'20px'} />
             <Text color={'white'} fontWeight={800}>
               {unshiftValue(dlcBTCAmount)}
             </Text>
           </HStack>
-          <HStack w={'25%'}>
+          <HStack w={'20%'}>
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
               {truncateAddress(merchant)}
             </Text>
           </HStack>
-          <HStack w={'25%'}>
+          <HStack w={'20%'}>
+            <Text color={'white'} fontSize={'sm'} fontWeight={800}>
+              {ethereumNetwork.name}
+            </Text>
+          </HStack>
+          <HStack w={'20%'}>
             <Text
               color={'accent.lightBlue.01'}
               fontSize={'sm'}
@@ -84,7 +89,7 @@ export function ProtocolHistoryTableItem(
               {truncateAddress(txHash)}
             </Text>
           </HStack>
-          <HStack w={'25%'}>
+          <HStack w={'20%'}>
             <Text color={'white'} fontSize={'sm'}>
               {date}
             </Text>

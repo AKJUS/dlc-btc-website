@@ -8,9 +8,7 @@ import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provi
 
 import { titleTextSize } from '@shared/utils';
 
-import { MerchantTableHeader } from './components/merchant-table/components/merchant-table-header';
-import { MerchantTableItem } from './components/merchant-table/components/merchant-table-item';
-import { MerchantTableLayout } from './components/merchant-table/merchant-table-layout';
+import { MerchantTable } from './components/merchant-table/merchant-table';
 import { ProofOfReserveLayout } from './components/proof-of-reserve-layout';
 import { TokenStatsBoardToken } from './components/token-stats-board/components/token-stats-board-token';
 import { TokenStatsBoardTVL } from './components/token-stats-board/components/token-stats-board-tvl';
@@ -68,12 +66,7 @@ export function ProofOfReserve(): React.JSX.Element {
         direction={isMobile ? 'column' : 'row'}
         gap={isMobile ? '40px' : '20px'}
       >
-        <MerchantTableLayout>
-          <MerchantTableHeader />
-          {merchantProofOfReserves.map(item => (
-            <MerchantTableItem key={item.merchant.name} {...item} />
-          ))}
-        </MerchantTableLayout>
+        <MerchantTable items={merchantProofOfReserves}></MerchantTable>
         <ProtocolHistoryTable items={allMintBurnEvents} />
       </Stack>
     </ProofOfReserveLayout>

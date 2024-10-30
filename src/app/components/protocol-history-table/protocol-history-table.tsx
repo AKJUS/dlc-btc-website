@@ -14,7 +14,7 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <GenericTableLayout height={`${dynamicHeight}px`} width={'50%'} isMobile={isMobile}>
+    <GenericTableLayout height={`${dynamicHeight}px`} width={'70%'} isMobile={isMobile}>
       <GenericTableHeader>
         {isMobile ? (
           <>
@@ -23,10 +23,11 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
           </>
         ) : (
           <>
-            <GenericTableHeaderText w={'25%'}>Order Book</GenericTableHeaderText>
-            <GenericTableHeaderText w={'25%'}>Merchant</GenericTableHeaderText>
-            <GenericTableHeaderText w={'25%'}>Transaction</GenericTableHeaderText>
-            <GenericTableHeaderText w={'25%'}>Date</GenericTableHeaderText>
+            <GenericTableHeaderText w={'20%'}>Order Book</GenericTableHeaderText>
+            <GenericTableHeaderText w={'20%'}>Merchant</GenericTableHeaderText>
+            <GenericTableHeaderText w={'20%'}>Chain</GenericTableHeaderText>
+            <GenericTableHeaderText w={'20%'}>Transaction</GenericTableHeaderText>
+            <GenericTableHeaderText w={'20%'}>Date</GenericTableHeaderText>
           </>
         )}
       </GenericTableHeader>

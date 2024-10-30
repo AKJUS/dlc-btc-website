@@ -9,6 +9,7 @@ interface GenericTableLayoutProps {
   bg?: string;
   children: React.ReactNode;
   isMobile?: boolean;
+  isMerchant?: boolean;
 }
 
 export function GenericTableLayout({
@@ -20,13 +21,14 @@ export function GenericTableLayout({
   children,
   bg = 'background.container.01',
   isMobile = false,
+  isMerchant = false,
 }: GenericTableLayoutProps): React.JSX.Element {
   return (
     <VStack
       w={isMobile ? '100%' : width}
       h={height}
       minH={'100px'}
-      padding={isMobile ? '0px' : padding}
+      padding={isMobile ? (isMerchant ? '10px' : '0px') : padding}
       alignItems={alignItems}
       borderRadius={borderRadius}
       bg={bg}
