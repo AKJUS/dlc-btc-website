@@ -11,7 +11,7 @@ interface PointsTableProps {
 }
 
 export function PointsTable({ items }: PointsTableProps): React.JSX.Element {
-  const dynamicHeight = items ? items.length * 59 + 20 : 20;
+  const dynamicHeight = items ? items.length * 59 + 50 : 20;
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (

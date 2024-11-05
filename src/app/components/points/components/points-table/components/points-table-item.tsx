@@ -3,7 +3,7 @@ import { CustomSkeleton } from '@components/custom-skeleton/custom-skeleton';
 import { ProtocolRewards } from '@models/points.models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
 
-import { formatNumber } from '@shared/utils';
+import { formatNumber, formatToFourDecimals } from '@shared/utils';
 
 export function PointsTableItem(pointsTableItem: ProtocolRewards): React.JSX.Element {
   const isMobile = useBreakpointValue({ base: true, md: false });
@@ -49,7 +49,7 @@ export function PointsTableItem(pointsTableItem: ProtocolRewards): React.JSX.Ele
           <HStack w={'25%'}>
             <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
-              {unshiftValue(currentTokens)}
+              {formatToFourDecimals(unshiftValue(currentTokens))}
             </Text>
           </HStack>
           <HStack w={'50%'}>

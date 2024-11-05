@@ -51,5 +51,9 @@ export function formatEvent(event: DetailedEvent): FormattedEvent {
   };
 }
 
+export function formatToFourDecimals(value: number): number {
+  return parseFloat(value.toFixed(4));
+}
+
 export const breakpoints = ['300px', '400px', '600px', '850px', '1280px', '1400px'];
 export const titleTextSize = ['2xl', '2xl', '4xl', '6xl'];

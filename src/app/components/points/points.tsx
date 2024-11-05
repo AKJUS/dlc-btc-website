@@ -70,7 +70,7 @@ export function Points(): React.JSX.Element {
           <TokenStatsBoardLayout>
             <Stack
               w={'100%'}
-              alignItems={'flex-start'}
+              alignItems={'center'}
               direction={isMobile ? 'column' : 'row'}
               p={isMobile ? '15px' : '0px'}
               gap={isMobile ? '10px' : '0px'}
@@ -103,7 +103,7 @@ export function Points(): React.JSX.Element {
               <Divider
                 orientation={isMobile ? 'horizontal' : 'vertical'}
                 px={isMobile ? '0px' : '5px'}
-                height={isMobile ? '1px' : '300px'}
+                height={isMobile ? '1px' : '320px'}
                 variant={'thick'}
               />
               <PointsTable items={userPoints?.protocols} />
