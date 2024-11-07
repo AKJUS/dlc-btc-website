@@ -1,4 +1,6 @@
-import { Skeleton, useBreakpointValue } from '@chakra-ui/react';
+import { useState } from 'react';
+
+import { Button, HStack, Skeleton, Spacer, VStack, useBreakpointValue } from '@chakra-ui/react';
 import { GenericTableBody } from '@components/generic-table/components/generic-table-body';
 import { GenericTableHeader } from '@components/generic-table/components/generic-table-header';
 import { GenericTableHeaderText } from '@components/generic-table/components/generic-table-header-text';
@@ -10,32 +12,68 @@ interface ProtocolHistoryTableProps {
 }
 
 export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): React.JSX.Element {
-  const dynamicHeight = items ? items.length * 59 + 20 : 20;
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
   const isMobile = useBreakpointValue({ base: true, md: false });
 
+  const totalPages = Math.ceil((items?.length || 0) / itemsPerPage);
+
+  const currentItems = items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const handlePageChange = (direction: number) => {
+    setCurrentPage(prevPage => {
+      const newPage = prevPage + direction;
+      if (newPage < 1 || newPage > totalPages) return prevPage;
+      return newPage;
+    });
+  };
+
   return (
-    <GenericTableLayout height={`${dynamicHeight}px`} width={'70%'} isMobile={isMobile}>
-      <GenericTableHeader>
-        {isMobile ? (
-          <>
-            <GenericTableHeaderText w={'50%'}>Order Book</GenericTableHeaderText>
-            <GenericTableHeaderText w={'50%'}>Transaction</GenericTableHeaderText>
-          </>
-        ) : (
-          <>
-            <GenericTableHeaderText w={'20%'}>Order Book</GenericTableHeaderText>
-            <GenericTableHeaderText w={'20%'}>Merchant</GenericTableHeaderText>
-            <GenericTableHeaderText w={'20%'}>Chain</GenericTableHeaderText>
-            <GenericTableHeaderText w={'20%'}>Transaction</GenericTableHeaderText>
-            <GenericTableHeaderText w={'20%'}>Date</GenericTableHeaderText>
-          </>
-        )}
-      </GenericTableHeader>
-      <Skeleton isLoaded={items !== undefined} height={'50px'} w={'100%'}>
-        <GenericTableBody>
-          {items?.map(item => <ProtocolHistoryTableItem key={item.id} {...item} />)}
-        </GenericTableBody>
-      </Skeleton>
-    </GenericTableLayout>
+    <VStack w={'70%'} spacing={4}>
+      <GenericTableLayout height={'680px'} width={'100%'} isMobile={isMobile}>
+        <GenericTableHeader>
+          {isMobile ? (
+            <>
+              <GenericTableHeaderText w={'50%'}>Order Book</GenericTableHeaderText>
+              <GenericTableHeaderText w={'50%'}>Transaction</GenericTableHeaderText>
+            </>
+          ) : (
+            <>
+              <GenericTableHeaderText w={'20%'}>Order Book</GenericTableHeaderText>
+              <GenericTableHeaderText w={'20%'}>Merchant</GenericTableHeaderText>
+              <GenericTableHeaderText w={'20%'}>Chain</GenericTableHeaderText>
+              <GenericTableHeaderText w={'20%'}>Transaction</GenericTableHeaderText>
+              <GenericTableHeaderText w={'20%'}>Date</GenericTableHeaderText>
+            </>
+          )}
+        </GenericTableHeader>
+        <Skeleton isLoaded={items !== undefined} height={'50px'} w={'100%'}>
+          <GenericTableBody>
+            {currentItems?.map(item => <ProtocolHistoryTableItem key={item.id} {...item} />)}
+          </GenericTableBody>
+        </Skeleton>
+        <Spacer />
+        <HStack spacing={4} justifyContent={'center'} w={'100%'}>
+          <Button
+            variant={'wallet'}
+            h={'40px'}
+            w={'100px'}
+            onClick={() => handlePageChange(-1)}
+            isDisabled={currentPage === 1}
+          >
+            Previous
+          </Button>
+          <Button
+            variant={'wallet'}
+            h={'40px'}
+            w={'100px'}
+            onClick={() => handlePageChange(1)}
+            isDisabled={currentPage === totalPages}
+          >
+            Next
+          </Button>
+        </HStack>
+      </GenericTableLayout>
+    </VStack>
   );
 }
