@@ -207,7 +207,7 @@ export function useUnisat(): UseUnisatReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
-      setIsLoading([true, 'Creating Funding Transaction']);
+      setIsLoading([true, 'Creating Deposit Transaction']);
 
       // ==> Create Funding Transaction
       const fundingPSBT = await dlcHandler?.createFundingPSBT(
