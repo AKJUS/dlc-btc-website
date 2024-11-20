@@ -9,6 +9,7 @@ export function useBlockchainHeightQuery(): number | undefined {
       if (!response.ok) throw new Error('Network response was not ok');
       return response.json();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error fetching blockchain height', error);
       return undefined;
     }

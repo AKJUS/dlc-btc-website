@@ -25,6 +25,7 @@ export function usePoints(): UsePointsReturnType {
 
       return responseData.points;
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error fetching user: ${address} points`, error);
       return undefined;
     }

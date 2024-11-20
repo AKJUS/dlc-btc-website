@@ -22,6 +22,7 @@ export function useMintBurnEvents(): UseMintBurnEventsReturnType {
 
       return await response.json();
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error fetching mint burn events`, error);
       return [];
     }
@@ -60,6 +61,7 @@ export function useMintBurnEvents(): UseMintBurnEventsReturnType {
         merchantMintBurnEvents: mintBurnEvents,
       };
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error(`Error fetching mint burn events`, error);
       return undefined;
     }

@@ -51,6 +51,19 @@ export function formatEvent(event: DetailedEvent): FormattedEvent {
   };
 }
 
+export function parseAssetAmount(assetAmount: string): Decimal {
+  const isValidNumber = /^-?\d*\.?\d*$/.test(assetAmount);
+
+  if (isValidNumber) {
+    try {
+      return new Decimal(assetAmount);
+    } catch {
+      return new Decimal(0);
+    }
+  }
+  return new Decimal(0);
+}
+
 export function formatToFourDecimals(value: number): number {
   return parseFloat(value.toFixed(4));
 }
