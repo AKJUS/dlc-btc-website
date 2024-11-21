@@ -9,9 +9,9 @@ import {
   BitcoinWalletContextState,
 } from '@providers/bitcoin-wallet-context-provider';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
-import { VaultContext } from '@providers/vault-context-provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 import { modalActions } from '@store/slices/modal/modal.actions';
 
 interface WithdrawScreenProps {
@@ -29,10 +29,10 @@ export function WithdrawScreen({
   const { bitcoinWalletContextState, resetBitcoinWalletContext } = useContext(BitcoinWalletContext);
 
   const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
-  const { allVaults } = useContext(VaultContext);
 
   const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
-  const currentVault = allVaults.find(vault => vault.uuid === unmintStep[1]);
+
+  const currentVault = unmintStep.vault;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -60,7 +60,7 @@ export function WithdrawScreen({
 
   function handleCancel() {
     resetBitcoinWalletContext();
-    dispatch(mintUnmintActions.setUnmintStep([0, '']));
+    dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined }));
   }
 
   async function handleButtonClick(assetAmount: number) {
@@ -75,7 +75,7 @@ export function WithdrawScreen({
       <VaultTransactionForm
         vault={currentVault!}
         flow={'burn'}
-        currentStep={unmintStep[0]}
+        currentStep={unmintStep.step}
         currentBitcoinPrice={bitcoinPrice}
         bitcoinWalletContextState={bitcoinWalletContextState}
         isBitcoinWalletLoading={isBitcoinWalletLoading}

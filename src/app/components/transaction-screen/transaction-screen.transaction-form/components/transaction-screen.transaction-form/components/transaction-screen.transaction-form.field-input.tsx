@@ -28,11 +28,11 @@ export function TransactionFormFieldInput({
           autoFocus
           allowMouseWheel={false}
           value={formField.state.value}
+          onChange={e => formField.handleChange(e)}
           onBlur={formField.handleBlur}
           borderColor={'white.01'}
           focusBorderColor={'rgba(50, 201, 247, 1)'} // accent.lightBlue.01
           isInvalid={formField.state.meta.errors.length > 0}
-          onChange={e => formField.handleChange(e)}
         >
           <NumberInputField h={'25px'} color={'white.01'} fontWeight={'bold'} fontSize={'sm'} />
         </NumberInput>

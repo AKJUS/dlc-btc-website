@@ -15,16 +15,17 @@ import { VaultProgressBar } from './components/vault.progress-bar';
 interface VaultProps {
   vault: VaultModel;
   variant?: 'select' | 'selected';
+  handleClose?: () => void;
 }
 
-export function Vault({ vault, variant }: VaultProps): React.JSX.Element {
+export function Vault({ vault, variant, handleClose }: VaultProps): React.JSX.Element {
   const dispatch = useDispatch();
   const [isVaultExpanded, setIsVaultExpanded] = useState(false);
 
   function handleMainButtonClick() {
     if (variant === 'select') {
       const step = vault.valueLocked === vault.valueMinted ? 0 : 1;
-      dispatch(mintUnmintActions.setUnmintStep([step, vault.uuid]));
+      dispatch(mintUnmintActions.setUnmintStep([step, vault.uuid, vault]));
     } else {
       setIsVaultExpanded(!isVaultExpanded);
     }
@@ -55,6 +56,7 @@ export function Vault({ vault, variant }: VaultProps): React.JSX.Element {
           isVaultExpanded={isVaultExpanded}
           vaultFundingTX={vault.fundingTX}
           vaultWithdrawDepositTX={vault.withdrawDepositTX}
+          handleClose={handleClose}
         />
       </VStack>
 

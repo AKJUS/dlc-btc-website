@@ -3,26 +3,40 @@ import { useNavigate } from 'react-router-dom';
 
 import { ButtonGroup } from '@chakra-ui/react';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { MintRedeemTabs, MintSteps, RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 
 import { TransactionFormNavigateButton } from './transaction-screen.transaction-form.navigate-button';
 
 interface TransactionFormNavigateButtonGroupProps {
   flow: 'mint' | 'burn';
+  handleClose?: () => void;
 }
 
 export function TransactionFormNavigateButtonGroup({
   flow,
+  handleClose,
 }: TransactionFormNavigateButtonGroupProps): React.JSX.Element {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   function handleClick() {
     if (flow === 'mint') {
-      dispatch(mintUnmintActions.setActiveTab(0));
-      dispatch(mintUnmintActions.setMintStep([0, '']));
+      dispatch(mintUnmintActions.setActiveTab(MintRedeemTabs.MINT));
+      dispatch(mintUnmintActions.setMintStep({ step: MintSteps.SETUP, vault: undefined }));
     } else {
-      dispatch(mintUnmintActions.setActiveTab(1));
-      dispatch(mintUnmintActions.setUnmintStep([0, '']));
+      dispatch(mintUnmintActions.setActiveTab(MintRedeemTabs.REDEEM));
+      dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined }));
+    }
+    navigate('/mint-withdraw');
+    if (handleClose) {
+      handleClose();
+    }
+  }
+
+  function handleNavigateToMyVaults() {
+    navigate('/my-vaults');
+    if (handleClose) {
+      handleClose();
     }
   }
 
@@ -34,7 +48,7 @@ export function TransactionFormNavigateButtonGroup({
       />
       <TransactionFormNavigateButton
         label={'Show All Vaults'}
-        onClick={() => navigate('/my-vaults')}
+        onClick={() => handleNavigateToMyVaults()}
       />
     </ButtonGroup>
   );

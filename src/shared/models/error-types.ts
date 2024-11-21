@@ -25,3 +25,10 @@ export class UnisatError extends Error {
     this.name = 'UnisatError';
   }
 }
+
+export class GemError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'GemError';
+  }
+}

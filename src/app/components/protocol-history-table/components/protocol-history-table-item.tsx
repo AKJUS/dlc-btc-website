@@ -22,7 +22,6 @@ export function ProtocolHistoryTableItem(
 
   const ethereumNetwork = findEthereumNetworkByName(eventChain);
 
-  console.log('dlcBTCAmount', dlcBTCAmount);
   const isMobile = useBreakpointValue({ base: true, md: false });
   return (
     <HStack

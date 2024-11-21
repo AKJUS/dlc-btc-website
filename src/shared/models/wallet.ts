@@ -35,4 +35,28 @@ const fordefi: BitcoinWallet = {
   logo: '/images/logos/fordefi-logo.svg',
 };
 
+export enum XRPWalletType {
+  Ledger = 'Ledger',
+  Gem = 'Gem',
+}
+
+export interface XRPWallet {
+  id: XRPWalletType;
+  name: string;
+  icon: string;
+}
+
+const ledgerXRP: XRPWallet = {
+  id: XRPWalletType.Ledger,
+  name: 'Ledger',
+  icon: './images/logos/ledger-logo.svg',
+};
+
+const gemXRP: XRPWallet = {
+  id: XRPWalletType.Gem,
+  name: 'Gem',
+  icon: '/images/logos/gem-wallet-logo.svg',
+};
+
+export const xrpWallets: XRPWallet[] = [ledgerXRP, gemXRP];
 export const bitcoinWallets: BitcoinWallet[] = [leather, ledger, unisat, fordefi];

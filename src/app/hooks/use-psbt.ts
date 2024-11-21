@@ -1,18 +1,25 @@
 import { useContext, useState } from 'react';
 
+import { getAttestorExtendedGroupPublicKey } from '@functions/attestor-request.functions';
 import { BitcoinError } from '@models/error-types';
 import { BitcoinWalletType } from '@models/wallet';
 import { bytesToHex } from '@noble/hashes/utils';
 import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider';
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
+import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
+import { RippleNetworkConfigurationContext } from '@providers/ripple-network-configuration.provider';
+import { XRPWalletContext } from '@providers/xrp-wallet-context-provider';
 import { LedgerDLCHandler, SoftwareWalletDLCHandler } from 'dlc-btc-lib';
 import {
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
 } from 'dlc-btc-lib/attestor-request-functions';
 import { getAttestorGroupPublicKey, getRawVault } from 'dlc-btc-lib/ethereum-functions';
-import { AttestorChainID, Transaction, VaultState } from 'dlc-btc-lib/models';
+import { AttestorChainID, RawVault, Transaction, VaultState } from 'dlc-btc-lib/models';
+import { getRippleVault } from 'dlc-btc-lib/ripple-functions';
 import { useAccount } from 'wagmi';
+
+import { NetworkType } from '@shared/constants/network.constants';
 
 import { useLeather } from './use-leather';
 import { useLedger } from './use-ledger';
@@ -26,10 +33,20 @@ interface UsePSBTReturnType {
 }
 
 export function usePSBT(): UsePSBTReturnType {
+  const {
+    ethereumNetworkConfiguration: { dlcManagerContract, ethereumAttestorChainID },
+  } = useContext(EthereumNetworkConfigurationContext);
   const { address: ethereumUserAddress } = useAccount();
+  const { userAddress: rippleUserAddress } = useContext(XRPWalletContext);
+  const {
+    rippleClient,
+    rippleNetworkConfiguration: { rippleAttestorChainID },
+  } = useContext(RippleNetworkConfigurationContext);
 
   const { bitcoinWalletType, dlcHandler, resetBitcoinWalletContext } =
     useContext(BitcoinWalletContext);
+
+  const { networkType } = useContext(NetworkConfigurationContext);
 
   const {
     handleFundingTransaction: handleFundingTransactionWithLedger,
@@ -52,9 +69,39 @@ export function usePSBT(): UsePSBTReturnType {
     isLoading: isUnisatLoading,
   } = useUnisat();
 
-  const { ethereumNetworkConfiguration } = useContext(EthereumNetworkConfigurationContext);
-
   const [bitcoinDepositAmount, setBitcoinDepositAmount] = useState(0);
+
+  const attestorChainIDs = {
+    [NetworkType.EVM]: ethereumAttestorChainID,
+    [NetworkType.XRPL]: rippleAttestorChainID,
+    [NetworkType.BTC]: '',
+  };
+
+  const getRequiredPSBTInformation = async (
+    vaultUUID: string
+  ): Promise<{ userAddress: string; vault: RawVault; attestorGroupPublicKey: string }> => {
+    if (networkType === NetworkType.EVM) {
+      if (!ethereumUserAddress) throw new Error('User Address is not setup');
+      const vault = await getRawVault(dlcManagerContract, vaultUUID);
+      const attestorGroupPublicKey = await getAttestorGroupPublicKey(dlcManagerContract);
+      return { userAddress: ethereumUserAddress, vault, attestorGroupPublicKey };
+    } else if (networkType === NetworkType.XRPL) {
+      if (!rippleUserAddress) throw new Error('User Address is not setup');
+      const vault = await getRippleVault(
+        rippleClient,
+        appConfiguration.rippleIssuerAddress,
+        vaultUUID
+      );
+      const attestorGroupPublicKey = await getAttestorExtendedGroupPublicKey();
+      return {
+        userAddress: rippleUserAddress,
+        vault,
+        attestorGroupPublicKey: attestorGroupPublicKey,
+      };
+    } else {
+      throw new Error('Network Type is not setup');
+    }
+  };
 
   async function handleSignFundingTransaction(
     vaultUUID: string,
@@ -62,14 +109,11 @@ export function usePSBT(): UsePSBTReturnType {
   ): Promise<void> {
     try {
       if (!dlcHandler) throw new Error('DLC Handler is not setup');
-      if (!ethereumUserAddress) throw new Error('User Address is not setup');
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const dlcManagerContract = ethereumNetworkConfiguration.dlcManagerContract;
-
-      const attestorGroupPublicKey = await getAttestorGroupPublicKey(dlcManagerContract);
-      const vault = await getRawVault(dlcManagerContract, vaultUUID);
+      const { userAddress, vault, attestorGroupPublicKey } =
+        await getRequiredPSBTInformation(vaultUUID);
 
       let fundingTransaction: Transaction;
       switch (bitcoinWalletType) {
@@ -147,10 +191,9 @@ export function usePSBT(): UsePSBTReturnType {
           await submitFundingPSBT([appConfiguration.coordinatorURL], {
             vaultUUID,
             fundingPSBT: bytesToHex(fundingTransaction.toPSBT()),
-            userEthereumAddress: ethereumUserAddress,
+            userEthereumAddress: userAddress,
             userBitcoinTaprootPublicKey: dlcHandler.getTaprootDerivedPublicKey(),
-            attestorChainID:
-              ethereumNetworkConfiguration.ethereumAttestorChainID as AttestorChainID,
+            attestorChainID: attestorChainIDs[networkType] as AttestorChainID,
           });
           break;
         default:
@@ -173,16 +216,10 @@ export function usePSBT(): UsePSBTReturnType {
   ): Promise<void> {
     try {
       if (!dlcHandler) throw new Error('DLC Handler is not setup');
-      if (!ethereumUserAddress) throw new Error('User Address is not setup');
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const dlcManagerContract = ethereumNetworkConfiguration.dlcManagerContract;
-
-      const attestorGroupPublicKey = await getAttestorGroupPublicKey(dlcManagerContract);
-      const vault = await getRawVault(dlcManagerContract, vaultUUID);
-
-      if (!bitcoinWalletType) throw new Error('Bitcoin Wallet is not setup');
+      const { vault, attestorGroupPublicKey } = await getRequiredPSBTInformation(vaultUUID);
 
       let withdrawalTransactionHex: string;
       switch (bitcoinWalletType) {

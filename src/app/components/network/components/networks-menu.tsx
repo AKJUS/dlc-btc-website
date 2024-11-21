@@ -1,3 +1,5 @@
+import { useContext } from 'react';
+
 import {
   HStack,
   Image,
@@ -8,6 +10,8 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
+import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
+import { NetworkConnectionContext } from '@providers/network-connection.provider';
 import { EthereumNetworkID } from 'dlc-btc-lib/models';
 import { useAccount, useConfig, useSwitchChain } from 'wagmi';
 
@@ -37,13 +41,17 @@ export function NetworksMenu({
   setIsMenuOpen,
 }: NetworksMenuProps): React.JSX.Element | null {
   const { chains } = useConfig();
-  const { chain, isConnected } = useAccount();
+  const { isConnected } = useContext(NetworkConnectionContext);
+  const { chain: ethereumNetwork } = useAccount();
+
+  const { networkType } = useContext(NetworkConfigurationContext);
+
   const { switchChain } = useSwitchChain();
   //TODO: maybe add the network logo to the setstate?
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  if (!isConnected) {
+  if (!isConnected || networkType === 'xrpl') {
     return null;
   }
 
@@ -52,7 +60,7 @@ export function NetworksMenu({
       <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} h={isMobile ? '40px' : '50px'}>
         {isMobile ? (
           <Image
-            src={getNetworkLogo(chain?.id.toString() as EthereumNetworkID)}
+            src={getNetworkLogo(ethereumNetwork?.id.toString() as EthereumNetworkID)}
             alt={'Selected network logo'}
             w={'30px'}
             ml={'4px'}
@@ -60,7 +68,7 @@ export function NetworksMenu({
         ) : (
           //TODO: what to display in case of not connected?
           <HStack justifyContent={'space-evenly'}>
-            <Text>{chain ? chain?.name : 'Not Connected'}</Text>
+            <Text>{ethereumNetwork ? ethereumNetwork?.name : 'Not Connected'}</Text>
           </HStack>
         )}
       </MenuButton>
@@ -73,7 +81,7 @@ export function NetworksMenu({
               onClick={() => {
                 switchChain({ chainId: ethereumNetwork.id });
                 setIsMenuOpen(!isMenuOpen);
-                getNetworkLogo(chain?.id.toString() as EthereumNetworkID);
+                getNetworkLogo(ethereumNetwork?.id.toString() as EthereumNetworkID);
               }}
             >
               {ethereumNetwork.name}

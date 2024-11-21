@@ -5,18 +5,18 @@ import { VStack, useToast } from '@chakra-ui/react';
 import { VaultTransactionForm } from '@components/transaction-screen/transaction-screen.transaction-form/components/transaction-screen.transaction-form/transaction-screen.transaction-form';
 import { Vault } from '@components/vault/vault';
 import { useEthersSigner } from '@functions/configuration.functions';
-import { getAndFormatVault } from '@functions/vault.functions';
+import { useXRPWallet } from '@hooks/use-xrp-wallet';
 import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider';
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
+import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
-import { VaultContext } from '@providers/vault-context-provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
-import { vaultActions } from '@store/slices/vault/vault.actions';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 import { withdraw } from 'dlc-btc-lib/ethereum-functions';
-import { EthereumNetworkID } from 'dlc-btc-lib/models';
 import { shiftValue } from 'dlc-btc-lib/utilities';
-import { useAccount } from 'wagmi';
+
+import { NetworkType } from '@shared/constants/network.constants';
 
 interface BurnTokenTransactionFormProps {
   isBitcoinWalletLoading: [boolean, string];
@@ -34,48 +34,40 @@ export function BurnTokenTransactionForm({
   const toast = useToast();
   const dispatch = useDispatch();
 
+  const { networkType } = useContext(NetworkConfigurationContext);
   const { bitcoinWalletContextState } = useContext(BitcoinWalletContext);
+  const { handleCreateCheck, isLoading } = useXRPWallet();
+
+  const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
 
   const { ethereumNetworkConfiguration } = useContext(EthereumNetworkConfigurationContext);
-  const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
-  const { allVaults } = useContext(VaultContext);
-
-  const { chainId } = useAccount();
 
   const signer = useEthersSigner();
 
   const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const currentVault = allVaults.find(vault => vault.uuid === unmintStep[1]);
+  const currentVault = unmintStep.vault;
 
   async function handleButtonClick(withdrawAmount: number): Promise<void> {
-    if (!currentVault) return;
     try {
+      if (!currentVault) return;
       setIsSubmitting(true);
-      const currentRisk = await fetchUserEthereumAddressRiskLevel();
-      if (currentRisk === 'High') throw new Error('Risk Level is too high');
-      const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
+      if (networkType === NetworkType.XRPL) {
+        await handleCreateCheck(currentVault.uuid, withdrawAmount);
+      } else if (networkType === NetworkType.EVM) {
+        const currentRisk = await fetchUserEthereumAddressRiskLevel();
+        if (currentRisk === 'High') throw new Error('Risk Level is too high');
+        const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
 
-      await withdraw(
-        ethereumNetworkConfiguration.dlcManagerContract.connect(signer!),
-        currentVault.uuid,
-        formattedWithdrawAmount
-      );
-
-      const updatedVault = await getAndFormatVault(
-        currentVault.uuid,
-        ethereumNetworkConfiguration.dlcManagerContract
-      );
-      dispatch(
-        vaultActions.swapVault({
-          vaultUUID: currentVault.uuid,
-          updatedVault: updatedVault,
-          networkID: chainId?.toString() as EthereumNetworkID,
-        })
-      );
-      dispatch(mintUnmintActions.setUnmintStep([1, currentVault.uuid]));
-      setIsSubmitting(false);
+        await withdraw(
+          ethereumNetworkConfiguration.dlcManagerContract.connect(signer!),
+          currentVault.uuid,
+          formattedWithdrawAmount
+        );
+      } else {
+        throw new Error('Unsupported Network Type');
+      }
     } catch (error) {
       setIsSubmitting(false);
       toast({
@@ -89,7 +81,7 @@ export function BurnTokenTransactionForm({
   }
 
   function handleCancel() {
-    dispatch(mintUnmintActions.setUnmintStep([0, '']));
+    dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined }));
   }
 
   return (
@@ -98,12 +90,16 @@ export function BurnTokenTransactionForm({
       <VaultTransactionForm
         vault={currentVault!}
         flow={'burn'}
-        currentStep={unmintStep[0]}
+        currentStep={unmintStep.step}
         currentBitcoinPrice={bitcoinPrice}
         handleButtonClick={handleButtonClick}
         depositLimit={depositLimit}
         bitcoinWalletContextState={bitcoinWalletContextState}
-        isBitcoinWalletLoading={isBitcoinWalletLoading}
+        isBitcoinWalletLoading={
+          currentVault?.valueLocked === currentVault?.valueMinted
+            ? isLoading
+            : isBitcoinWalletLoading
+        }
         userEthereumAddressRiskLevel={userEthereumAddressRiskLevel}
         isUserEthereumAddressRiskLevelLoading={isUserEthereumAddressRiskLevelLoading}
         handleCancelButtonClick={handleCancel}

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 import { Box, Button, Image, Text } from '@chakra-ui/react';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 
 import { CustomCard } from '../../components/custom-card';
 import { FlowStep } from './flow-step';
@@ -31,7 +32,9 @@ export function HowToUnmint(): React.JSX.Element {
           <Button
             onClick={() => {
               navigate('/mint-withdraw');
-              dispatch(mintUnmintActions.setUnmintStep([0, '']));
+              dispatch(
+                mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined })
+              );
               close();
             }}
             variant={'account'}

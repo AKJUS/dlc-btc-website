@@ -1,6 +1,7 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext } from 'react';
 
 import { HasChildren } from '@models/has-children';
+import { useQuery } from '@tanstack/react-query';
 import {
   getAddressDLCBTCBalance,
   getAllAddressVaults,
@@ -8,8 +9,12 @@ import {
 } from 'dlc-btc-lib/ethereum-functions';
 import { useAccount } from 'wagmi';
 
+import { NetworkType } from '@shared/constants/network.constants';
+
 import { EthereumNetworkConfigurationContext } from './ethereum-network-configuration.provider';
-import { VaultContext } from './vault-context-provider';
+import { NetworkConfigurationContext } from './network-configuration.provider';
+import { NetworkConnectionContext } from './network-connection.provider';
+import { XRPWalletContext } from './xrp-wallet-context-provider';
 
 interface VaultContextType {
   dlcBTCBalance: number | undefined;
@@ -22,44 +27,43 @@ export const BalanceContext = createContext<VaultContextType>({
 });
 
 export function BalanceContextProvider({ children }: HasChildren): React.JSX.Element {
-  const { ethereumNetworkConfiguration, isEthereumNetworkConfigurationLoading } = useContext(
-    EthereumNetworkConfigurationContext
-  );
+  const {
+    ethereumNetworkConfiguration: { dlcBTCContract, dlcManagerContract },
+  } = useContext(EthereumNetworkConfigurationContext);
+  const { networkType } = useContext(NetworkConfigurationContext);
+  const { isConnected } = useContext(NetworkConnectionContext);
+  const { userAddress } = useContext(XRPWalletContext);
+  const { xrpHandler } = useContext(XRPWalletContext);
+
   const { address: ethereumUserAddress } = useAccount();
-  const { fundedVaults } = useContext(VaultContext);
 
-  const [dlcBTCBalance, setDLCBTCBalance] = useState<number | undefined>(undefined);
-  const [lockedBTCBalance, setLockedBTCBalance] = useState<number | undefined>(undefined);
+  const fetchEVMBalances = async () => {
+    const dlcBTCBalance = await getAddressDLCBTCBalance(dlcBTCContract, ethereumUserAddress!);
 
-  const fetchBalancesIfReady = async (ethereumAddress: string) => {
-    const currentTokenBalance = await getAddressDLCBTCBalance(
-      ethereumNetworkConfiguration.dlcBTCContract,
-      ethereumAddress
+    const lockedBTCBalance = await getLockedBTCBalance(
+      await getAllAddressVaults(dlcManagerContract, ethereumUserAddress!)
     );
 
-    if (currentTokenBalance !== dlcBTCBalance) {
-      setDLCBTCBalance(currentTokenBalance);
-    }
-
-    const userFundedVaults = await getAllAddressVaults(
-      ethereumNetworkConfiguration.dlcManagerContract,
-      ethereumAddress
-    );
-    const currentLockedBTCBalance = await getLockedBTCBalance(userFundedVaults);
-    if (currentLockedBTCBalance !== lockedBTCBalance) {
-      setLockedBTCBalance(currentLockedBTCBalance);
-    }
+    return { dlcBTCBalance, lockedBTCBalance };
   };
 
-  useEffect(() => {
-    ethereumUserAddress &&
-      !isEthereumNetworkConfigurationLoading &&
-      void fetchBalancesIfReady(ethereumUserAddress);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ethereumUserAddress, fundedVaults]);
+  const fetchXRPLBalances = async () => {
+    const dlcBTCBalance = await xrpHandler?.getDLCBTCBalance();
+    const lockedBTCBalance = await xrpHandler?.getLockedBTCBalance();
+    return { dlcBTCBalance, lockedBTCBalance };
+  };
+
+  const { data } = useQuery({
+    queryKey: ['balances', networkType === NetworkType.EVM ? ethereumUserAddress : userAddress],
+    queryFn: networkType === NetworkType.EVM ? fetchEVMBalances : fetchXRPLBalances,
+    enabled: isConnected,
+    refetchInterval: 10000,
+  });
 
   return (
-    <BalanceContext.Provider value={{ dlcBTCBalance, lockedBTCBalance }}>
+    <BalanceContext.Provider
+      value={{ dlcBTCBalance: data?.dlcBTCBalance, lockedBTCBalance: data?.lockedBTCBalance }}
+    >
       {children}
     </BalanceContext.Provider>
   );

@@ -1,10 +1,17 @@
+import { useContext } from 'react';
+
 import { Button, HStack, Image, Spinner, Text, VStack } from '@chakra-ui/react';
 import { Vault } from '@components/vault/vault';
 import { useAddToken } from '@hooks/use-add-token';
 import { Vault as VaultModel } from '@models/vault';
+import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
+import { VaultState } from 'dlc-btc-lib/models';
+
+import { NetworkType } from '@shared/constants/network.constants';
 
 interface VaultsListGroupContainerProps {
   label?: string;
+  vaultState?: VaultState;
   variant?: 'select';
   vaults: VaultModel[];
   selectedVaultUUID?: string;
@@ -14,10 +21,12 @@ interface VaultsListGroupContainerProps {
 
 export function VaultsListGroupContainer({
   label,
+  vaultState,
   variant,
   vaults,
 }: VaultsListGroupContainerProps): React.JSX.Element | boolean {
   const addToken = useAddToken();
+  const { networkType } = useContext(NetworkConfigurationContext);
 
   if (vaults.length === 0) return false;
 
@@ -29,7 +38,7 @@ export function VaultsListGroupContainer({
             {['Pending'].includes(label) && <Spinner color={'accent.lightBlue.01'} size={'md'} />}
             <Text color={'white'}>{label}</Text>
           </HStack>
-          {label === 'Minted dlcBTC' && (
+          {vaultState === VaultState.FUNDED && networkType === NetworkType.EVM && (
             <Button
               variant={'ghost'}
               size={'xs'}

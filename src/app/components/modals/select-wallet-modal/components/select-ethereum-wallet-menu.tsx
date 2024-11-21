@@ -1,7 +1,7 @@
 import { Box, Button, HStack, Image, Spinner, Text } from '@chakra-ui/react';
 import { Connector } from 'wagmi';
 
-interface SelectWalletMenuProps {
+interface SelectEthereumWalletMenuProps {
   wagmiConnector: Connector;
   selectedWagmiConnectorID?: string;
   isConnectWalletPending: boolean;
@@ -9,13 +9,13 @@ interface SelectWalletMenuProps {
   handleConnectWallet: (wagmiConnector: Connector) => void;
 }
 
-export function SelectWalletMenu({
+export function SelectEthereumWalletMenu({
   wagmiConnector,
   selectedWagmiConnectorID,
   isConnectWalletPending,
   isConnectWalletSuccess,
   handleConnectWallet,
-}: SelectWalletMenuProps): React.JSX.Element {
+}: SelectEthereumWalletMenuProps): React.JSX.Element {
   const { id, icon, name } = wagmiConnector;
 
   const isThisWalletSelected = selectedWagmiConnectorID === id;

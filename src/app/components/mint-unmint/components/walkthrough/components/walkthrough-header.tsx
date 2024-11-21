@@ -1,9 +1,11 @@
 import { HStack, Text, VStack } from '@chakra-ui/react';
 
+import { NetworkType } from '@shared/constants/network.constants';
+
 import { WalkthroughBlockchainTag } from './walkthrough-blockchain-tag';
 
 interface WalkthroughHeaderProps {
-  blockchain: 'ethereum' | 'bitcoin';
+  blockchain: NetworkType;
   currentStep?: number;
   title: string;
 }

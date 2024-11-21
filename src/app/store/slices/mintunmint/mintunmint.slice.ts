@@ -1,15 +1,37 @@
+import { Vault } from '@models/vault';
 import { createSlice } from '@reduxjs/toolkit';
 
+export enum MintSteps {
+  SETUP = 0,
+  DEPOSIT = 1,
+  PENDING = 2,
+}
+
+export enum RedeemSteps {
+  BURN = 0,
+  WITHDRAW = 1,
+  PENDING = 2,
+}
+
+export enum MintRedeemTabs {
+  MINT = 0,
+  REDEEM = 1,
+}
+
+interface MintRedeemStep {
+  step: MintSteps | RedeemSteps;
+  vault: Vault | undefined;
+}
 interface MintUnmintState {
-  mintStep: [number, string];
-  unmintStep: [number, string];
-  activeTab: 0 | 1;
+  mintStep: MintRedeemStep;
+  unmintStep: MintRedeemStep;
+  activeTab: MintRedeemTabs;
 }
 
 const initialMintUnmintState: MintUnmintState = {
-  mintStep: [0, ''],
-  unmintStep: [0, ''],
-  activeTab: 0,
+  mintStep: { step: MintSteps.SETUP, vault: undefined },
+  unmintStep: { step: RedeemSteps.BURN, vault: undefined },
+  activeTab: MintRedeemTabs.MINT,
 };
 
 export const mintUnmintSlice = createSlice({
@@ -18,19 +40,19 @@ export const mintUnmintSlice = createSlice({
   reducers: {
     setMintStep: (state, action) => {
       state.mintStep = action.payload;
-      state.activeTab = 0;
+      state.activeTab = MintRedeemTabs.MINT;
     },
     setUnmintStep: (state, action) => {
       state.unmintStep = action.payload;
-      state.activeTab = 1;
+      state.activeTab = MintRedeemTabs.REDEEM;
     },
     setActiveTab: (state, action) => {
       state.activeTab = action.payload;
     },
     resetMintUnmintState: state => {
-      state.mintStep = [0, ''];
-      state.unmintStep = [0, ''];
-      state.activeTab = 0;
+      state.mintStep = { step: MintSteps.SETUP, vault: undefined };
+      state.unmintStep = { step: RedeemSteps.BURN, vault: undefined };
+      state.activeTab = MintRedeemTabs.MINT;
     },
   },
 });

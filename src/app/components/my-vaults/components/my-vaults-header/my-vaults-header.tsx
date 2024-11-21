@@ -3,13 +3,13 @@ import { Divider, HStack, Text, VStack } from '@chakra-ui/react';
 import { MyVaultsHeaderBalanceInfo } from './components/my-vaults-header-balance-info';
 
 interface MyVaultsLargeHeaderProps {
-  address?: string;
+  isConnected: boolean;
   dlcBTCBalance?: number;
   lockedBTCBalance?: number;
 }
 
 export function MyVaultsLargeHeader({
-  address,
+  isConnected,
   dlcBTCBalance,
   lockedBTCBalance,
 }: MyVaultsLargeHeaderProps): React.JSX.Element {
@@ -26,7 +26,7 @@ export function MyVaultsLargeHeader({
             imageSrc={'/images/logos/dlc-btc-logo.svg'}
             altText={'dlcBTC Logo'}
             assetAmount={dlcBTCBalance}
-            showNone={!address}
+            showNone={!isConnected}
           />
           <Divider orientation={'vertical'} h={'35px'} variant={'thick'} />
           <MyVaultsHeaderBalanceInfo
@@ -34,7 +34,7 @@ export function MyVaultsLargeHeader({
             imageSrc={'/images/logos/bitcoin-logo.svg'}
             altText={'Bitcoin Logo'}
             assetAmount={lockedBTCBalance}
-            showNone={!address}
+            showNone={!isConnected}
           />
         </HStack>
       </HStack>

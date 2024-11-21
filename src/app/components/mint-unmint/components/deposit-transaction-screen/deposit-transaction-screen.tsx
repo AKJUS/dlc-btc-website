@@ -8,11 +8,14 @@ import {
   BitcoinWalletContext,
   BitcoinWalletContextState,
 } from '@providers/bitcoin-wallet-context-provider';
+import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
-import { VaultContext } from '@providers/vault-context-provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { MintSteps } from '@store/slices/mintunmint/mintunmint.slice';
 import { modalActions } from '@store/slices/modal/modal.actions';
+
+import { NetworkType } from '@shared/constants/network.constants';
 
 interface DepositTransactionScreenProps {
   handleSignFundingTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
@@ -35,11 +38,11 @@ export function DepositTransactionScreen({
   const { bitcoinWalletContextState, resetBitcoinWalletContext } = useContext(BitcoinWalletContext);
 
   const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
-  const { allVaults } = useContext(VaultContext);
+  const { networkType } = useContext(NetworkConfigurationContext);
 
   const { mintStep } = useSelector((state: RootState) => state.mintunmint);
 
-  const currentVault = allVaults.find(vault => vault.uuid === mintStep[1]);
+  const currentVault = mintStep.vault;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -48,8 +51,10 @@ export function DepositTransactionScreen({
 
     try {
       setIsSubmitting(true);
-      const currentRisk = await fetchUserEthereumAddressRiskLevel();
-      if (currentRisk === 'High') throw new Error('Risk Level is too high');
+      if (networkType === NetworkType.EVM) {
+        const currentRisk = await fetchUserEthereumAddressRiskLevel();
+        if (currentRisk === 'High') throw new Error('Risk Level is too high');
+      }
       await handleSignFundingTransaction(currentVault.uuid, depositAmount);
     } catch (error: any) {
       setIsSubmitting(false);
@@ -69,7 +74,7 @@ export function DepositTransactionScreen({
 
   function handleCancel() {
     resetBitcoinWalletContext();
-    dispatch(mintUnmintActions.setMintStep([0, '']));
+    dispatch(mintUnmintActions.setMintStep({ step: MintSteps.SETUP, vault: undefined }));
   }
 
   async function handleButtonClick(assetAmount: number) {
@@ -84,7 +89,7 @@ export function DepositTransactionScreen({
       <VaultTransactionForm
         vault={currentVault!}
         flow={'mint'}
-        currentStep={mintStep[0]}
+        currentStep={mintStep.step}
         currentBitcoinPrice={bitcoinPrice}
         bitcoinWalletContextState={bitcoinWalletContextState}
         isBitcoinWalletLoading={isBitcoinWalletLoading}

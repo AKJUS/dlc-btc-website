@@ -9,23 +9,24 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
+import { XRPWallet } from '@models/wallet';
 import { truncateAddress } from 'dlc-btc-lib/utilities';
 import { Connector } from 'wagmi';
 
 interface AccountMenuProps {
   address?: string;
-  wagmiConnector?: Connector;
+  wallet?: Connector | XRPWallet;
   handleDisconnectWallet: () => void;
 }
 
 export function AccountMenu({
   address,
-  wagmiConnector,
+  wallet,
   handleDisconnectWallet,
 }: AccountMenuProps): React.JSX.Element | false {
   const isMobile = useBreakpointValue({ base: true, md: false });
 
-  if (!address || !wagmiConnector) return false;
+  if (!address) return false;
   return (
     <Menu variant={'account'}>
       <MenuButton h={isMobile ? '40px' : '50px'} w={isMobile ? '120px' : '275px'}>
@@ -35,11 +36,11 @@ export function AccountMenu({
               <Image
                 p={'2.5px'}
                 src={
-                  wagmiConnector.name === 'WalletConnect'
+                  wallet?.name === 'WalletConnect'
                     ? './images/logos/walletconnect.svg'
-                    : wagmiConnector.icon
+                    : wallet?.icon
                 }
-                alt={wagmiConnector.name}
+                alt={wallet?.name}
                 boxSize={'35px'}
               />
               <Text>{truncateAddress(address)}</Text>

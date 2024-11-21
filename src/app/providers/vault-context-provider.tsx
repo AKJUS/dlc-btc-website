@@ -1,8 +1,13 @@
-import { createContext } from 'react';
+import { createContext, useContext } from 'react';
 
-import { useVaults } from '@hooks/use-vaults';
+import { useEVMVaults } from '@hooks/use-evm-vaults';
+import { useXRPLVaults } from '@hooks/use-xrpl-vaults';
 import { HasChildren } from '@models/has-children';
 import { Vault } from '@models/vault';
+
+import { NetworkType } from '@shared/constants/network.constants';
+
+import { NetworkConfigurationContext } from './network-configuration.provider';
 
 interface VaultContextType {
   allVaults: Vault[];
@@ -11,7 +16,6 @@ interface VaultContextType {
   fundedVaults: Vault[];
   closingVaults: Vault[];
   closedVaults: Vault[];
-  isLoading: boolean;
 }
 
 export const VaultContext = createContext<VaultContextType>({
@@ -21,30 +25,25 @@ export const VaultContext = createContext<VaultContextType>({
   fundedVaults: [],
   closingVaults: [],
   closedVaults: [],
-  isLoading: true,
 });
 
 export function VaultContextProvider({ children }: HasChildren): React.JSX.Element {
-  const {
-    allVaults,
-    readyVaults,
-    fundedVaults,
-    pendingVaults,
-    closingVaults,
-    closedVaults,
-    isLoading,
-  } = useVaults();
+  const xrplVaults = useXRPLVaults();
+  const evmVaults = useEVMVaults();
+  const { networkType } = useContext(NetworkConfigurationContext);
+
+  const getVaults = (vaultType: keyof VaultContextType) =>
+    networkType === NetworkType.EVM ? evmVaults[vaultType] : xrplVaults[vaultType];
 
   return (
     <VaultContext.Provider
       value={{
-        allVaults,
-        readyVaults,
-        pendingVaults,
-        fundedVaults,
-        closingVaults,
-        closedVaults,
-        isLoading,
+        allVaults: getVaults('allVaults'),
+        readyVaults: getVaults('readyVaults'),
+        pendingVaults: getVaults('pendingVaults'),
+        fundedVaults: getVaults('fundedVaults'),
+        closingVaults: getVaults('closingVaults'),
+        closedVaults: getVaults('closedVaults'),
       }}
     >
       {children}

@@ -1,8 +1,6 @@
 import { Vault } from '@models/vault';
-import { getRawVault } from 'dlc-btc-lib/ethereum-functions';
 import { RawVault } from 'dlc-btc-lib/models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
-import { Contract } from 'ethers';
 
 export function formatVault(vault: RawVault): Vault {
   return {
@@ -20,11 +18,4 @@ export function formatVault(vault: RawVault): Vault {
     btcRedeemFeeBasisPoints: vault.btcRedeemFeeBasisPoints.toNumber(),
     taprootPubKey: vault.taprootPubKey,
   };
-}
-
-export async function getAndFormatVault(
-  vaultUUID: string,
-  dlcManagerContract: Contract
-): Promise<Vault> {
-  return getRawVault(dlcManagerContract, vaultUUID).then((vault: RawVault) => formatVault(vault));
 }

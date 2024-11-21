@@ -2,12 +2,15 @@
   "appEnvironment": "mainnet",
   "coordinatorURL": "https://mainnet.dlc.link/attestor-1",
   "enabledEthereumNetworkIDs": ["42161", "8453"],
+  "enabledRippleNetworkIDs": ["0"],
   "bitcoinNetwork": "mainnet",
   "bitcoinNetworkIndex": 0,
   "bitcoinNetworkPreFix": "bc1",
   "bitcoinBlockchainURL": "https://mainnet.dlc.link/electrs",
   "bitcoinBlockchainExplorerURL": "https://mempool.space",
   "bitcoinBlockchainFeeEstimateURL": "https://mempool.space/api/v1/fees/recommended",
+  "rippleIssuerAddress": "rGcyRGrZPaJAZbZDi4NqRFLA5GQH63iFpD",
+  "xrplWebsocket": "wss://xrpl.ws/",
   "ledgerApp": "Bitcoin",
   "merchants": [
     {

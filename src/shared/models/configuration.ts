@@ -2,6 +2,7 @@ import { EthereumDeploymentPlan, EthereumNetworkID } from 'dlc-btc-lib/models';
 
 import { Merchant } from './merchant';
 import { Protocol } from './protocol';
+import { RippleNetworkID } from './ripple.models';
 
 enum BitcoinNetworkName {
   MAINNET = 'mainnet',
@@ -23,6 +24,7 @@ export interface Configuration {
   appEnvironment: AppEnvironment;
   coordinatorURL: string;
   enabledEthereumNetworkIDs: EthereumNetworkID[];
+  enabledRippleNetworkIDs: RippleNetworkID[];
   ethereumContractInformations: { name: string; deploymentPlans: EthereumDeploymentPlan[] }[];
   l1Websocket: string;
   l1HTTP: string;
@@ -30,6 +32,7 @@ export interface Configuration {
   arbitrumHTTP: string;
   baseWebsocket: string;
   baseHTTP: string;
+  xrplWebsocket: string;
   walletConnectProjectID: string;
   bitcoinNetwork: BitcoinNetworkName;
   bitcoinNetworkIndex: number;
@@ -37,6 +40,7 @@ export interface Configuration {
   bitcoinBlockchainURL: string;
   bitcoinBlockchainExplorerURL: string;
   bitcoinBlockchainFeeEstimateURL: string;
+  rippleIssuerAddress: string;
   ledgerApp: string;
   merchants: Merchant[];
   protocols: Protocol[];

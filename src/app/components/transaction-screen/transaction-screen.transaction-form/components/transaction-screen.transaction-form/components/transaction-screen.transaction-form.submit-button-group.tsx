@@ -1,6 +1,7 @@
 import { Button, VStack } from '@chakra-ui/react';
 import { TransactionFormAPI } from '@models/form.models';
 import { BitcoinWalletContextState } from '@providers/bitcoin-wallet-context-provider';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 
 import { getFormProperties } from './transaction-screen.transaction-form.input';
 
@@ -49,6 +50,9 @@ export function TransactionFormSubmitButtonGroup({
   handleCancelButtonClick,
   isSubmitting,
 }: TransactionFormSubmitButtonGroupProps): React.JSX.Element {
+  const isButtonDisabledByRiskLevel =
+    flow === 'burn' && currentStep === RedeemSteps.BURN && userEthereumAddressRiskLevel === 'High';
+
   const formProperties = getFormProperties(flow, currentStep);
   return (
     <VStack w={'100%'} spacing={'15px'}>
@@ -63,11 +67,7 @@ export function TransactionFormSubmitButtonGroup({
             bgColor={formProperties.color}
             _hover={{ bgColor: 'accent.lightBlue.01' }}
             type="submit"
-            isDisabled={
-              userEthereumAddressRiskLevel
-                ? ['High', 'Severe'].includes(userEthereumAddressRiskLevel) || !canSubmit
-                : !canSubmit || isSubmitting
-            }
+            isDisabled={!canSubmit || isSubmitting || isButtonDisabledByRiskLevel}
           >
             {getButtonLabel(flow, currentStep, isSubmitting, bitcoinWalletContextState)}
           </Button>

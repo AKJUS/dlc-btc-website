@@ -1,15 +1,14 @@
-import { useContext } from 'react';
-
 import { HStack, Text, VStack } from '@chakra-ui/react';
 import { TransactionFormNavigateButtonGroup } from '@components/transaction-screen/transaction-screen.transaction-form/components/transaction-screen.transaction-form/components/transaction-screen.transaction-form.navigate-button-group';
 import { Vault } from '@components/vault/vault';
-import { VaultContext } from '@providers/vault-context-provider';
+import { Vault as VaultModel } from '@models/vault';
 
 import { ModalComponentProps } from '../components/modal-container';
 import { ModalVaultLayout } from '../components/modal.vault.layout';
 
 interface SuccessfulFlowModalProps extends ModalComponentProps {
   vaultUUID: string;
+  vault: VaultModel;
   flow: 'mint' | 'burn';
   assetAmount: number;
 }
@@ -25,14 +24,10 @@ function getModalText(flow: 'mint' | 'burn', assetAmount?: number): string {
 export function SuccessfulFlowModal({
   isOpen,
   handleClose,
-  vaultUUID,
+  vault,
   flow,
   assetAmount,
 }: SuccessfulFlowModalProps): React.JSX.Element {
-  const { allVaults } = useContext(VaultContext);
-
-  const currentVault = allVaults.find(vault => vault.uuid === vaultUUID);
-
   return (
     <ModalVaultLayout title={'Success!'} isOpen={isOpen} onClose={() => handleClose()}>
       <VStack w={'100%'} spacing={'25px'}>
@@ -41,8 +36,8 @@ export function SuccessfulFlowModal({
             {getModalText(flow, assetAmount)}
           </Text>
         </HStack>
-        <Vault vault={currentVault!} />
-        <TransactionFormNavigateButtonGroup flow={flow} />
+        <Vault vault={vault} handleClose={handleClose} />
+        <TransactionFormNavigateButtonGroup flow={flow} handleClose={handleClose} />
       </VStack>
     </ModalVaultLayout>
   );

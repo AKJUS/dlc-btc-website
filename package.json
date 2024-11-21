@@ -30,6 +30,8 @@
     "@fontsource/inter": "^5.0.18",
     "@fontsource/onest": "^5.0.3",
     "@fontsource/poppins": "^5.0.8",
+    "@gemwallet/api": "^3.8.0",
+    "@ledgerhq/hw-app-xrp": "^6.29.4",
     "@ledgerhq/hw-transport-webusb": "^6.28.6",
     "@netlify/functions": "^2.8.1",
     "@reduxjs/toolkit": "^1.9.7",
@@ -44,7 +46,7 @@
     "concurrently": "^8.2.2",
     "d3": "^7.9.0",
     "decimal.js": "^10.4.3",
-    "dlc-btc-lib": "2.2.7",
+    "dlc-btc-lib": "2.4.12",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "formik": "^2.4.5",
@@ -64,7 +66,8 @@
     "redux-persist-expire": "^1.1.1",
     "viem": "2.x",
     "vite-plugin-toml": "^0.7.0",
-    "wagmi": "^2.12.2"
+    "wagmi": "^2.12.2",
+    "xrpl": "^4.0.0"
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "^2.2.2",

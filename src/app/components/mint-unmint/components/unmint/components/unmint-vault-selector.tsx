@@ -6,6 +6,7 @@ import { VaultsListGroupContainer } from '@components/vaults-list/components/vau
 import { VaultsList } from '@components/vaults-list/vaults-list';
 import { VaultContext } from '@providers/vault-context-provider';
 import { RootState } from '@store/index';
+import { VaultState } from 'dlc-btc-lib/models';
 
 import { BurnTokenTransactionForm } from '../../burn-transaction-screen/burn-transaction-screen';
 
@@ -26,7 +27,7 @@ export function UnmintVaultSelector({
 
   return (
     <>
-      {unmintStep[1] ? (
+      {unmintStep.vault ? (
         <BurnTokenTransactionForm
           isBitcoinWalletLoading={[false, '']}
           userEthereumAddressRiskLevel={userEthereumAddressRiskLevel}
@@ -42,8 +43,13 @@ export function UnmintVaultSelector({
           <Text color={'accent.lightBlue.01'} fontSize={'md'} fontWeight={600}>
             Select vault to withdraw Bitcoin:
           </Text>
-          <VaultsList height={'625.5px'} isScrollable={!unmintStep[1]}>
-            <VaultsListGroupContainer vaults={fundedVaults} isSelectable variant={'select'} />
+          <VaultsList height={'625.5px'} isScrollable={!unmintStep.vault}>
+            <VaultsListGroupContainer
+              vaults={fundedVaults}
+              vaultState={VaultState.FUNDED}
+              isSelectable
+              variant={'select'}
+            />
           </VaultsList>
         </VStack>
       )}

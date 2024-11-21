@@ -1,8 +1,11 @@
+import { useContext } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 
 import { Collapse, Stack, VStack } from '@chakra-ui/react';
+import { VaultContext } from '@providers/vault-context-provider';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { MintSteps, RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 import { VaultState } from 'dlc-btc-lib/models';
 
 import { VaultExpandedInformationButtonGroup } from './components/vault.details.button-group/vault.details.button-group';
@@ -17,6 +20,7 @@ interface VaultDetailsProps {
   vaultFundingTX?: string;
   vaultWithdrawDepositTX?: string;
   variant?: 'select' | 'selected';
+  handleClose?: () => void;
 }
 
 export function VaultDetails({
@@ -28,30 +32,40 @@ export function VaultDetails({
   vaultTotalMintedValue,
   isVaultExpanded,
   variant,
+  handleClose,
 }: VaultDetailsProps): React.JSX.Element {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const { allVaults } = useContext(VaultContext);
+  const vault = allVaults.find(vault => vault.uuid === vaultUUID);
+
   function handleDepositClick() {
     navigate('/mint-withdraw');
-    dispatch(mintUnmintActions.setMintStep([1, vaultUUID]));
+    dispatch(mintUnmintActions.setMintStep({ step: MintSteps.DEPOSIT, vault: vault }));
+    if (handleClose) {
+      handleClose();
+    }
   }
 
   function handleWithdrawClick() {
     navigate('/mint-withdraw');
     if (vaultTotalLockedValue === vaultTotalMintedValue) {
-      dispatch(mintUnmintActions.setUnmintStep([0, vaultUUID]));
+      dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: vault }));
     } else {
-      dispatch(mintUnmintActions.setUnmintStep([1, vaultUUID]));
+      dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.WITHDRAW, vault: vault }));
+    }
+    if (handleClose) {
+      handleClose();
     }
   }
 
   function handleResumeClick() {
     navigate('/mint-withdraw');
     if (vaultTotalLockedValue === vaultTotalMintedValue) {
-      dispatch(mintUnmintActions.setMintStep([2, vaultUUID]));
+      dispatch(mintUnmintActions.setMintStep({ step: MintSteps.PENDING, vault: vault }));
     } else {
-      dispatch(mintUnmintActions.setUnmintStep([2, vaultUUID]));
+      dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.PENDING, vault: vault }));
     }
   }
 
