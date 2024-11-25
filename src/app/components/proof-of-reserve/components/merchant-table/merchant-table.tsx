@@ -27,7 +27,9 @@ export function MerchantTable({ items }: MerchantTableProps): React.JSX.Element 
       </GenericTableHeader>
 
       <GenericTableBody>
-        {items?.map(item => <MerchantTableItem key={item.merchant.name} {...item} />)}
+        {items
+          ?.sort((a, b) => b.dlcBTCAmount - a.dlcBTCAmount)
+          .map(item => <MerchantTableItem key={item.merchant.name} {...item} />)}
       </GenericTableBody>
     </GenericTableLayout>
   );
