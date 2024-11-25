@@ -5,6 +5,7 @@ import { VStack } from '@chakra-ui/react';
 import { Vault as VaultModel } from '@models/vault';
 import { BitcoinTransactionConfirmationsContext } from '@providers/bitcoin-query-provider';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
 
 import { VaultDetails } from './components/vault.detaills/vault.details';
 import { VaultHeader } from './components/vault.header/vault.header';
@@ -24,8 +25,9 @@ export function Vault({ vault, variant, handleClose }: VaultProps): React.JSX.El
 
   function handleMainButtonClick() {
     if (variant === 'select') {
-      const step = vault.valueLocked === vault.valueMinted ? 0 : 1;
-      dispatch(mintUnmintActions.setUnmintStep([step, vault.uuid, vault]));
+      const step =
+        vault.valueLocked === vault.valueMinted ? RedeemSteps.BURN : RedeemSteps.WITHDRAW;
+      dispatch(mintUnmintActions.setUnmintStep({ step, vault }));
     } else {
       setIsVaultExpanded(!isVaultExpanded);
     }
@@ -59,7 +61,6 @@ export function Vault({ vault, variant, handleClose }: VaultProps): React.JSX.El
           handleClose={handleClose}
         />
       </VStack>
-
       <VaultProgressBar
         bitcoinTransactionConfirmations={confirmations}
         vaultState={vault.state}
