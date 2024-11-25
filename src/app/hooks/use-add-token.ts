@@ -20,7 +20,7 @@ export function useAddToken(): () => Promise<void> {
       type: 'ERC20',
       options: {
         address: ethereumNetworkConfiguration.dlcBTCContract.address,
-        symbol: 'dlcBTC',
+        symbol: 'IBTC',
         decimals: 8,
         image: 'https://dlc-public-assets.s3.amazonaws.com/dlcBTC_Token.png',
       },

@@ -9,6 +9,7 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
+import { useAddToken } from '@hooks/use-add-token';
 import { XRPWallet } from '@models/wallet';
 import { truncateAddress } from 'dlc-btc-lib/utilities';
 import { Connector } from 'wagmi';
@@ -24,6 +25,8 @@ export function AccountMenu({
   wallet,
   handleDisconnectWallet,
 }: AccountMenuProps): React.JSX.Element | false {
+  const addToken = useAddToken();
+
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   if (!address) return false;
@@ -52,6 +55,7 @@ export function AccountMenu({
         </HStack>
       </MenuButton>
       <MenuList>
+        <MenuItem onClick={() => addToken()}>Add Token To Wallet</MenuItem>
         <MenuItem onClick={() => handleDisconnectWallet()}>Disconnect</MenuItem>
       </MenuList>
     </Menu>
