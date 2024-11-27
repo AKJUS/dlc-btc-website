@@ -24,7 +24,7 @@ export function PointsTable({ items }: PointsTableProps): React.JSX.Element {
           </>
         ) : (
           <>
-            <GenericTableHeaderText w={'25%'}>dlcBTC Used</GenericTableHeaderText>
+            <GenericTableHeaderText w={'25%'}>iBTC Used</GenericTableHeaderText>
             <GenericTableHeaderText w={'50%'}>Points Earned</GenericTableHeaderText>
             <GenericTableHeaderText w={'25%'}>DeFi Protocol</GenericTableHeaderText>
           </>

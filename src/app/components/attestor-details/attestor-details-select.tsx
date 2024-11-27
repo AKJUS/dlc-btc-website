@@ -82,7 +82,7 @@ export function AttestorDetailsSelect(): React.JSX.Element {
               <ActivityCardRow name={'Average Response'} value={'100.00%'}></ActivityCardRow>
               <ActivityCardRow
                 name={'Potential rewards'}
-                value={'1,354.121 dlcBTC'}
+                value={'1,354.121 iBTC'}
               ></ActivityCardRow>
             </>
           </AttestorDetailsActivityCard>

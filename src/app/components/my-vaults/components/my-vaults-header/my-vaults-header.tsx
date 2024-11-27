@@ -4,13 +4,13 @@ import { MyVaultsHeaderBalanceInfo } from './components/my-vaults-header-balance
 
 interface MyVaultsLargeHeaderProps {
   isConnected: boolean;
-  dlcBTCBalance?: number;
+  iBTCBalance?: number;
   lockedBTCBalance?: number;
 }
 
 export function MyVaultsLargeHeader({
   isConnected,
-  dlcBTCBalance,
+  iBTCBalance,
   lockedBTCBalance,
 }: MyVaultsLargeHeaderProps): React.JSX.Element {
   return (
@@ -22,10 +22,10 @@ export function MyVaultsLargeHeader({
         <HStack w={'450px'} h={'75%'} justifyContent={'space-between'}>
           <Divider orientation={'vertical'} h={'35px'} variant={'thick'} />
           <MyVaultsHeaderBalanceInfo
-            title={'Available dlcBTC'}
-            imageSrc={'/images/logos/dlc-btc-logo.svg'}
-            altText={'dlcBTC Logo'}
-            assetAmount={dlcBTCBalance}
+            title={'Available iBTC'}
+            imageSrc={'/images/logos/ibtc-logo.svg'}
+            altText={'iBTC Logo'}
+            assetAmount={iBTCBalance}
             showNone={!isConnected}
           />
           <Divider orientation={'vertical'} h={'35px'} variant={'thick'} />

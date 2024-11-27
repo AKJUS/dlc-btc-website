@@ -13,9 +13,9 @@ export function VaultAssetInformationStack({
   return (
     <VStack w={'50%'}>
       <VaultAssetRow
-        assetLogo={'images/logos/dlc-btc-logo.svg'}
+        assetLogo={'images/logos/ibtc-logo.svg'}
         assetValue={vaultTotalMintedValue}
-        assetSymbol={'dlcBTC'}
+        assetSymbol={'iBTC'}
       />
       <VaultAssetRow
         assetLogo={'images/logos/bitcoin-logo.svg'}

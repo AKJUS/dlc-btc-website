@@ -16,10 +16,10 @@ export function TopSection(): React.JSX.Element {
       <HStack w={'1000px'} justifyContent={'space-between'}>
         <VStack align={'left'}>
           <Text color={'white.01'} fontSize={'56px'} fontWeight={'bold'}>
-            dlcBTC
+            iBTC
           </Text>
           <Text color={'white.01'} fontSize={'21px'} w={'462px'}>
-            dlcBTC lets you use your Bitcoin on different DeFi platforms, all without giving up
+            iBTC lets you use your Bitcoin on different DeFi platforms, all without giving up
             control of your actual Bitcoin.
           </Text>
         </VStack>

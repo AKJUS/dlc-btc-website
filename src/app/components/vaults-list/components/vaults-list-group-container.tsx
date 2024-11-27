@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { Button, HStack, Image, Spinner, Text, VStack } from '@chakra-ui/react';
 import { Vault } from '@components/vault/vault';
 import { useAddToken } from '@hooks/use-add-token';
+import { iBTC } from '@models/token';
 import { Vault as VaultModel } from '@models/vault';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { VaultState } from 'dlc-btc-lib/models';
@@ -46,7 +47,7 @@ export function VaultsListGroupContainer({
               onClick={async () => await addToken()}
             >
               <HStack>
-                <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC'} boxSize={'15px'} />
+                <Image src={iBTC.logo} alt={iBTC.logoAlt} boxSize={'15px'} />
                 <Text fontSize={'2xs'} color={'white.01'}>
                   {' '}
                   Add Token to Wallet

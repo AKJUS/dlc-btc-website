@@ -15,15 +15,15 @@ export function HowToUnmint(): React.JSX.Element {
     <CustomCard width={'488px'} height={'343px'} padding={'25px'}>
       {
         <>
-          <Text variant={'title'}>How to Unmint dlcBTC</Text>
+          <Text variant={'title'}>How to withdraw BTC</Text>
           <Image src={'/images/unmintBtc.png'} alt={'unmint image'} h={'39px'} w={'185px'} />
           <Box h={'25px'} />
           <FlowStep
             step={'Step 1'}
-            title={'Unmint dlcBTC'}
+            title={'Unmint iBTC'}
             content={
               <Text color={'white'}>
-                Select the vault you would like to unmint. After a successful unmint you will
+                Select the vault you would like to redeem from. After a successful withdraw you will
                 receive BTC in the same amount back to your wallet.
               </Text>
             }
@@ -39,7 +39,7 @@ export function HowToUnmint(): React.JSX.Element {
             }}
             variant={'account'}
           >
-            Unmint dlcBTC
+            Unmint iBTC
           </Button>
         </>
       }

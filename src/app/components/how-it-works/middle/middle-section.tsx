@@ -17,11 +17,11 @@ export function MiddleSection(): React.JSX.Element {
     >
       <HStack w={'1000px'} justifyContent={'space-between'}>
         <ExplanationBlock
-          title={'What is dlcBTC?'}
+          title={'What is iBTC?'}
           image={<Image src={'/images/mint-btc-grad.png'} w={'200px'} h={'100px'} ml={'89px'} />}
           content={
             <Text color={'white'}>
-              dlcBTC is a{' '}
+              iBTC is a{' '}
               <Box as={'span'} fontWeight={'bold'}>
                 non-custodial
               </Box>{' '}

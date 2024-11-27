@@ -19,7 +19,7 @@ export function useAddToken(): () => Promise<void> {
     await walletClient.watchAsset({
       type: 'ERC20',
       options: {
-        address: ethereumNetworkConfiguration.dlcBTCContract.address,
+        address: ethereumNetworkConfiguration.iBTCContract.address,
         symbol: 'IBTC',
         decimals: 8,
         image: 'https://dlc-public-assets.s3.amazonaws.com/dlcBTC_Token.png',

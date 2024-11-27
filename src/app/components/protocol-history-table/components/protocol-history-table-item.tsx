@@ -13,7 +13,7 @@ export function ProtocolHistoryTableItem(
 
   const {
     merchant,
-    dlcBTCAmount,
+    iBTCAmount,
     txHash,
     date,
     isMint,
@@ -38,9 +38,9 @@ export function ProtocolHistoryTableItem(
       {isMobile ? (
         <>
           <HStack w={'50%'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'20px'} />
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'20px'} />
             <Text color={'white'} fontWeight={800}>
-              {unshiftValue(dlcBTCAmount)}
+              {unshiftValue(iBTCAmount)}
             </Text>
           </HStack>
           <HStack w={'50%'}>
@@ -60,9 +60,9 @@ export function ProtocolHistoryTableItem(
       ) : (
         <>
           <HStack w={'20%'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'20px'} />
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'20px'} />
             <Text color={'white'} fontWeight={800}>
-              {unshiftValue(dlcBTCAmount)}
+              {unshiftValue(iBTCAmount)}
             </Text>
           </HStack>
           <HStack w={'20%'}>
@@ -96,9 +96,9 @@ export function ProtocolHistoryTableItem(
         </>
       )}
       {/* <HStack w={'25%'}>
-        <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'20px'} />
+        <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTCAmount Logo'} boxSize={'20px'} />
         <Text color={'white'} fontWeight={800}>
-          {unshiftValue(dlcBTCAmount)}
+          {unshiftValue(iBTCAmount)}
         </Text>
       </HStack>
       <HStack w={'25%'}>

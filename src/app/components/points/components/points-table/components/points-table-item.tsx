@@ -47,7 +47,7 @@ export function PointsTableItem(pointsTableItem: ProtocolRewards): React.JSX.Ele
       ) : (
         <>
           <HStack w={'25%'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
               {formatToFourDecimals(unshiftValue(currentTokens))}
             </Text>

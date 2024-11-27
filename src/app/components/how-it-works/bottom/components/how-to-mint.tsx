@@ -16,7 +16,7 @@ export function HowToMint(): React.JSX.Element {
     <CustomCard width={'488px'} height={'970px'} padding={'25px'}>
       {
         <>
-          <Text variant={'title'}>How to Mint dlcBTC</Text>
+          <Text variant={'title'}>How to Mint iBTC</Text>
           <Image src={'/images/mintBtc.png'} alt={'mint image'} h={'39px'} w={'185px'} />
           <Box h={'25px'} />
           <FlowStep
@@ -28,7 +28,7 @@ export function HowToMint(): React.JSX.Element {
                 <Text as={'span'} color={'accent.lightBlue.01'}>
                   Ethereum Wallet.{' '}
                 </Text>
-                You will receive your deposit token dlcBTC to the same address.
+                You will receive your deposit token iBTC to the same address.
               </Text>
             }
             hasBadge={false}
@@ -49,18 +49,18 @@ export function HowToMint(): React.JSX.Element {
           />
           <FlowStep
             step={'Step 3'}
-            title={'Mint dlcBTC'}
+            title={'Mint iBTC'}
             content={
               <Text color={'white'}>
                 Wait for Bitcoin to get locked on chain{' '}
                 <Text as={'span'} color={'accent.lightBlue.01'}>
                   (~1 hour).{' '}
                 </Text>
-                After confirmation dlcBTC tokens will automatically appear in your{' '}
+                After confirmation iBTC tokens will automatically appear in your{' '}
                 <Text as={'span'} color={'accent.lightBlue.01'}>
                   Ethereum Wallet.{' '}
                 </Text>{' '}
-                You can use dlcBTC in big{' '}
+                You can use iBTC in big{' '}
                 <Text as={'span'} variant={'navigate'} fontSize={'md'}>
                   supported DeFi protocols
                 </Text>{' '}
@@ -83,7 +83,7 @@ export function HowToMint(): React.JSX.Element {
             }}
             variant={'account'}
           >
-            Mint dlcBTC
+            Mint iBTC
           </Button>
         </>
       }

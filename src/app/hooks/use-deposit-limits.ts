@@ -52,7 +52,7 @@ export function useDepositLimits(): UseDepositLimitsReturnType {
   }
 
   const { data: evmDepositLimit } = useQuery({
-    queryKey: ['evmDepositLimit', ethereumNetworkConfiguration.dlcBTCContract.address],
+    queryKey: ['evmDepositLimit', ethereumNetworkConfiguration.iBTCContract.address],
     queryFn: fetchEVMDepositLimit,
     enabled: !!ethereumNetworkConfiguration,
   });

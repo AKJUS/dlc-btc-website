@@ -27,7 +27,7 @@ export function SetupVaultScreenVaultGraphics(): React.JSX.Element {
             right="37.5%"
           />
           <Image
-            src={'./images/logos/dlc-btc-logo.svg'}
+            src={'./images/logos/ibtc-logo.svg'}
             alt={'DLC BTC Logo'}
             boxSize={'75px'}
             position="absolute"
@@ -35,7 +35,7 @@ export function SetupVaultScreenVaultGraphics(): React.JSX.Element {
           />
         </Box>
         <Text fontSize={'lg'} fontWeight={'bold'} color={'white.01'}>
-          BTC/dlcBTC Vault
+          BTC/iBTC Vault
         </Text>
       </VStack>
     </VStack>

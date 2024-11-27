@@ -17,18 +17,18 @@ import { NetworkConnectionContext } from './network-connection.provider';
 import { XRPWalletContext } from './xrp-wallet-context-provider';
 
 interface VaultContextType {
-  dlcBTCBalance: number | undefined;
+  iBTCBalance: number | undefined;
   lockedBTCBalance: number | undefined;
 }
 
 export const BalanceContext = createContext<VaultContextType>({
-  dlcBTCBalance: undefined,
+  iBTCBalance: undefined,
   lockedBTCBalance: undefined,
 });
 
 export function BalanceContextProvider({ children }: HasChildren): React.JSX.Element {
   const {
-    ethereumNetworkConfiguration: { dlcBTCContract, dlcManagerContract },
+    ethereumNetworkConfiguration: { iBTCContract, dlcManagerContract },
   } = useContext(EthereumNetworkConfigurationContext);
   const { networkType } = useContext(NetworkConfigurationContext);
   const { isConnected } = useContext(NetworkConnectionContext);
@@ -38,19 +38,19 @@ export function BalanceContextProvider({ children }: HasChildren): React.JSX.Ele
   const { address: ethereumUserAddress } = useAccount();
 
   const fetchEVMBalances = async () => {
-    const dlcBTCBalance = await getAddressDLCBTCBalance(dlcBTCContract, ethereumUserAddress!);
+    const iBTCBalance = await getAddressDLCBTCBalance(iBTCContract, ethereumUserAddress!);
 
     const lockedBTCBalance = await getLockedBTCBalance(
       await getAllAddressVaults(dlcManagerContract, ethereumUserAddress!)
     );
 
-    return { dlcBTCBalance, lockedBTCBalance };
+    return { iBTCBalance, lockedBTCBalance };
   };
 
   const fetchXRPLBalances = async () => {
-    const dlcBTCBalance = await xrpHandler?.getDLCBTCBalance();
+    const iBTCBalance = await xrpHandler?.getDLCBTCBalance();
     const lockedBTCBalance = await xrpHandler?.getLockedBTCBalance();
-    return { dlcBTCBalance, lockedBTCBalance };
+    return { iBTCBalance, lockedBTCBalance };
   };
 
   const { data } = useQuery({
@@ -62,7 +62,7 @@ export function BalanceContextProvider({ children }: HasChildren): React.JSX.Ele
 
   return (
     <BalanceContext.Provider
-      value={{ dlcBTCBalance: data?.dlcBTCBalance, lockedBTCBalance: data?.lockedBTCBalance }}
+      value={{ iBTCBalance: data?.iBTCBalance, lockedBTCBalance: data?.lockedBTCBalance }}
     >
       {children}
     </BalanceContext.Provider>

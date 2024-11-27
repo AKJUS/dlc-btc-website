@@ -8,7 +8,7 @@ export function WelcomeStack(): React.JSX.Element {
   // const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const setupText = 'Ready to\n mint dlcBTC?';
+  const setupText = 'Ready to\n mint iBTC?';
 
   function onConnectWalletClick(): void {
     dispatch(modalActions.toggleSelectWalletModalVisibility());

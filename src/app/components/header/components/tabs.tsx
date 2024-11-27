@@ -34,7 +34,7 @@ export function NavigationTabs({
       {isActiveTabs && (
         <>
           <TabButton
-            title={'Mint/Withdraw dlcBTC'}
+            title={'Mint/Withdraw iBTC'}
             isActive={activeTab === '/mint-withdraw'}
             handleClick={() => handleTabClick('/mint-withdraw')}
           />

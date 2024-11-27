@@ -31,7 +31,7 @@ export function AttestorSelectTableItem(
       justifyContent={'space-between'}
     >
       <HStack w={'20%'}>
-        <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'30px'} />
+        <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'30px'} />
         <Text color={'white'} fontSize={'sm'} fontWeight={500}>
           {hash}
         </Text>

@@ -23,12 +23,12 @@ export function MerchantTable({ items }: MerchantTableProps): React.JSX.Element 
     >
       <GenericTableHeader>
         <GenericTableHeaderText w={'50%'}>Merchant</GenericTableHeaderText>
-        <GenericTableHeaderText w={'100%'}>dlcBTC Minted</GenericTableHeaderText>
+        <GenericTableHeaderText w={'100%'}>iBTC Minted</GenericTableHeaderText>
       </GenericTableHeader>
 
       <GenericTableBody>
         {items
-          ?.sort((a, b) => b.dlcBTCAmount - a.dlcBTCAmount)
+          ?.sort((a, b) => b.iBTCAmount - a.iBTCAmount)
           .map(item => <MerchantTableItem key={item.merchant.name} {...item} />)}
       </GenericTableBody>
     </GenericTableLayout>

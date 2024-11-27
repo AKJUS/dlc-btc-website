@@ -17,7 +17,7 @@ export interface EthereumNetworkConfiguration {
     | 'evm-hardhat-eth';
   enabledEthereumNetworks: EthereumNetwork[];
   dlcManagerContract: Contract;
-  dlcBTCContract: Contract;
+  iBTCContract: Contract;
   chain: Chain;
 }
 
@@ -33,7 +33,7 @@ export interface DetailedEvent {
 }
 export interface FormattedEvent {
   merchant: string;
-  dlcBTCAmount: number;
+  iBTCAmount: number;
   txHash: string;
   date: string;
   chain: string;

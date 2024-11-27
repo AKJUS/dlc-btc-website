@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { Divider, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
 import { ProtocolHistoryTable } from '@components/protocol-history-table/protocol-history-table';
 import { Merchant } from '@models/merchant';
-import { bitcoin, dlcBTC } from '@models/token';
+import { bitcoin, iBTC } from '@models/token';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
 
 import { titleTextSize } from '@shared/utils';
@@ -23,7 +23,7 @@ export function ProofOfReserve(): React.JSX.Element {
     appConfiguration.merchants.map((merchant: Merchant) => {
       return {
         merchant,
-        dlcBTCAmount: undefined,
+        iBTCBalance: undefined,
       };
     }),
   ];
@@ -50,7 +50,7 @@ export function ProofOfReserve(): React.JSX.Element {
             height={isMobile ? '1px' : '75px'}
             variant={'thick'}
           />
-          <TokenStatsBoardToken token={dlcBTC} totalSupply={totalSupply} />
+          <TokenStatsBoardToken token={iBTC} totalSupply={totalSupply} />
           <Divider
             orientation={isMobile ? 'horizontal' : 'vertical'}
             px={isMobile ? '0px' : '15px'}

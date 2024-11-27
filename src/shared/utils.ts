@@ -39,7 +39,7 @@ export function formatEvent(event: DetailedEvent): FormattedEvent {
   const isMint = event.eventType === 'mint';
   const date = new Date(event.timestamp * 1000);
   return {
-    dlcBTCAmount: isMint ? event.value : -event.value,
+    iBTCAmount: isMint ? event.value : -event.value,
     merchant: isMint ? event.to : event.from,
     txHash: event.txHash,
     date: date

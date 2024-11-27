@@ -12,7 +12,7 @@ import {
 } from '@chakra-ui/react';
 import { TokenStatsBoardLayout } from '@components/proof-of-reserve/components/token-stats-board/token-stats-board.layout';
 import { usePoints } from '@hooks/use-points';
-import { dlcBTC } from '@models/token';
+import { iBTC } from '@models/token';
 import { modalActions } from '@store/slices/modal/modal.actions';
 import { useAccount } from 'wagmi';
 
@@ -38,7 +38,7 @@ export function Points(): React.JSX.Element {
     <PointsLayout>
       <>
         <Text w={'100%'} color={'white'} fontSize={titleTextSize} fontWeight={500}>
-          Use dlcBTC -{' '}
+          Use iBTC -{' '}
           <Text as="span" fontWeight={700}>
             Earn Points
           </Text>
@@ -83,7 +83,7 @@ export function Points(): React.JSX.Element {
                   direction={isMobile ? 'column' : 'row'}
                 >
                   <PointsStatsBoardAction
-                    token={dlcBTC}
+                    token={iBTC}
                     totalSupply={userPoints?.useTotal}
                     tokenSuffix={'Use'}
                   />
@@ -94,7 +94,7 @@ export function Points(): React.JSX.Element {
                     variant={'thick'}
                   />
                   <PointsStatsBoardAction
-                    token={dlcBTC}
+                    token={iBTC}
                     totalSupply={userPoints?.protocols.find(p => p.name == 'dlcBTC')?.points}
                     tokenSuffix={'Hold'}
                   />
@@ -128,8 +128,8 @@ export function Points(): React.JSX.Element {
                 <VStack w={'100%'} h={'100%'} alignItems={'start'} spacing={'25px'}>
                   <HStack h={'25px'} spacing={'25px'}>
                     <Image
-                      src={'./images/logos/dlc-btc-logo.svg'}
-                      alt={'dlcBTC Logo'}
+                      src={'./images/logos/ibtc-logo.svg'}
+                      alt={'iBTC Logo'}
                       boxSize={'35px'}
                     />
                     <Text
@@ -137,13 +137,13 @@ export function Points(): React.JSX.Element {
                       fontWeight={200}
                       fontSize={['xl', '2xl', '2xl', '4xl', '4xl']}
                     >
-                      Use dlcBTC
+                      Use iBTC
                     </Text>
                   </HStack>
                   <HStack>
                     <Text color={'white.02'}>
-                      Put your dlcBTC to work in various activities like lending, staking, or
-                      trading Participate and earn points for your involvement.
+                      Put your iBTC to work in various activities like lending, staking, or trading
+                      Participate and earn points for your involvement.
                     </Text>
                   </HStack>
                 </VStack>
@@ -173,7 +173,7 @@ export function Points(): React.JSX.Element {
                   <HStack h={'25px'} spacing={'25px'}>
                     <Image
                       src={'./images/logos/bitcoin-logo.svg'}
-                      alt={'dlcBTC Logo'}
+                      alt={'iBTC Logo'}
                       boxSize={'35px'}
                     />
                     <Text

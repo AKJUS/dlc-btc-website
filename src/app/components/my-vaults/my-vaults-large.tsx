@@ -15,7 +15,7 @@ import { MyVaultsSetupInformationStack } from './components/my-vaults-setup-info
 
 export function MyVaultsLarge(): React.JSX.Element {
   const { isConnected } = useContext(NetworkConnectionContext);
-  const { dlcBTCBalance, lockedBTCBalance } = useContext(BalanceContext);
+  const { iBTCBalance, lockedBTCBalance } = useContext(BalanceContext);
 
   const { readyVaults, pendingVaults, fundedVaults, closingVaults, closedVaults, allVaults } =
     useContext(VaultContext);
@@ -24,7 +24,7 @@ export function MyVaultsLarge(): React.JSX.Element {
     <MyVaultsLargeLayout>
       <MyVaultsLargeHeader
         isConnected={isConnected}
-        dlcBTCBalance={dlcBTCBalance}
+        iBTCBalance={iBTCBalance}
         lockedBTCBalance={lockedBTCBalance}
       />
       <HStack spacing={'35px'} w={'100%'}>
@@ -54,7 +54,7 @@ export function MyVaultsLarge(): React.JSX.Element {
           <MyVaultsSetupInformationStack />
         )}
         <VaultsList
-          title={'Minted dlcBTC'}
+          title={'Minted iBTC'}
           height={'475px'}
           isScrollable={isConnected && fundedVaults.length > 0}
         >

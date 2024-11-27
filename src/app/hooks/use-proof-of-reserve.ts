@@ -51,7 +51,7 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
       );
       return {
         merchant,
-        dlcBTCAmount: unshiftValue(proofOfReserve),
+        iBTCAmount: unshiftValue(proofOfReserve),
       };
     });
 
@@ -66,7 +66,7 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
       appConfiguration.merchants.map((merchant: Merchant) => {
         return {
           merchant,
-          dlcBTCAmount: undefined,
+          iBTCAmount: undefined,
         };
       }),
     ],

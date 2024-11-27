@@ -16,12 +16,12 @@ import { Merchant } from '@models/merchant';
 
 interface MerchantTableItemProps {
   merchant: Merchant;
-  dlcBTCAmount: number | undefined;
+  iBTCAmount: number | undefined;
 }
 
 export function MerchantTableItem({
   merchant,
-  dlcBTCAmount,
+  iBTCAmount,
 }: MerchantTableItemProps): React.ReactElement {
   const navigate = useNavigate();
 
@@ -42,8 +42,8 @@ export function MerchantTableItem({
             <Image src={merchant.logo} alt={merchant.name} width={'150px'} />
           </HStack>
           <HStack w={'140px'} h={'35px'} alignItems={'center'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlcBTC Logo'} boxSize={'25px'} />
-            <Skeleton isLoaded={dlcBTCAmount !== undefined} h={'auto'} w={'150px'}>
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'25px'} />
+            <Skeleton isLoaded={iBTCAmount !== undefined} h={'auto'} w={'150px'}>
               <Text
                 color={'white'}
                 fontSize={'xl'}
@@ -52,7 +52,7 @@ export function MerchantTableItem({
                 display={'flex'}
                 alignItems={'center'}
               >
-                {Number(dlcBTCAmount?.toFixed(4))}
+                {Number(iBTCAmount?.toFixed(4))}
               </Text>
             </Skeleton>
           </HStack>

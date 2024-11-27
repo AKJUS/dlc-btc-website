@@ -14,10 +14,10 @@ interface ProgressStackItemProps {
 const componentsMap = {
   mint: {
     A: { label: 'Deposit', assetLogo: '/images/logos/bitcoin-logo.svg', assetSymbol: 'BTC' },
-    B: { label: 'Mint', assetLogo: '/images/logos/dlc-btc-logo.svg', assetSymbol: 'dlcBTC' },
+    B: { label: 'Mint', assetLogo: '/images/logos/ibtc-logo.svg', assetSymbol: 'iBTC' },
   },
   burn: {
-    A: { label: 'Burn', assetLogo: '/images/logos/dlc-btc-logo.svg', assetSymbol: 'dlcBTC' },
+    A: { label: 'Burn', assetLogo: '/images/logos/ibtc-logo.svg', assetSymbol: 'iBTC' },
     B: { label: 'Withdraw', assetLogo: '/images/logos/bitcoin-logo.svg', assetSymbol: 'BTC' },
   },
 };

@@ -4,10 +4,10 @@ export interface Token {
   logoAlt: string;
 }
 
-export const dlcBTC: Token = {
-  name: 'dlcBTC',
-  logo: '/images/logos/dlc-btc-logo.svg',
-  logoAlt: 'dlcBTC Logo',
+export const iBTC: Token = {
+  name: 'iBTC',
+  logo: '/images/logos/ibtc-logo.svg',
+  logoAlt: 'iBTC Logo',
 };
 
 export const bitcoin: Token = {

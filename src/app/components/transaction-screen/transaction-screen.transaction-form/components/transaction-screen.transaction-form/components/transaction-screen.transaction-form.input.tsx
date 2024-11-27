@@ -12,9 +12,9 @@ const bitcoinFormProperties = {
   color: 'orange.01',
 };
 const tokenFormProperties = {
-  label: 'Burn dlcBTC',
-  logo: '/images/logos/dlc-btc-logo.svg',
-  symbol: 'dlcBTC',
+  label: 'Burn iBTC',
+  logo: '/images/logos/ibtc-logo.svg',
+  symbol: 'iBTC',
   color: 'purple.01',
 };
 

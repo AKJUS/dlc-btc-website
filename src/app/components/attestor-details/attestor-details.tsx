@@ -20,7 +20,7 @@ export function AttestorDetails(): React.JSX.Element {
   return (
     <AttestorDetailsLayout>
       <Text w={'100%'} color={'white'} fontSize={'6xl'} fontWeight={500}>
-        dlcBTC Attestor Details
+        iBTC Attestor Details
       </Text>
       <AttestorDetailsCard>
         <AttestorDetailsCardLayout width={'310px'}>

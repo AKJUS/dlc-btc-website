@@ -12,7 +12,7 @@ export function TokenStatsBoardToken({
 }: TokenStatsBoardTokenProps): React.JSX.Element {
   let tokenSuffix: string;
   switch (token.name) {
-    case 'dlcBTC':
+    case 'iBTC':
       tokenSuffix = 'Minted';
       break;
     default:

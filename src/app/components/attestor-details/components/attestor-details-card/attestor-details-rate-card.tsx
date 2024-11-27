@@ -1,5 +1,5 @@
 import { Divider, HStack, Image, Spacer, Text, VStack } from '@chakra-ui/react';
-import { dlcBTC } from '@models/token';
+import { iBTC } from '@models/token';
 
 interface AttestorDetailsRateCardProps {
   width: string;
@@ -16,9 +16,9 @@ export function AttestorDetailsRateCard({
             Nakamoto Coefficient
           </Text>
           <HStack>
-            <Image src={dlcBTC.logo} alt={dlcBTC.logoAlt} boxSize={'35px'} />
+            <Image src={iBTC.logo} alt={iBTC.logoAlt} boxSize={'35px'} />
             <Text color={'grey'} fontSize={'xl'}>
-              dlcBTC
+              iBTC
             </Text>
             <Spacer />
             <Text color={'white'} fontSize={'x-large'}>

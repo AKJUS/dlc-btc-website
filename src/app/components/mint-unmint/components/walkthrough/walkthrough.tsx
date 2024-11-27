@@ -65,7 +65,7 @@ export function Walkthrough({
               <Text color={'white.01'} fontSize={'md'}>
                 Enter the Bitcoin amount you wish to deposit into the vault, then verify the
                 transaction through your Bitcoin Wallet which will lock your Bitcoin on-chain. You
-                will receive equivalent amount of dlcBTC.
+                will receive equivalent amount of iBTC.
               </Text>
             </WalkthroughLayout>
           );
@@ -74,17 +74,17 @@ export function Walkthrough({
             <WalkthroughLayout>
               <WalkthroughHeader
                 currentStep={currentStep}
-                title={'Mint dlcBTC'}
+                title={'Mint iBTC'}
                 blockchain={networkType}
               />
               <Text color={'white.01'} fontSize={'sm'}>
-                Wait for Bitcoin to get locked on chain (~1 hour). After 6 confirmations, dlcBTC
+                Wait for Bitcoin to get locked on chain (~1 hour). After 6 confirmations, iBTC
                 tokens will appear in your Wallet.
               </Text>
               {networkType === NetworkType.EVM && (
                 <>
                   <Text color={'white.01'} fontSize={'sm'}>
-                    To ensure your <span style={{ fontWeight: 800 }}>dlcBTC tokens </span>
+                    To ensure your <span style={{ fontWeight: 800 }}>iBTC tokens </span>
                     are <span style={{ fontWeight: 800 }}>visible </span>
                     simply <span style={{ fontWeight: 800 }}>add them </span>
                     to your Ethereum Wallet.
@@ -92,11 +92,7 @@ export function Walkthrough({
 
                   <Button variant={'vault'} onClick={async () => await addToken()}>
                     <HStack>
-                      <Image
-                        src={'/images/logos/dlc-btc-logo.svg'}
-                        alt={'dlcBTC'}
-                        boxSize={'25px'}
-                      />
+                      <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC'} boxSize={'25px'} />
                       <Text> Add Token to Wallet</Text>
                     </HStack>
                   </Button>
@@ -109,7 +105,7 @@ export function Walkthrough({
             <WalkthroughLayout>
               <WalkthroughHeader
                 currentStep={undefined}
-                title={'Minted dlcBTC'}
+                title={'Minted iBTC'}
                 blockchain={networkType}
               />
             </WalkthroughLayout>
@@ -122,18 +118,18 @@ export function Walkthrough({
             <WalkthroughLayout>
               <WalkthroughHeader
                 currentStep={currentStep}
-                title={'Burn dlcBTC'}
+                title={'Burn iBTC'}
                 blockchain={networkType}
               />
               {networkType === NetworkType.EVM ? (
                 <Text color={'white.01'} fontSize={'md'}>
-                  Select the dlcBTC vault you would like to withdraw from. Burn the desired amount
-                  of dlcBTC to receive the equivalent amount of BTC.
+                  Select the iBTC vault you would like to withdraw from. Burn the desired amount of
+                  iBTC to receive the equivalent amount of BTC.
                 </Text>
               ) : (
                 <Text color={'white.01'} fontSize={'md'}>
-                  Select the dlcBTC vault you would like to withdraw from. Sign a check with the
-                  desired amount of dlcBTC to receive the equivalent amount of BTC.
+                  Select the iBTC vault you would like to withdraw from. Sign a check with the
+                  desired amount of iBTC to receive the equivalent amount of BTC.
                 </Text>
               )}
             </WalkthroughLayout>
@@ -147,7 +143,7 @@ export function Walkthrough({
                 blockchain={NetworkType.BTC}
               />
               <Text fontSize={'md'} color={'white.01'}>
-                {`Once the dlcBTC has been burned, you can withdraw an `}
+                {`Once the iBTC has been burned, you can withdraw an `}
                 <Text as="span" fontWeight="bold">
                   {` equivalent amount of Bitcoin `}
                 </Text>
@@ -175,7 +171,7 @@ export function Walkthrough({
             <WalkthroughLayout>
               <WalkthroughHeader
                 currentStep={undefined}
-                title={'Withdrawn dlcBTC'}
+                title={'Withdrawn iBTC'}
                 blockchain={networkType}
               />
             </WalkthroughLayout>

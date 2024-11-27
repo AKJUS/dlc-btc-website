@@ -20,7 +20,7 @@ async function fetchEthereumDeploymentPlans(
       network => network.id === ethereumNetworkID
     );
 
-    const networkDeploymentPlans = await Promise.all(['DLCManager', 'DLCBTC'].map(async (contractName) => {
+    const networkDeploymentPlans = await Promise.all(['DLCManager', 'IBTC'].map(async (contractName) => {
       let deploymentPlanURL: string;
     switch (appEnvironment) {
       case 'mainnet':

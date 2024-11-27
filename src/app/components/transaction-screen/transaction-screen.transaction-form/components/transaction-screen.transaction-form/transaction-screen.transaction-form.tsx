@@ -38,9 +38,9 @@ function validateBurnAmount(value: number, valueMinted: number): string | undefi
   let error;
 
   if (!value) {
-    error = 'Please enter a valid amount of dlcBTC';
+    error = 'Please enter a valid amount of iBTC';
   } else if (valueMinted && value > valueMinted) {
-    error = `You can't burn more than ${valueMinted} dlcBTC`;
+    error = `You can't burn more than ${valueMinted} iBTC`;
   }
   return error;
 }

@@ -4,7 +4,7 @@ export const exampleAttestorSelectTableItems = [
     time: '8 hours ago',
     action: 'Update Vote State',
     programs: 'TS',
-    value: '0.8059 dlcBTC',
+    value: '0.8059 iBTC',
     token: 'N/A',
   },
   {
@@ -12,7 +12,7 @@ export const exampleAttestorSelectTableItems = [
     time: '1 hours ago',
     action: 'Create Proposal',
     programs: 'VP',
-    value: '0.8415 dlcBTC',
+    value: '0.8415 iBTC',
     token: 'N/A',
   },
   {
@@ -20,7 +20,7 @@ export const exampleAttestorSelectTableItems = [
     time: '11 hours ago',
     action: 'Execute Transaction',
     programs: 'DL',
-    value: '0.5634 dlcBTC',
+    value: '0.5634 iBTC',
     token: 'N/A',
   },
   {
@@ -28,7 +28,7 @@ export const exampleAttestorSelectTableItems = [
     time: '13 hours ago',
     action: 'Create Proposal',
     programs: 'DL2',
-    value: '0.6588 dlcBTC',
+    value: '0.6588 iBTC',
     token: 'N/A',
   },
   {
@@ -36,7 +36,7 @@ export const exampleAttestorSelectTableItems = [
     time: '3 hours ago',
     action: 'Update Vote State',
     programs: 'VP',
-    value: '0.4762 dlcBTC',
+    value: '0.4762 iBTC',
     token: 'N/A',
   },
   {
@@ -44,7 +44,7 @@ export const exampleAttestorSelectTableItems = [
     time: '18 hours ago',
     action: 'Create Proposal',
     programs: 'TS',
-    value: '0.1499 dlcBTC',
+    value: '0.1499 iBTC',
     token: 'N/A',
   },
   {
@@ -52,7 +52,7 @@ export const exampleAttestorSelectTableItems = [
     time: '7 hours ago',
     action: 'Update Vote State',
     programs: 'DL2',
-    value: '0.5255 dlcBTC',
+    value: '0.5255 iBTC',
     token: 'N/A',
   },
   {
@@ -60,7 +60,7 @@ export const exampleAttestorSelectTableItems = [
     time: '6 hours ago',
     action: 'Create Proposal',
     programs: 'TS',
-    value: '0.9675 dlcBTC',
+    value: '0.9675 iBTC',
     token: 'N/A',
   },
 ];

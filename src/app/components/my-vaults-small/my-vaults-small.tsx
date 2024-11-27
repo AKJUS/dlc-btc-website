@@ -35,7 +35,7 @@ export function MyVaultsSmall(): React.JSX.Element {
             vaultState={VaultState.READY}
           />
           <VaultsListGroupContainer
-            label="Minted dlcBTC"
+            label="Minted iBTC"
             vaults={fundedVaults}
             vaultState={VaultState.FUNDED}
           />

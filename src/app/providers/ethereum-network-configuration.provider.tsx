@@ -54,10 +54,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           appConfiguration.l1Websocket
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(mainnet),
           mainnet,
-          'DLCBTC',
+          'IBTC',
           appConfiguration.l1Websocket
         ),
         chain: mainnet,
@@ -75,10 +75,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           appConfiguration.l1Websocket
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(sepolia),
           sepolia,
-          'DLCBTC',
+          'IBTC',
           appConfiguration.l1Websocket
         ),
         chain: sepolia,
@@ -96,10 +96,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           appConfiguration.baseWebsocket
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(base),
           base,
-          'DLCBTC',
+          'IBTC',
           appConfiguration.baseWebsocket
         ),
         chain: base,
@@ -117,10 +117,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           baseSepolia.rpcUrls.default.http[0]
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(baseSepolia),
           baseSepolia,
-          'DLCBTC',
+          'IBTC',
           baseSepolia.rpcUrls.default.http[0]
         ),
         chain: baseSepolia,
@@ -138,10 +138,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           appConfiguration.arbitrumWebsocket
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(arbitrum),
           arbitrum,
-          'DLCBTC',
+          'IBTC',
           appConfiguration.arbitrumWebsocket
         ),
         chain: arbitrum,
@@ -159,10 +159,10 @@ function getEthereumNetworkConfiguration(
           'DLCManager',
           appConfiguration.arbitrumWebsocket
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(arbitrumSepolia),
           arbitrumSepolia,
-          'DLCBTC',
+          'IBTC',
           appConfiguration.arbitrumWebsocket
         ),
         chain: arbitrumSepolia,
@@ -179,10 +179,10 @@ function getEthereumNetworkConfiguration(
           hardhat,
           'DLCManager'
         ),
-        dlcBTCContract: getEthereumContractWithProvider(
+        iBTCContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(hardhat),
           hardhat,
-          'DLCBTC'
+          'IBTC'
         ),
         chain: hardhat,
       };

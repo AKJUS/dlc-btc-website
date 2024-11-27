@@ -12,7 +12,7 @@ import {
   Text,
   useBreakpointValue,
 } from '@chakra-ui/react';
-import { bitcoin, dlcBTC } from '@models/token';
+import { bitcoin, iBTC } from '@models/token';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
 
 import { titleTextSize } from '@shared/utils';
@@ -82,7 +82,7 @@ export function MerchantDetails(): React.JSX.Element {
             variant={'thick'}
           />
           <TokenStatsBoardTVL
-            totalSupply={selectedMerchant?.dlcBTCAmount}
+            totalSupply={selectedMerchant?.iBTCAmount}
             bitcoinPrice={bitcoinPrice}
           />
           <Divider
@@ -91,14 +91,14 @@ export function MerchantDetails(): React.JSX.Element {
             height={isMobile ? '1px' : '75px'}
             variant={'thick'}
           />
-          <TokenStatsBoardToken token={dlcBTC} totalSupply={selectedMerchant?.dlcBTCAmount} />
+          <TokenStatsBoardToken token={iBTC} totalSupply={selectedMerchant?.iBTCAmount} />
           <Divider
             orientation={isMobile ? 'horizontal' : 'vertical'}
             px={isMobile ? '0px' : '10px'}
             height={isMobile ? '1px' : '75px'}
             variant={'thick'}
           />
-          <TokenStatsBoardToken token={bitcoin} totalSupply={selectedMerchant?.dlcBTCAmount} />
+          <TokenStatsBoardToken token={bitcoin} totalSupply={selectedMerchant?.iBTCAmount} />
         </Stack>
       </TokenStatsBoardLayout>
       <MerchantDetailsTable items={mintBurnEvents} />

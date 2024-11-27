@@ -10,7 +10,7 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
   if (!merchantFocusTableItem) return <CustomSkeleton height={'35px'} />;
 
   const {
-    dlcBTCAmount,
+    iBTCAmount,
     txHash,
     date,
     isMint,
@@ -40,9 +40,9 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
             </Text>
           </HStack>
           <HStack w={'30%'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
-              {unshiftValue(dlcBTCAmount)}
+              {unshiftValue(iBTCAmount)}
             </Text>
           </HStack>
           <HStack w={'30%'}>
@@ -67,9 +67,9 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
             </Text>
           </HStack>
           <HStack w={'15%'}>
-            <Image src={'/images/logos/dlc-btc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
+            <Image src={'/images/logos/ibtc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
-              {unshiftValue(dlcBTCAmount)}
+              {unshiftValue(iBTCAmount)}
             </Text>
           </HStack>
           {/* add back the USD calculation later and adjus the width accordingly */}
