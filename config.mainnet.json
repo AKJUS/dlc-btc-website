@@ -6,7 +6,7 @@
   "bitcoinNetwork": "mainnet",
   "bitcoinNetworkIndex": 0,
   "bitcoinNetworkPreFix": "bc1",
-  "bitcoinBlockchainURL": "https://mainnet.dlc.link/electrs",
+  "bitcoinBlockchainURL": "https://blockstream.info/api",
   "bitcoinBlockchainExplorerURL": "https://mempool.space",
   "bitcoinBlockchainFeeEstimateURL": "https://mempool.space/api/v1/fees/recommended",
   "rippleIssuerAddress": "rGcyRGrZPaJAZbZDi4NqRFLA5GQH63iFpD",
