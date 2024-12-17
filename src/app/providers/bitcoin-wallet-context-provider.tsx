@@ -2,7 +2,7 @@ import { createContext, useState } from 'react';
 
 import { HasChildren } from '@models/has-children';
 import { BitcoinWalletType } from '@models/wallet';
-import { LedgerDLCHandler, SoftwareWalletDLCHandler } from 'dlc-btc-lib';
+import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 
 export enum BitcoinWalletContextState {
   INITIAL = 0,
@@ -15,9 +15,9 @@ interface BitcoinWalletContextProviderType {
   setBitcoinWalletType: React.Dispatch<React.SetStateAction<BitcoinWalletType | undefined>>;
   bitcoinWalletContextState: BitcoinWalletContextState;
   setBitcoinWalletContextState: React.Dispatch<React.SetStateAction<BitcoinWalletContextState>>;
-  dlcHandler: SoftwareWalletDLCHandler | LedgerDLCHandler | undefined;
+  dlcHandler: LeatherDLCHandler | UnisatFordefiDLCHandler | LedgerDLCHandler | undefined;
   setDLCHandler: React.Dispatch<
-    React.SetStateAction<SoftwareWalletDLCHandler | LedgerDLCHandler | undefined>
+    React.SetStateAction<LeatherDLCHandler | UnisatFordefiDLCHandler | LedgerDLCHandler | undefined>
   >;
   resetBitcoinWalletContext: () => void;
 }
@@ -38,7 +38,9 @@ export function BitcoinWalletContextProvider({ children }: HasChildren): React.J
   const [bitcoinWalletType, setBitcoinWalletType] = useState<BitcoinWalletType | undefined>(
     BitcoinWalletType.Leather
   );
-  const [dlcHandler, setDLCHandler] = useState<SoftwareWalletDLCHandler | LedgerDLCHandler>();
+  const [dlcHandler, setDLCHandler] = useState<
+    LeatherDLCHandler | UnisatFordefiDLCHandler | LedgerDLCHandler
+  >();
 
   function resetBitcoinWalletContext() {
     setBitcoinWalletContextState(BitcoinWalletContextState.INITIAL);

@@ -19,10 +19,10 @@ export class LeatherError extends Error {
   }
 }
 
-export class UnisatError extends Error {
+export class UnisatFordefiError extends Error {
   constructor(message: string) {
     super(message);
-    this.name = 'UnisatError';
+    this.name = 'UnisatFordefiError';
   }
 }
 

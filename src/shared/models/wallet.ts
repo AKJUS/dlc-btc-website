@@ -58,5 +58,18 @@ const gemXRP: XRPWallet = {
   icon: '/images/logos/gem-wallet-logo.svg',
 };
 
+export enum BitcoinWalletAction {
+  CONNECTING,
+  CREATING_TRANSACTION,
+  SIGNING_TRANSACTION,
+  OPENING_APP,
+  OPEN_APP,
+  LOADING_ADDRESSES,
+  ACCEPT_MULTI_SIG_WALLET_POLICY,
+  NONE,
+}
+
+export type BitcoinWalletTransactionType = 'Funding' | 'Deposit' | 'Withdraw';
+
 export const xrpWallets: XRPWallet[] = [ledgerXRP, gemXRP];
 export const bitcoinWallets: BitcoinWallet[] = [leather, ledger, unisat, fordefi];

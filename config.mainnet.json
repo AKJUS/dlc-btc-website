@@ -8,7 +8,7 @@
   "bitcoinNetworkPreFix": "bc1",
   "bitcoinBlockchainURL": "https://blockstream.info/api",
   "bitcoinBlockchainExplorerURL": "https://mempool.space",
-  "bitcoinBlockchainFeeEstimateURL": "https://mempool.space/api/v1/fees/recommended",
+  "bitcoinBlockchainFeeEstimateURL": "https://mempool.space",
   "rippleIssuerAddress": "rGcyRGrZPaJAZbZDi4NqRFLA5GQH63iFpD",
   "xrplWebsocket": "wss://xrpl.ws/",
   "ledgerApp": "Bitcoin",

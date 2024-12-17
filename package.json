@@ -46,7 +46,7 @@
     "concurrently": "^8.2.2",
     "d3": "^7.9.0",
     "decimal.js": "^10.4.3",
-    "dlc-btc-lib": "2.4.18",
+    "dlc-btc-lib": "2.5.1",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "formik": "^2.4.5",

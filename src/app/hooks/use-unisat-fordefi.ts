@@ -1,142 +1,159 @@
 import { useContext, useState } from 'react';
 
-import { LeatherError } from '@models/error-types';
-import {
-  Account,
-  BitcoinAccount,
-  BitcoinAccounts,
-  BitcoinNativeSegwitAccount,
-  BitcoinTaprootAccount,
-  RpcResponse,
-} from '@models/software-wallet.models';
+import { ALL_SUPPORTED_BITCOIN_NETWORK_PREFIX } from '@models/configuration';
+import { UnisatFordefiError } from '@models/error-types';
+import { BitcoinTaprootAccount } from '@models/software-wallet.models';
 import { BitcoinWalletAction, BitcoinWalletType } from '@models/wallet';
 import { bytesToHex } from '@noble/hashes/utils';
 import {
   BitcoinWalletContext,
   BitcoinWalletContextState,
 } from '@providers/bitcoin-wallet-context-provider';
-import { LeatherDLCHandler } from 'dlc-btc-lib';
+import { UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import { RawVault, Transaction } from 'dlc-btc-lib/models';
 import { shiftValue } from 'dlc-btc-lib/utilities';
 
 import { BITCOIN_NETWORK_MAP, walletLoadingState } from '@shared/constants/bitcoin.constants';
 
-interface UseLeatherReturnType {
-  connectLeatherWallet: () => Promise<void>;
+interface UseUnisatFordefiReturnType {
+  connectUnisatOrFordefiWallet: (isFordefi?: boolean) => Promise<void>;
   handleFundingTransaction: (
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
-    bitcoinAmount: number,
+    depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
-    depositAmount: number,
+    withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ) => Promise<string>;
   isLoading: [boolean, string];
 }
 
-export function useLeather(): UseLeatherReturnType {
+export function useUnisatFordefi(): UseUnisatFordefiReturnType {
   const { setDLCHandler, setBitcoinWalletContextState, setBitcoinWalletType, bitcoinWalletType } =
     useContext(BitcoinWalletContext);
 
   const [isLoading, setIsLoading] = useState<[boolean, string]>([false, '']);
 
   /**
-   * Checks if the user's Leather Wallet is on the same network as the app.
+   * Checks if the user's Unisat or Fordefi Wallet is on the same network as the app and if the address is a taproot address.
    *
-   * @param userNativeSegwitAddress - The user's native segwit address.
+   * @param userAddress - The user's address.
    *
-   * @returns Throws an error if the user's wallet is not on the same network as the app.
+   * @returns Throws an error if the user's wallet is not on the same network as the app or if the address is not a taproot address.
    */
-  function checkUserWalletNetwork(userNativeSegwitAddress: Account): void {
-    if (!userNativeSegwitAddress.address.startsWith(appConfiguration.bitcoinNetworkPreFix))
-      throw new LeatherError(`User wallet is not on [${appConfiguration.bitcoinNetwork}] Network`);
-  }
-
-  /**
-   * Fetches the user's native segwit and taproot address from the user's wallet.
-   *
-   * @returns A promise that resolves to the user's native segwit and taproot addresses.
-   */
-  async function getBitcoinAddresses(): Promise<BitcoinAccounts> {
-    try {
-      const rpcResponse: RpcResponse = await window.btc?.request('getAddresses');
-      const userAddresses = rpcResponse.result.addresses;
-
-      checkUserWalletNetwork(userAddresses[0]);
-
-      const bitcoinAddresses = userAddresses.filter(
-        address => address.symbol === 'BTC'
-      ) as BitcoinAccount[];
-
-      const nativeSegwitAccount = bitcoinAddresses.find(
-        address => address.type === 'p2wpkh'
-      ) as BitcoinNativeSegwitAccount;
-
-      const taprootAccount = bitcoinAddresses.find(
-        address => address.type === 'p2tr'
-      ) as BitcoinTaprootAccount;
-
-      return { nativeSegwitAccount, taprootAccount };
-    } catch (error) {
-      throw new LeatherError(`Error getting bitcoin addresses: ${error}`);
+  function checkUserWalletNetworkAndAddressType(userAddress: string): void {
+    if (
+      !ALL_SUPPORTED_BITCOIN_NETWORK_PREFIX.some(prefix => userAddress.startsWith(`${prefix}p`))
+    ) {
+      throw new UnisatFordefiError('User wallet is not a Taproot address');
+    }
+    if (!userAddress.startsWith(appConfiguration.bitcoinNetworkPreFix)) {
+      throw new UnisatFordefiError(
+        `User wallet is not on [${appConfiguration.bitcoinNetwork}] Network`
+      );
     }
   }
 
   /**
-   * Fetches the User's Leather Wallet Information.
+   * Fetches the user's taproot address from the user's wallet.
+   *
+   * @param isFordefi - If the user is connecting to the Fordefi Wallet.
+   *
+   * @returns A promise that resolves to the user's taproot address.
+   */
+  async function getBitcoinAddresses(isFordefi: boolean = false): Promise<BitcoinTaprootAccount> {
+    try {
+      if (!window.unisat) {
+        throw new UnisatFordefiError(
+          isFordefi ? 'Fordefi Wallet is Not Installed' : 'Unisat Wallet is Not Installed'
+        );
+      } else if (isFordefi && !window?.unisat?.is_fordefi) {
+        throw new UnisatFordefiError('Please disable Unisat Wallet and enable Fordefi Wallet');
+      } else if (!isFordefi && window?.unisat?.is_fordefi) {
+        throw new UnisatFordefiError('Please disable Fordefi Wallet and enable Unisat Wallet');
+      }
+
+      const userAddresses: string[] = await window.unisat.requestAccounts();
+
+      checkUserWalletNetworkAndAddressType(userAddresses[0]);
+
+      const publicKey = await window.unisat.getPublicKey();
+
+      return {
+        type: 'p2tr',
+        publicKey,
+        address: userAddresses[0],
+        symbol: 'BTC',
+      };
+    } catch (error) {
+      throw new UnisatFordefiError(`Error getting bitcoin addresses: ${error}`);
+    }
+  }
+
+  /**
+   * Fetches the User's Unisat or Fordefi Wallet Information.
+   *
+   * @param isFordefi - If the user is connecting to the Fordefi Wallet.
    *
    * @returns A promise that resolves to set the Bitcoin Wallet Context State to Ready.
    */
-  async function connectLeatherWallet(): Promise<void> {
+  async function connectUnisatOrFordefiWallet(isFordefi: boolean = false): Promise<void> {
     try {
-      setIsLoading(walletLoadingState(BitcoinWalletAction.CONNECTING, BitcoinWalletType.Leather));
+      setIsLoading(
+        walletLoadingState(
+          BitcoinWalletAction.CONNECTING,
+          isFordefi ? BitcoinWalletType.Fordefi : BitcoinWalletType.Unisat
+        )
+      );
 
-      const { nativeSegwitAccount, taprootAccount } = await getBitcoinAddresses();
+      const taprootAccount = await getBitcoinAddresses(isFordefi);
 
-      const leatherDLCHandler = new LeatherDLCHandler(
-        'wpkh',
+      const unisatDLCHandler = new UnisatFordefiDLCHandler(
+        'tr',
         BITCOIN_NETWORK_MAP[appConfiguration.bitcoinNetwork],
         appConfiguration.bitcoinBlockchainURL,
         appConfiguration.bitcoinBlockchainFeeEstimateURL,
-        nativeSegwitAccount.publicKey,
+        taprootAccount.publicKey,
         taprootAccount.publicKey
       );
 
-      setDLCHandler(leatherDLCHandler);
-      setBitcoinWalletType(BitcoinWalletType.Leather);
+      setDLCHandler(unisatDLCHandler);
+      setBitcoinWalletType(BitcoinWalletType.Unisat);
       setBitcoinWalletContextState(BitcoinWalletContextState.READY);
     } catch (error) {
-      throw new LeatherError(`Error getting Leather Wallet Information: ${error}`);
+      throw new UnisatFordefiError(
+        `Error getting ${isFordefi ? BitcoinWalletType.Fordefi : BitcoinWalletType.Unisat} Wallet Information: ${error}`
+      );
     } finally {
       setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
   /**
-   * Creates the Funding Transaction and signs it with Leather Wallet.
+   * Creates the Funding Transaction and signs it with Unisat or Fordefi Wallet.
    * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
-   * @param bitcoinAmount The Bitcoin Amount to fund the Vault.
+   * @param depositAmount The Bitcoin Amount to fund the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
    * @param feeRateMultiplier The Fee Rate Multiplier for the Transaction.
    *
    * @returns The Signed Funding Transaction.
    */
   async function handleFundingTransaction(
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -146,9 +163,10 @@ export function useLeather(): UseLeatherReturnType {
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Funding')
       );
+
       const formattedDepositAmount = BigInt(shiftValue(depositAmount));
 
-      const fundingPSBT = await dlcHandler?.createFundingPSBT(
+      const fundingPSBT = await dlcHandler.createFundingPSBT(
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
@@ -163,14 +181,14 @@ export function useLeather(): UseLeatherReturnType {
 
       return signedFundingTransaction;
     } catch (error) {
-      throw new LeatherError(`Error handling Funding Transaction: ${error}`);
+      throw new UnisatFordefiError(`Error handling Funding Transaction: ${error}`);
     } finally {
       setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
   /**
-   * Creates a Deposit Transaction and signs it with Leather Wallet.
+   * Creates a Deposit Transaction and signs it with Unisat or Fordefi Wallet.
    * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param depositAmount The Bitcoin Amount to deposit into the Vault.
@@ -180,7 +198,7 @@ export function useLeather(): UseLeatherReturnType {
    * @returns The Signed Deposit Transaction.
    */
   async function handleDepositTransaction(
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -193,7 +211,7 @@ export function useLeather(): UseLeatherReturnType {
 
       const formattedDepositAmount = BigInt(shiftValue(depositAmount));
 
-      const depositPSBT = await dlcHandler?.createDepositPSBT(
+      const depositPSBT = await dlcHandler.createDepositPSBT(
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
@@ -209,7 +227,7 @@ export function useLeather(): UseLeatherReturnType {
 
       return signedDepositTransaction;
     } catch (error) {
-      throw new LeatherError(`Error handling Deposit Transaction: ${error}`);
+      throw new UnisatFordefiError(`Error handling Deposit Transaction: ${error}`);
     } finally {
       setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
@@ -226,7 +244,7 @@ export function useLeather(): UseLeatherReturnType {
    * @returns The Signed Withdraw Transaction.
    */
   async function handleWithdrawTransaction(
-    dlcHandler: LeatherDLCHandler,
+    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
@@ -258,14 +276,14 @@ export function useLeather(): UseLeatherReturnType {
 
       return bytesToHex(signedWithdrawTransaction.toPSBT());
     } catch (error) {
-      throw new LeatherError(`Error handling Withdrawal Transaction: ${error}`);
+      throw new UnisatFordefiError(`Error handling Withdraw Transaction: ${error}`);
     } finally {
       setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
   return {
-    connectLeatherWallet,
+    connectUnisatOrFordefiWallet,
     handleFundingTransaction,
     handleDepositTransaction,
     handleWithdrawTransaction,

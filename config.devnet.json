@@ -8,7 +8,7 @@
   "bitcoinNetworkPreFix": "bcrt1",
   "bitcoinBlockchainURL": "https://devnet.dlc.link/electrs",
   "bitcoinBlockchainExplorerURL": "https://devnet.dlc.link/electrs",
-  "bitcoinBlockchainFeeEstimateURL": "https://devnet.dlc.link/electrs/fee-estimates",
+  "bitcoinBlockchainFeeEstimateURL": "",
   "rippleIssuerAddress": "rLTBw1MEy45uE5qmkWseinbj7h4zmdQuR8",
   "xrplWebsocket": "wss://s.altnet.rippletest.net:51233",
   "ledgerApp": "Bitcoin Test",

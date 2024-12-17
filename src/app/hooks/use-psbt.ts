@@ -9,7 +9,7 @@ import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { RippleNetworkConfigurationContext } from '@providers/ripple-network-configuration.provider';
 import { XRPWalletContext } from '@providers/xrp-wallet-context-provider';
-import { LedgerDLCHandler, SoftwareWalletDLCHandler } from 'dlc-btc-lib';
+import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import {
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
@@ -23,7 +23,7 @@ import { NetworkType } from '@shared/constants/network.constants';
 
 import { useLeather } from './use-leather';
 import { useLedger } from './use-ledger';
-import { useUnisat } from './use-unisat';
+import { useUnisatFordefi } from './use-unisat-fordefi';
 
 interface UsePSBTReturnType {
   handleSignFundingTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
@@ -50,24 +50,24 @@ export function usePSBT(): UsePSBTReturnType {
 
   const {
     handleFundingTransaction: handleFundingTransactionWithLedger,
-    handleWithdrawalTransaction: handleWithdrawalTransactionWithLedger,
+    handleWithdrawTransaction: handleWithdrawTransactionWithLedger,
     handleDepositTransaction: handleDepositTransactionWithLedger,
     isLoading: isLedgerLoading,
   } = useLedger();
 
   const {
     handleFundingTransaction: handleFundingTransactionWithLeather,
-    handleWithdrawalTransaction: handleWithdrawalTransactionWithLeather,
+    handleWithdrawTransaction: handleWithdrawTransactionWithLeather,
     handleDepositTransaction: handleDepositTransactionWithLeather,
     isLoading: isLeatherLoading,
   } = useLeather();
 
   const {
-    handleFundingTransaction: handleFundingTransactionWithUnisat,
-    handleWithdrawalTransaction: handleWithdrawalTransactionWithUnisat,
-    handleDepositTransaction: handleDepositTransactionWithUnisat,
+    handleFundingTransaction: handleFundingTransactionWithUnisatFordefi,
+    handleWithdrawTransaction: handleWithdrawTransactionWithUnisatFordefi,
+    handleDepositTransaction: handleDepositTransactionWithUnisatFordefi,
     isLoading: isUnisatLoading,
-  } = useUnisat();
+  } = useUnisatFordefi();
 
   const [bitcoinDepositAmount, setBitcoinDepositAmount] = useState(0);
 
@@ -141,8 +141,8 @@ export function usePSBT(): UsePSBTReturnType {
         case 'Unisat':
           switch (vault.valueLocked.toNumber()) {
             case 0:
-              fundingTransaction = await handleFundingTransactionWithUnisat(
-                dlcHandler as SoftwareWalletDLCHandler,
+              fundingTransaction = await handleFundingTransactionWithUnisatFordefi(
+                dlcHandler as UnisatFordefiDLCHandler,
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
@@ -150,8 +150,8 @@ export function usePSBT(): UsePSBTReturnType {
               );
               break;
             default:
-              fundingTransaction = await handleDepositTransactionWithUnisat(
-                dlcHandler as SoftwareWalletDLCHandler,
+              fundingTransaction = await handleDepositTransactionWithUnisatFordefi(
+                dlcHandler as UnisatFordefiDLCHandler,
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
@@ -164,7 +164,7 @@ export function usePSBT(): UsePSBTReturnType {
           switch (vault.valueLocked.toNumber()) {
             case 0:
               fundingTransaction = await handleFundingTransactionWithLeather(
-                dlcHandler as SoftwareWalletDLCHandler,
+                dlcHandler as LeatherDLCHandler,
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
@@ -173,7 +173,7 @@ export function usePSBT(): UsePSBTReturnType {
               break;
             default:
               fundingTransaction = await handleDepositTransactionWithLeather(
-                dlcHandler as SoftwareWalletDLCHandler,
+                dlcHandler as LeatherDLCHandler,
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
@@ -192,7 +192,7 @@ export function usePSBT(): UsePSBTReturnType {
             vaultUUID,
             fundingPSBT: bytesToHex(fundingTransaction.toPSBT()),
             userEthereumAddress: userAddress,
-            userBitcoinTaprootPublicKey: dlcHandler.getTaprootDerivedPublicKey(),
+            userBitcoinTaprootPublicKey: dlcHandler.getUserTaprootPublicKey(),
             attestorChainID: attestorChainIDs[networkType] as AttestorChainID,
           });
           break;
@@ -224,29 +224,29 @@ export function usePSBT(): UsePSBTReturnType {
       let withdrawalTransactionHex: string;
       switch (bitcoinWalletType) {
         case 'Ledger':
-          withdrawalTransactionHex = await handleWithdrawalTransactionWithLedger(
+          withdrawalTransactionHex = await handleWithdrawTransactionWithLedger(
             dlcHandler as LedgerDLCHandler,
+            vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            vault,
             feeRateMultiplier
           );
           break;
         case 'Unisat':
-          withdrawalTransactionHex = await handleWithdrawalTransactionWithUnisat(
-            dlcHandler as SoftwareWalletDLCHandler,
+          withdrawalTransactionHex = await handleWithdrawTransactionWithUnisatFordefi(
+            dlcHandler as UnisatFordefiDLCHandler,
+            vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            vault,
             feeRateMultiplier
           );
           break;
         case 'Leather':
-          withdrawalTransactionHex = await handleWithdrawalTransactionWithLeather(
-            dlcHandler as SoftwareWalletDLCHandler,
+          withdrawalTransactionHex = await handleWithdrawTransactionWithLeather(
+            dlcHandler as LeatherDLCHandler,
+            vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            vault,
             feeRateMultiplier
           );
           break;

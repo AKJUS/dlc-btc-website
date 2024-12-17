@@ -5,6 +5,7 @@ import Transport from '@ledgerhq/hw-transport-webusb';
 import { LedgerError } from '@models/error-types';
 import { LEDGER_APPS_MAP } from '@models/ledger';
 import { SupportedPaymentType } from '@models/supported-payment-types';
+import { BitcoinWalletAction, BitcoinWalletType } from '@models/wallet';
 import { bytesToHex } from '@noble/hashes/utils';
 import {
   BitcoinWalletContext,
@@ -17,7 +18,7 @@ import { delay, shiftValue, unshiftValue } from 'dlc-btc-lib/utilities';
 import { AppClient } from 'ledger-bitcoin';
 import { range } from 'ramda';
 
-import { BITCOIN_NETWORK_MAP } from '@shared/constants/bitcoin.constants';
+import { BITCOIN_NETWORK_MAP, walletLoadingState } from '@shared/constants/bitcoin.constants';
 
 type TransportInstance = Awaited<ReturnType<typeof Transport.create>>;
 
@@ -43,69 +44,33 @@ interface UseLedgerReturnType {
   handleFundingTransaction: (
     dlcHandler: LedgerDLCHandler,
     vault: RawVault,
-    bitcoinAmount: number,
+    depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
     dlcHandler: LedgerDLCHandler,
     vault: RawVault,
-    withdrawAmount: number,
+    depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
-  handleWithdrawalTransaction: (
+  handleWithdrawTransaction: (
     dlcHandler: LedgerDLCHandler,
+    vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
-    vault: RawVault,
     feeRateMultiplier: number
   ) => Promise<string>;
   isLoading: [boolean, string];
 }
 
 export function useLedger(): UseLedgerReturnType {
-  const { setBitcoinWalletContextState, setDLCHandler } = useContext(BitcoinWalletContext);
+  const { setBitcoinWalletContextState, setDLCHandler, bitcoinWalletType } =
+    useContext(BitcoinWalletContext);
 
   const [ledgerApp, setLedgerApp] = useState<AppClient | undefined>(undefined);
   const [isLoading, setIsLoading] = useState<[boolean, string]>([false, '']);
-
-  /**
-   * Gets the Ledger App.
-   * @param appName The name of the Ledger App.
-   * @returns The Ledger App.
-   */
-  async function getLedgerApp(appName: string): Promise<AppClient> {
-    setIsLoading([true, `Opening Ledger ${appName} App`]);
-    const transport = await Transport.create();
-    const ledgerApp = new AppClient(transport);
-    const appAndVersion = await ledgerApp.getAppAndVersion();
-
-    if (appAndVersion.name === appName) {
-      setIsLoading([false, '']);
-      return new AppClient(transport);
-    }
-
-    if (appAndVersion.name === LEDGER_APPS_MAP.MAIN_MENU) {
-      setIsLoading([true, `Open ${appName} App on your Ledger Device`]);
-      await openApp(transport, appName);
-      await delay(1500);
-      setIsLoading([false, '']);
-      return new AppClient(await Transport.create());
-    }
-
-    if (appAndVersion.name !== appName) {
-      await quitApp(await Transport.create());
-      await delay(1500);
-      setIsLoading([true, `Open ${appName} App on your Ledger Device`]);
-      await openApp(await Transport.create(), appName);
-      await delay(1500);
-      setIsLoading([false, '']);
-      return new AppClient(await Transport.create());
-    }
-
-    throw new LedgerError(`Could not open Ledger ${appName} App`);
-  }
 
   // Reference: https://github.com/LedgerHQ/ledger-live/blob/v22.0.1/src/hw/quitApp.ts\
   /**
@@ -128,6 +93,46 @@ export function useLedger(): UseLedgerReturnType {
     await transport.send(0xe0, 0xd8, 0x00, 0x00, Buffer.from(name, 'ascii'));
   }
 
+  /**
+   * Gets the Ledger App.
+   * @param appName The name of the Ledger App.
+   * @returns The Ledger App.
+   */
+  async function getLedgerApp(appName: string): Promise<AppClient> {
+    const transport = await Transport.create();
+    const ledgerApp = new AppClient(transport);
+    const appAndVersion = await ledgerApp.getAppAndVersion();
+
+    if (appAndVersion.name === appName) {
+      return new AppClient(transport);
+    }
+    setIsLoading(walletLoadingState(BitcoinWalletAction.OPEN_APP, BitcoinWalletType.Ledger));
+
+    if (appAndVersion.name === LEDGER_APPS_MAP.MAIN_MENU) {
+      await openApp(transport, appName);
+      await delay(1500);
+      return new AppClient(await Transport.create());
+    }
+
+    if (appAndVersion.name !== appName) {
+      await quitApp(await Transport.create());
+      await delay(1500);
+      await openApp(await Transport.create(), appName);
+      await delay(1500);
+      return new AppClient(await Transport.create());
+    }
+
+    throw new LedgerError(`Could not open Ledger ${appName} App`);
+  }
+
+  /**
+   * Fetches all Ledger Addresses with Balances from the user's Ledger Wallet for the given account index and displayed addresses start index.
+   *
+   * @param walletAccountIndex - The index of the wallet account.
+   * @param displayedAddressesStartIndex - The start index of the displayed addresses.
+   *
+   * @returns A promise that resolves to all native segwit and taproot addresses with balances according to the given account index and displayed addresses start index.
+   */
   async function getAllLedgerAddressesWithBalances(
     walletAccountIndex: number,
     displayedAddressesStartIndex: number
@@ -136,12 +141,16 @@ export function useLedger(): UseLedgerReturnType {
     taprootAddresses: BitcoinAddressInformation[];
   }> {
     try {
-      setIsLoading([true, 'Loading Ledger App and Information']);
+      setIsLoading(walletLoadingState(BitcoinWalletAction.OPENING_APP, BitcoinWalletType.Ledger));
+
       const bitcoinNetwork = BITCOIN_NETWORK_MAP[appConfiguration.bitcoinNetwork];
       const ledgerApp = await getLedgerApp(appConfiguration.ledgerApp);
       setLedgerApp(ledgerApp);
 
-      setIsLoading([true, `Loading Bitcoin Addresses`]);
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.LOADING_ADDRESSES, BitcoinWalletType.Ledger)
+      );
+
       const nativeSegwitAddresses = await getLedgerAddressesWithBalances(
         ledgerApp,
         bitcoinNetwork,
@@ -156,17 +165,24 @@ export function useLedger(): UseLedgerReturnType {
         walletAccountIndex,
         displayedAddressesStartIndex
       );
-      setIsLoading([false, '']);
+
       return { nativeSegwitAddresses, taprootAddresses };
     } catch (error: any) {
-      setIsLoading([false, '']);
       throw new LedgerError(`Error getting all Ledger Addresses with Balances: ${error}`);
+    } finally {
+      setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
   /**
-   * Gets the Ledger Addresses with Balances.
-   * @param paymentType The Payment Type.
+   * Fetches Ledger Addresses with Balances from the user's Ledger Wallet for the given account index and displayed addresses start index.
+   *
+   * @param ledgerApp - The Ledger App.
+   * @param bitcoinNetwork - The Bitcoin Network.
+   * @param paymentType - The Payment Type.
+   * @param accountIndex - The Account Index.
+   * @param startIndex - The Start Index.
+   *
    * @returns The Ledger Addresses with Balances.
    */
   async function getLedgerAddressesWithBalances(
@@ -176,51 +192,56 @@ export function useLedger(): UseLedgerReturnType {
     accountIndex: number,
     startIndex: number
   ): Promise<BitcoinAddressInformation[]> {
-    try {
-      const derivationPath = `${paymentType === 'wpkh' ? '84' : '86'}'/${appConfiguration.bitcoinNetworkIndex}'/${accountIndex}'`;
-      const extendedPublicKey = await ledgerApp.getExtendedPubkey(`m/${derivationPath}`);
+    const derivationPath = `${paymentType === 'wpkh' ? '84' : '86'}'/${appConfiguration.bitcoinNetworkIndex}'/${accountIndex}'`;
+    const extendedPublicKey = await ledgerApp.getExtendedPubkey(`m/${derivationPath}`);
 
-      const addresses: BitcoinAddressInformation[] = [];
-      for (const i of range(startIndex, startIndex + 5)) {
-        const address = getBitcoinAddressFromExtendedPublicKey(
-          extendedPublicKey,
-          bitcoinNetwork,
-          i,
-          paymentType
-        );
-
-        addresses.push({
-          index: i,
-          address: address,
-          balance: 0,
-        });
-      }
-
-      const addressesWithBalances: BitcoinAddressInformation[] = await Promise.all(
-        addresses.map(async addressInformation => {
-          const balance = unshiftValue(
-            await getBalance(addressInformation.address, appConfiguration.bitcoinBlockchainURL)
-          );
-          addressInformation.balance = balance;
-
-          return addressInformation;
-        })
+    const addresses: BitcoinAddressInformation[] = [];
+    for (const i of range(startIndex, startIndex + 5)) {
+      const address = getBitcoinAddressFromExtendedPublicKey(
+        extendedPublicKey,
+        bitcoinNetwork,
+        i,
+        paymentType
       );
 
-      return addressesWithBalances;
-    } catch (error: any) {
-      setIsLoading([false, '']);
-      throw new LedgerError(`Error getting Ledger Addresses with Balances: ${error}`);
+      addresses.push({
+        index: i,
+        address: address,
+        balance: 0,
+      });
     }
+
+    const addressesWithBalances: BitcoinAddressInformation[] = await Promise.all(
+      addresses.map(async addressInformation => {
+        const balance = unshiftValue(
+          await getBalance(addressInformation.address, appConfiguration.bitcoinBlockchainURL)
+        );
+        addressInformation.balance = balance;
+
+        return addressInformation;
+      })
+    );
+
+    return addressesWithBalances;
   }
 
+  /**
+   * Fetches the User's Ledger Wallet Information.
+   *
+   * @param walletAccountIndex - The Wallet Account Index.
+   * @param walletAddressIndex - The Wallet Address Index.
+   * @param paymentType - The Payment Type.
+   *
+   * @returns A promise that resolves to set the Bitcoin Wallet Context State to Ready.
+   */
   async function connectLedgerWallet(
     walletAccountIndex: number,
     walletAddressIndex: number,
     paymentType: SupportedPaymentType
   ): Promise<void> {
     try {
-      setIsLoading([true, 'Connecting To Ledger Wallet']);
+      setIsLoading(walletLoadingState(BitcoinWalletAction.CONNECTING, BitcoinWalletType.Ledger));
+
       if (!ledgerApp) {
         throw new LedgerError('Ledger App not initialized');
       }
@@ -239,106 +260,147 @@ export function useLedger(): UseLedgerReturnType {
 
       setDLCHandler(ledgerDLCHandler);
       setBitcoinWalletContextState(BitcoinWalletContextState.READY);
-      setIsLoading([false, '']);
     } catch (error: any) {
-      setIsLoading([false, '']);
-      throw new LedgerError(`Error connecting to Ledger Wallet: ${error}`);
+      throw new LedgerError(`Error getting Ledger Wallet Information: ${error}`);
+    } finally {
+      setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
   /**
-   * Creates the Funding Transaction and signs it with the Ledger Device.
-   * @param vaultUUID The Vault UUID.
+   * Creates the Funding Transaction and signs it with Ledger Wallet.
+   * @param dlcHandler The DLC Handler.
+   * @param vault The Vault to interact with.
+   * @param depositAmount The Bitcoin Amount to fund the Vault.
+   * @param attestorGroupPublicKey The Attestor Group Public Key.
+   * @param feeRateMultiplier The Fee Rate Multiplier for the Transaction.
+   *
    * @returns The Signed Funding Transaction.
    */
   async function handleFundingTransaction(
     dlcHandler: LedgerDLCHandler,
     vault: RawVault,
-    bitcoinAmount: number,
+    depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
-      setIsLoading([true, 'Accept Multisig Wallet Policy on your Ledger Device']);
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
+      );
 
-      // ==> Create Funding Transaction
+      const formattedDepositAmount = BigInt(shiftValue(depositAmount));
+
       const fundingPSBT = await dlcHandler.createFundingPSBT(
         vault,
-        BigInt(shiftValue(bitcoinAmount)),
+        formattedDepositAmount,
         attestorGroupPublicKey,
         feeRateMultiplier
       );
 
-      setIsLoading([true, 'Sign Funding Transaction on your Ledger Device']);
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.SIGNING_TRANSACTION, bitcoinWalletType, 'Funding')
+      );
 
-      // ==> Sign Funding PSBT with Ledger
       const fundingTransaction = await dlcHandler.signPSBT(fundingPSBT, 'funding');
 
-      setIsLoading([false, '']);
       return fundingTransaction;
     } catch (error) {
-      setIsLoading([false, '']);
       throw new LedgerError(`Error handling Funding Transaction: ${error}`);
+    } finally {
+      setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
+  /**
+   * Creates a Deposit Transaction and signs it with Ledger Wallet.
+   * @param dlcHandler The DLC Handler.
+   * @param vault The Vault to interact with.
+   * @param depositAmount The Bitcoin Amount to deposit into the Vault.
+   * @param attestorGroupPublicKey The Attestor Group Public Key.
+   * @param feeRateMultiplier The Fee Rate Multiplier for the Transaction.
+   *
+   * @returns The Signed Deposit Transaction.
+   */
   async function handleDepositTransaction(
     dlcHandler: LedgerDLCHandler,
     vault: RawVault,
-    withdrawAmount: number,
+    depositAmount: number,
     attestorGroupPublicKey: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
-      setIsLoading([true, 'Accept Multisig Wallet Policy on your Ledger Device']);
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
+      );
+
+      const formattedDepositAmount = BigInt(shiftValue(depositAmount));
 
       const depositPSBT = await dlcHandler.createDepositPSBT(
-        BigInt(shiftValue(withdrawAmount)),
         vault,
+        formattedDepositAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
         feeRateMultiplier
       );
 
-      setIsLoading([true, 'Sign Deposit Transaction in your Leather Wallet']);
-      // ==> Sign Withdrawal PSBT with Ledger
-      const depositTransaction = await dlcHandler.signPSBT(depositPSBT, 'deposit');
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.SIGNING_TRANSACTION, bitcoinWalletType, 'Deposit')
+      );
 
-      setIsLoading([false, '']);
-      return depositTransaction;
+      const signedDepositTransaction = await dlcHandler.signPSBT(depositPSBT, 'deposit');
+
+      return signedDepositTransaction;
     } catch (error) {
-      setIsLoading([false, '']);
       throw new LedgerError(`Error handling Deposit Transaction: ${error}`);
+    } finally {
+      setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
-  async function handleWithdrawalTransaction(
+  /**
+   * Creates a Withdraw Transaction and signs it with Ledger Wallet.
+   * @param dlcHandler The DLC Handler.
+   * @param vault The Vault to interact with.
+   * @param withdrawAmount The Bitcoin Amount to withdraw from the Vault.
+   * @param attestorGroupPublicKey The Attestor Group Public Key.
+   * @param feeRateMultiplier The Fee Rate Multiplier.
+   *
+   * @returns The Signed Withdraw Transaction.
+   */
+  async function handleWithdrawTransaction(
     dlcHandler: LedgerDLCHandler,
+    vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
-    vault: RawVault,
     feeRateMultiplier: number
   ): Promise<string> {
     try {
-      setIsLoading([true, 'Accept Multisig Wallet Policy on your Ledger Device']);
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
+      );
+
+      const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
 
       const withdrawalPSBT = await dlcHandler.createWithdrawPSBT(
         vault,
-        BigInt(shiftValue(withdrawAmount)),
+        formattedWithdrawAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
         feeRateMultiplier
       );
 
-      setIsLoading([true, 'Sign Withdrawal Transaction in your Leather Wallet']);
-      // ==> Sign Withdrawal PSBT with Ledger
+      setIsLoading(
+        walletLoadingState(BitcoinWalletAction.SIGNING_TRANSACTION, bitcoinWalletType, 'Withdraw')
+      );
+
       const withdrawalTransaction = await dlcHandler.signPSBT(withdrawalPSBT, 'withdraw');
 
-      setIsLoading([false, '']);
       return bytesToHex(withdrawalTransaction.toPSBT());
     } catch (error) {
-      setIsLoading([false, '']);
       throw new LedgerError(`Error handling Withdrawal Transaction: ${error}`);
+    } finally {
+      setIsLoading(walletLoadingState(BitcoinWalletAction.NONE));
     }
   }
 
@@ -347,7 +409,7 @@ export function useLedger(): UseLedgerReturnType {
     connectLedgerWallet,
     handleFundingTransaction,
     handleDepositTransaction,
-    handleWithdrawalTransaction,
+    handleWithdrawTransaction,
     isLoading,
   };
 }
