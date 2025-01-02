@@ -34,11 +34,17 @@ function validateDepositAmount(
   return error;
 }
 
-function validateBurnAmount(value: number, valueMinted: number): string | undefined {
+function validateBurnAmount(
+  value: number,
+  valueMinted: number,
+  depositLimit: { minimumDeposit: number; maximumDeposit: number }
+): string | undefined {
   let error;
 
   if (!value) {
     error = 'Please enter a valid amount of iBTC';
+  } else if (depositLimit && value < depositLimit.minimumDeposit) {
+    error = `You can't burn less than ${depositLimit.minimumDeposit} BTC`;
   } else if (valueMinted && value > valueMinted) {
     error = `You can't burn more than ${valueMinted} iBTC`;
   }
@@ -61,7 +67,7 @@ function validateFormAmount(
     case 'mint':
       return validateDepositAmount(value, depositLimit);
     case 'burn':
-      return validateBurnAmount(value, vault.valueMinted);
+      return validateBurnAmount(value, vault.valueMinted, depositLimit);
   }
 }
 

@@ -5220,10 +5220,10 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-dlc-btc-lib@2.5.1:
-  version "2.5.1"
-  resolved "https://registry.yarnpkg.com/dlc-btc-lib/-/dlc-btc-lib-2.5.1.tgz#b1eb33c0a56a244fcb109da4704854cf8a585c15"
-  integrity sha512-YRfIsfsgzmUcepowZYaLjY/1E2MJbN5zIhEhS1NgiJsDBjNVAiZTHLY7RiX3eNValgFSnsY3IpUyF6piPap72A==
+dlc-btc-lib@2.5.4:
+  version "2.5.4"
+  resolved "https://registry.yarnpkg.com/dlc-btc-lib/-/dlc-btc-lib-2.5.4.tgz#265dcc14f3a6f090bb19dbb9753c36359f65b615"
+  integrity sha512-EYm7pupdooxexGlTuljsCU31hl3v0OoA4Oers8Anwf4FkZPsItIxFMV2HpFy/cmDlGuwtzKw9RNLXun10KcLLg==
   dependencies:
     "@dfns/sdk" "^0.5.9"
     "@dfns/sdk-browser" "^0.5.9"
