@@ -1,7 +1,7 @@
 {
   "appEnvironment": "mainnet",
   "coordinatorURL": "https://mainnet.dlc.link/attestor-1",
-  "enabledEthereumNetworkIDs": ["42161", "8453"],
+  "enabledEthereumNetworkIDs": ["42161", "8453", "56", "43114"],
   "enabledRippleNetworkIDs": ["0"],
   "bitcoinNetwork": "mainnet",
   "bitcoinNetworkIndex": 0,
@@ -41,6 +41,11 @@
       "name": "Pattern Research",
       "addresses": ["0x707A141c5c19c25E2e6D50b214e39A4293B63234"],
       "logo": "/images/logos/pattern-research-logo.svg"
+    },
+    {
+      "name": "VanEck",
+      "addresses": ["0x5aEF63A4291177e27892382B0B68E95CEef3B6FC"],
+      "logo": "/images/logos/vaneck-logo.svg"
     }
   ],
   "protocols": [

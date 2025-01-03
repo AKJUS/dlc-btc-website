@@ -13,6 +13,8 @@ export interface EthereumNetworkConfiguration {
     | 'evm-arbsepolia'
     | 'evm-base'
     | 'evm-basesepolia'
+    | 'evm-avax'
+    | 'evm-bsc'
     | 'evm-hardhat-arb'
     | 'evm-hardhat-eth';
   enabledEthereumNetworks: EthereumNetwork[];

@@ -32,6 +32,10 @@ export interface Configuration {
   arbitrumHTTP: string;
   baseWebsocket: string;
   baseHTTP: string;
+  avalancheWebsocket: string;
+  avalancheHTTP: string;
+  bscWebsocket: string;
+  bscHTTP: string;
   xrplWebsocket: string;
   walletConnectProjectID: string;
   bitcoinNetwork: BitcoinNetworkName;

@@ -2,8 +2,10 @@ import { Chain } from 'viem';
 import {
   arbitrum,
   arbitrumSepolia,
+  avalanche,
   base,
   baseSepolia,
+  bsc,
   hardhat,
   mainnet,
   sepolia,
@@ -15,6 +17,8 @@ export const SUPPORTED_VIEM_CHAINS: Chain[] = [
   arbitrum,
   arbitrumSepolia,
   base,
+  bsc,
+  avalanche,
   baseSepolia,
   hardhat,
 ];

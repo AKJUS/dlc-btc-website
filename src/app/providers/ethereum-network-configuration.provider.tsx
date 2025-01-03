@@ -12,8 +12,10 @@ import { equals, find } from 'ramda';
 import {
   arbitrum,
   arbitrumSepolia,
+  avalanche,
   base,
   baseSepolia,
+  bsc,
   hardhat,
   mainnet,
   sepolia,
@@ -166,6 +168,48 @@ function getEthereumNetworkConfiguration(
           appConfiguration.arbitrumWebsocket
         ),
         chain: arbitrumSepolia,
+      };
+    case EthereumNetworkID.Avalanche:
+      return {
+        ethereumExplorerAPIURL: avalanche.blockExplorers.default.apiUrl,
+        websocketURL: appConfiguration.avalancheWebsocket,
+        httpURL: appConfiguration.avalancheHTTP,
+        ethereumAttestorChainID: 'evm-avax',
+        enabledEthereumNetworks,
+        dlcManagerContract: getEthereumContractWithProvider(
+          getEthereumNetworkDeploymentPlans(avalanche),
+          avalanche,
+          'DLCManager',
+          appConfiguration.avalancheWebsocket
+        ),
+        iBTCContract: getEthereumContractWithProvider(
+          getEthereumNetworkDeploymentPlans(avalanche),
+          avalanche,
+          'IBTC',
+          appConfiguration.avalancheWebsocket
+        ),
+        chain: avalanche,
+      };
+    case EthereumNetworkID.BSC:
+      return {
+        ethereumExplorerAPIURL: bsc.blockExplorers.default.apiUrl,
+        websocketURL: appConfiguration.bscWebsocket,
+        httpURL: appConfiguration.bscHTTP,
+        ethereumAttestorChainID: 'evm-bsc',
+        enabledEthereumNetworks,
+        dlcManagerContract: getEthereumContractWithProvider(
+          getEthereumNetworkDeploymentPlans(bsc),
+          bsc,
+          'DLCManager',
+          appConfiguration.bscWebsocket
+        ),
+        iBTCContract: getEthereumContractWithProvider(
+          getEthereumNetworkDeploymentPlans(bsc),
+          bsc,
+          'IBTC',
+          appConfiguration.bscWebsocket
+        ),
+        chain: bsc,
       };
     case EthereumNetworkID.Hardhat:
       return {

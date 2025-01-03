@@ -65,12 +65,19 @@ export default defineConfig(async ({ mode }) =>  {
   const arbitrumURLs: string[] = env.VITE_ARBITRUM_OBSERVER_NODE.split(',');
   const l1URLs: string[] = env.VITE_L1_OBSERVER_NODE.split(',');
   const baseURLs: string[] = env.VITE_BASE_OBSERVER_NODE.split(',');
+  const avalancheURLs: string[] = env.VITE_AVALANCHE_OBSERVER_NODE.split(',');
+  const bscURLs: string[] = env.VITE_BSC_OBSERVER_NODE.split(',');
+
   appConfiguration.arbitrumWebsocket = arbitrumURLs[0];
   appConfiguration.arbitrumHTTP = arbitrumURLs[1];
   appConfiguration.l1Websocket = l1URLs[0];
   appConfiguration.l1HTTP = l1URLs[1];
   appConfiguration.baseWebsocket = baseURLs[0];
   appConfiguration.baseHTTP = baseURLs[1];
+  appConfiguration.avalancheWebsocket = avalancheURLs[0];
+  appConfiguration.avalancheHTTP = avalancheURLs[1];
+  appConfiguration.bscWebsocket = bscURLs[0];
+  appConfiguration.bscHTTP = bscURLs[1];
   appConfiguration.walletConnectProjectID = env.VITE_WALLET_CONNECT_PROJECT_ID;
 
 
