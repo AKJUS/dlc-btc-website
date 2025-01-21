@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Button, HStack, Skeleton, Spacer, VStack, useBreakpointValue } from '@chakra-ui/react';
 import { GenericTableBody } from '@components/generic-table/components/generic-table-body';
@@ -6,6 +6,9 @@ import { GenericTableHeader } from '@components/generic-table/components/generic
 import { GenericTableHeaderText } from '@components/generic-table/components/generic-table-header-text';
 import { GenericTableLayout } from '@components/generic-table/components/generic-table-layout';
 import { ProtocolHistoryTableItem } from '@components/protocol-history-table/components/protocol-history-table-item';
+import { unshiftValue } from 'dlc-btc-lib/utilities';
+
+import { formatToFourDecimals } from '@shared/utils';
 
 interface ProtocolHistoryTableProps {
   items?: any[];
@@ -16,9 +19,26 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
   const itemsPerPage = 10;
   const isMobile = useBreakpointValue({ base: true, lg: false });
 
-  const totalPages = Math.ceil((items?.length || 0) / itemsPerPage);
+  const filteredItems = useMemo(() => {
+    if (!items) return [];
+    return items
+      ?.map(item => {
+        const { iBTCAmount } = item;
+        const displayAmount = formatToFourDecimals(unshiftValue(iBTCAmount));
+        return {
+          ...item,
+          displayAmount: displayAmount === 0 ? null : displayAmount,
+        };
+      })
+      .filter(item => item.displayAmount !== null);
+  }, [items]);
 
-  const currentItems = items?.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const totalPages = Math.ceil((filteredItems?.length || 0) / itemsPerPage);
+
+  const currentItems = filteredItems?.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const handlePageChange = (direction: number) => {
     setCurrentPage(prevPage => {

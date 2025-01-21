@@ -41,4 +41,5 @@ export interface FormattedEvent {
   chain: string;
   isMint: boolean;
   isCCIP: boolean;
+  displayAmount: number | null;
 }

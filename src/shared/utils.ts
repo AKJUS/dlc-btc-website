@@ -1,6 +1,7 @@
 import { DetailedEvent, FormattedEvent } from '@models/ethereum-models';
 import Decimal from 'decimal.js';
 import { supportedEthereumNetworks } from 'dlc-btc-lib/constants';
+import { unshiftValue } from 'dlc-btc-lib/utilities';
 import { Chain } from 'viem';
 
 import { SUPPORTED_VIEM_CHAINS } from './constants/ethereum.constants';
@@ -38,8 +39,15 @@ export function findEthereumNetworkByName(ethereumNetworkName: string): Chain {
 export function formatEvent(event: DetailedEvent): FormattedEvent {
   const isMint = event.eventType === 'mint';
   const date = new Date(event.timestamp * 1000);
+
+  const iBTCAmount = isMint ? event.value : -event.value;
+
+  const displayAmount =
+    formatToFourDecimals(unshiftValue(iBTCAmount)) === 0
+      ? null
+      : formatToFourDecimals(unshiftValue(iBTCAmount));
   return {
-    iBTCAmount: isMint ? event.value : -event.value,
+    iBTCAmount,
     merchant: isMint ? event.to : event.from,
     txHash: event.txHash,
     date: date
@@ -48,6 +56,7 @@ export function formatEvent(event: DetailedEvent): FormattedEvent {
     isMint,
     chain: event.chain,
     isCCIP: event.isCCIP,
+    displayAmount,
   };
 }
 
@@ -65,7 +74,9 @@ export function parseAssetAmount(assetAmount: string): Decimal {
 }
 
 export function formatToFourDecimals(value: number): number {
-  return parseFloat(value.toFixed(4));
+  const roundedValue =
+    value < 0 ? -Math.abs(parseFloat(value.toFixed(4))) : parseFloat(value.toFixed(4));
+  return roundedValue;
 }
 
 export const breakpoints = ['300px', '400px', '600px', '850px', '1280px', '1400px'];

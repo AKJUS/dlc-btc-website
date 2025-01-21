@@ -2,22 +2,22 @@
 import { HStack, Image, Text, useBreakpointValue } from '@chakra-ui/react';
 import { CustomSkeleton } from '@components/custom-skeleton/custom-skeleton';
 import { DetailedEvent } from '@models/ethereum-models';
-import { truncateAddress, unshiftValue } from 'dlc-btc-lib/utilities';
+import { truncateAddress } from 'dlc-btc-lib/utilities';
 
 import { findEthereumNetworkByName, formatEvent } from '@shared/utils';
 
 export function ProtocolHistoryTableItem(
   protocolHistoryTableItem: DetailedEvent
-): React.JSX.Element {
+): React.JSX.Element | null {
   if (!protocolHistoryTableItem) return <CustomSkeleton height={'35px'} />;
 
   const {
     merchant,
-    iBTCAmount,
     txHash,
     date,
     isMint,
     chain: eventChain,
+    displayAmount,
   } = formatEvent(protocolHistoryTableItem);
 
   const ethereumNetwork = findEthereumNetworkByName(eventChain);
@@ -40,7 +40,7 @@ export function ProtocolHistoryTableItem(
           <HStack w={'50%'}>
             <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'20px'} />
             <Text color={'white'} fontWeight={800}>
-              {unshiftValue(iBTCAmount)}
+              {displayAmount}
             </Text>
           </HStack>
           <HStack w={'50%'}>
@@ -62,7 +62,7 @@ export function ProtocolHistoryTableItem(
           <HStack w={'20%'}>
             <Image src={'/images/logos/ibtc-logo.svg'} alt={'iBTC Logo'} boxSize={'20px'} />
             <Text color={'white'} fontWeight={800}>
-              {unshiftValue(iBTCAmount)}
+              {displayAmount}
             </Text>
           </HStack>
           <HStack w={'20%'}>

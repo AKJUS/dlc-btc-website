@@ -4,7 +4,7 @@ import { CustomSkeleton } from '@components/custom-skeleton/custom-skeleton';
 import { DetailedEvent } from '@models/ethereum-models';
 import { truncateAddress, unshiftValue } from 'dlc-btc-lib/utilities';
 
-import { findEthereumNetworkByName, formatEvent } from '@shared/utils';
+import { findEthereumNetworkByName, formatEvent, formatToFourDecimals } from '@shared/utils';
 
 export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent): React.JSX.Element {
   if (!merchantFocusTableItem) return <CustomSkeleton height={'35px'} />;
@@ -16,9 +16,12 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
     isMint,
     chain: eventChain,
   } = formatEvent(merchantFocusTableItem);
-
   const ethereumNetwork = findEthereumNetworkByName(eventChain);
+
   const isMobile = useBreakpointValue({ base: true, md: false });
+
+  const formattedAmount = unshiftValue(iBTCAmount);
+  const displayAmount = formattedAmount !== 0 ? formatToFourDecimals(formattedAmount) : 'N/A';
 
   return (
     <HStack
@@ -42,7 +45,7 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
           <HStack w={'30%'}>
             <Image src={'/images/logos/ibtc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
-              {unshiftValue(iBTCAmount)}
+              {displayAmount}
             </Text>
           </HStack>
           <HStack w={'30%'}>
@@ -69,13 +72,9 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
           <HStack w={'15%'}>
             <Image src={'/images/logos/ibtc-logo.svg'} alt={'dlc BTC logo'} boxSize={'25px'} />
             <Text color={'white'} fontSize={'sm'} fontWeight={800}>
-              {unshiftValue(iBTCAmount)}
+              {displayAmount}
             </Text>
           </HStack>
-          {/* add back the USD calculation later and adjus the width accordingly */}
-          {/* <Text w={'20%'} color={'white'} fontSize={'sm'}>
-        {inUSD}
-      </Text> */}
           <HStack w={'15%'}>
             <Text
               color={'accent.lightBlue.01'}
