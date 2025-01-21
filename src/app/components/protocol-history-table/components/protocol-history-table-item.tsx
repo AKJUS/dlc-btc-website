@@ -22,7 +22,7 @@ export function ProtocolHistoryTableItem(
 
   const ethereumNetwork = findEthereumNetworkByName(eventChain);
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
   return (
     <HStack
       p={'10px'}

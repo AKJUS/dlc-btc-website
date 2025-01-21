@@ -32,7 +32,7 @@ export function AccountMenu({
   if (!address) return false;
   return (
     <Menu variant={'account'}>
-      <MenuButton h={isMobile ? '40px' : '50px'} w={isMobile ? '120px' : '275px'}>
+      <MenuButton h={'50px'} w={isMobile ? '120px' : '275px'}>
         <HStack justifyContent={'space-evenly'}>
           {!isMobile ? (
             <>

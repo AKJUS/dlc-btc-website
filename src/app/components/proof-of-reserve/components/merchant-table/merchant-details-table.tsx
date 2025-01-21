@@ -11,11 +11,11 @@ interface MerchantDetailsTableProps {
 }
 
 export function MerchantDetailsTable({ items }: MerchantDetailsTableProps): React.JSX.Element {
-  const dynamicHeight = items ? items.length * 59 + 20 : 20;
+  const dynamicHeight = items ? items.length * 75 + 20 : 20;
   const isMobile = useBreakpointValue({ base: true, md: false });
 
   return (
-    <GenericTableLayout height={`${dynamicHeight}px`} isMobile={isMobile}>
+    <GenericTableLayout height={`${dynamicHeight}px`} isMobile={isMobile} isMerchant={true}>
       <GenericTableHeader>
         {isMobile ? (
           <>

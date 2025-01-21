@@ -57,13 +57,13 @@ export function NetworksMenu({
 
   return (
     <Menu variant={'networkChange'} isOpen={isMenuOpen}>
-      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} h={isMobile ? '40px' : '50px'}>
+      <MenuButton onClick={() => setIsMenuOpen(!isMenuOpen)} h={'50px'}>
         {isMobile ? (
           <Image
             src={getNetworkLogo(ethereumNetwork?.id.toString() as EthereumNetworkID)}
             alt={'Selected network logo'}
-            w={'30px'}
-            ml={'4px'}
+            w={'35px'}
+            ml={'7px'}
           />
         ) : (
           //TODO: what to display in case of not connected?

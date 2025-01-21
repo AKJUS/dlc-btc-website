@@ -14,7 +14,7 @@ interface ProtocolHistoryTableProps {
 export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): React.JSX.Element {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, lg: false });
 
   const totalPages = Math.ceil((items?.length || 0) / itemsPerPage);
 
@@ -29,8 +29,8 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
   };
 
   return (
-    <VStack w={'70%'} spacing={4}>
-      <GenericTableLayout height={'680px'} width={'100%'} isMobile={isMobile}>
+    <VStack w={'100%'} spacing={4}>
+      <GenericTableLayout height={'680px'} width={'100%'} isMobile={isMobile} isMerchant={true}>
         <GenericTableHeader>
           {isMobile ? (
             <>

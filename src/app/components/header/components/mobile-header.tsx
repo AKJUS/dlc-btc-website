@@ -27,17 +27,15 @@ const MobileHeader: React.FC<MobileHeaderProps> = ({ isNetworkMenuOpen, setIsNet
             <MenuButton
               as={IconButton}
               aria-label={'Options'}
-              icon={<HamburgerIcon />}
+              icon={<HamburgerIcon boxSize={6} />}
               justifyContent={'center'}
-              p={'3px'}
-              h={'40px'}
-              w={'40px'}
+              h={'50px'}
+              w={'50px'}
               bg={'background.content.01'}
               border={'1.5px solid'}
               borderColor={'border.white.01'}
               borderRadius={'md'}
               color={'white'}
-              fontSize={'sm'}
               fontWeight={600}
             />
             <MenuList

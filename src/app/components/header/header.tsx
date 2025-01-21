@@ -26,7 +26,7 @@ export function Header(): React.JSX.Element {
     navigate(route);
   };
 
-  const isMobile = useBreakpointValue({ base: true, md: false });
+  const isMobile = useBreakpointValue({ base: true, xl: false });
 
   useEffect(() => {
     if (networkType === NetworkType.EVM && isConnected && !ethereumNetwork) {

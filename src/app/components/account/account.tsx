@@ -63,7 +63,7 @@ export function Account(): React.JSX.Element {
   }
 
   return (
-    <HStack h={isMobile ? '40px' : '50px'}>
+    <HStack h={'50px'}>
       {isConnected ? (
         <AccountMenu
           address={getWalletInformation()?.address}
@@ -74,7 +74,7 @@ export function Account(): React.JSX.Element {
         <Button
           variant={'account'}
           onClick={() => onConnectWalletClick()}
-          h={isMobile ? '40px' : '50px'}
+          h={'50px'}
           w={isMobile ? '150px' : '275px'}
           fontSize={isMobile ? 'md' : 'lg'}
         >

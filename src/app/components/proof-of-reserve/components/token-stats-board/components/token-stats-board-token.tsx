@@ -1,4 +1,4 @@
-import { HStack, Image, Skeleton, Text, VStack } from '@chakra-ui/react';
+import { HStack, Image, Skeleton, Text, VStack, useBreakpointValue } from '@chakra-ui/react';
 import { Token } from '@models/token';
 
 interface TokenStatsBoardTokenProps {
@@ -20,6 +20,8 @@ export function TokenStatsBoardToken({
       break;
   }
 
+  const amountFontSize = useBreakpointValue({ base: '2xl', md: 'xl', lg: 'xl', xl: '2xl' });
+
   return (
     <VStack w={'100%'} h={'100%'} alignItems={'start'}>
       <Text color={'white.01'} fontWeight={600} fontSize={'lg'}>
@@ -28,7 +30,7 @@ export function TokenStatsBoardToken({
       <Skeleton isLoaded={totalSupply !== undefined} h={'auto'} w={'100%'}>
         <HStack>
           <Image src={token.logo} alt={token.logoAlt} boxSize={'25px'} />
-          <Text color={'white.01'} fontWeight={200} fontSize={'2xl'}>
+          <Text color={'white.01'} fontWeight={200} fontSize={amountFontSize}>
             {Number(totalSupply).toFixed(4)}
           </Text>
         </HStack>

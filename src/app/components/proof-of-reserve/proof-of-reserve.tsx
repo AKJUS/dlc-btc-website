@@ -62,7 +62,7 @@ export function ProofOfReserve(): React.JSX.Element {
       </TokenStatsBoardLayout>
       <Stack
         w={'100%'}
-        alignItems={'flex-start'}
+        alignItems={'stretch'}
         direction={isMobile ? 'column' : 'row'}
         gap={isMobile ? '40px' : '20px'}
       >

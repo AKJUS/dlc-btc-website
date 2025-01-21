@@ -32,6 +32,7 @@ export function MerchantDetails(): React.JSX.Element {
   const selectedMerchant = proofOfReserve?.[1].find(item => item.merchant.name === name);
   const mintBurnEvents = merchantMintBurnEvents?.find(item => item.name === name)?.mintBurnEvents;
   const isMobile = useBreakpointValue({ base: true, md: false });
+  const imageWidth = useBreakpointValue({ base: '150px', xl: '200px' });
 
   if (!name) return <Text>Error: No merchant name provided</Text>;
 
@@ -69,12 +70,8 @@ export function MerchantDetails(): React.JSX.Element {
           direction={isMobile ? 'column' : 'row'}
           gap={isMobile ? '20px' : '0px'}
         >
-          <Image
-            src={selectedMerchant?.merchant.logo}
-            alt={'Merchant logo'}
-            width={isMobile ? '150px' : '100px'}
-            mx={isMobile ? '0px' : '30px'}
-          />
+          <Image src={selectedMerchant?.merchant.logo} alt={'Merchant logo'} width={imageWidth} />
+
           <Divider
             orientation={isMobile ? 'horizontal' : 'vertical'}
             px={isMobile ? '0px' : '10px'}
