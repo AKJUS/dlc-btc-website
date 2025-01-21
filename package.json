@@ -71,7 +71,7 @@
   },
   "devDependencies": {
     "@ls-lint/ls-lint": "^2.2.2",
-    "@playwright/test": "^1.39.0",
+    "@playwright/test": "^1.49.1",
     "@types/node": "^20.8.10",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
