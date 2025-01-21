@@ -19,10 +19,14 @@ function calculateProtocolFeeInUSD(
   usdPrice: number,
   feeBasisPoints: number
 ): string {
-  const feeAmount = new Decimal(getFeeAmount(assetAmount, feeBasisPoints));
-  const result = feeAmount.mul(new Decimal(usdPrice));
+  try {
+    const feeAmount = new Decimal(getFeeAmount(assetAmount, feeBasisPoints));
+    const result = feeAmount.mul(new Decimal(usdPrice));
 
-  return result.toNumber().toLocaleString('en-US');
+    return result.toNumber().toLocaleString('en-US');
+  } catch (error) {
+    return '0';
+  }
 }
 
 export function TransactionFormProtocolFeeStack({
