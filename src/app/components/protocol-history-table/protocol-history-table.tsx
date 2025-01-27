@@ -6,12 +6,13 @@ import { GenericTableHeader } from '@components/generic-table/components/generic
 import { GenericTableHeaderText } from '@components/generic-table/components/generic-table-header-text';
 import { GenericTableLayout } from '@components/generic-table/components/generic-table-layout';
 import { ProtocolHistoryTableItem } from '@components/protocol-history-table/components/protocol-history-table-item';
+import { DetailedEvent } from '@models/ethereum-models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
 
 import { formatToFourDecimals } from '@shared/utils';
 
 interface ProtocolHistoryTableProps {
-  items?: any[];
+  items?: DetailedEvent[];
 }
 
 export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): React.JSX.Element {
@@ -21,16 +22,14 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
 
   const filteredItems = useMemo(() => {
     if (!items) return [];
-    return items
-      ?.map(item => {
-        const { iBTCAmount } = item;
-        const displayAmount = formatToFourDecimals(unshiftValue(iBTCAmount));
-        return {
-          ...item,
-          displayAmount: displayAmount === 0 ? null : displayAmount,
-        };
-      })
-      .filter(item => item.displayAmount !== null);
+    return items.filter(item => {
+      const { value } = item;
+      const displayAmount =
+        formatToFourDecimals(unshiftValue(value)) === 0
+          ? null
+          : formatToFourDecimals(unshiftValue(value));
+      return displayAmount !== null && !isNaN(displayAmount);
+    });
   }, [items]);
 
   const totalPages = Math.ceil((filteredItems?.length || 0) / itemsPerPage);
@@ -69,7 +68,7 @@ export function ProtocolHistoryTable({ items }: ProtocolHistoryTableProps): Reac
         </GenericTableHeader>
         <Skeleton isLoaded={items !== undefined} height={'50px'} w={'100%'}>
           <GenericTableBody>
-            {currentItems?.map(item => <ProtocolHistoryTableItem key={item.id} {...item} />)}
+            {currentItems?.map((item, idx) => <ProtocolHistoryTableItem key={idx} {...item} />)}
           </GenericTableBody>
         </Skeleton>
         <Spacer />

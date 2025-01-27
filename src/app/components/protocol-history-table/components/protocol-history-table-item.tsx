@@ -16,8 +16,8 @@ export function ProtocolHistoryTableItem(
     txHash,
     date,
     isMint,
-    chain: eventChain,
     displayAmount,
+    chain: eventChain,
   } = formatEvent(protocolHistoryTableItem);
 
   const ethereumNetwork = findEthereumNetworkByName(eventChain);

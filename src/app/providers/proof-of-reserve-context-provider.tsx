@@ -5,9 +5,9 @@ import { useDepositLimits } from '@hooks/use-deposit-limits';
 import { useMintBurnEvents } from '@hooks/use-mint-burn-events';
 import { useProofOfReserve } from '@hooks/use-proof-of-reserve';
 import { useTotalSupply } from '@hooks/use-total-supply';
+import { DetailedEvent } from '@models/ethereum-models';
 import { HasChildren } from '@models/has-children';
 import { MerchantProofOfReserve } from '@models/merchant';
-import { DetailedEvent } from 'dlc-btc-lib/models';
 
 interface ProofOfReserveContextProviderType {
   proofOfReserve: [number | undefined, MerchantProofOfReserve[]] | undefined;
