@@ -46,7 +46,7 @@ export function useActiveTabs(): UseActiveTabsReturnType {
     queryFn: shouldActivateTabs,
     enabled:
       networkType === NetworkType.EVM
-        ? !isEthereumNetworkConfigurationLoading
+        ? !isEthereumNetworkConfigurationLoading && ethereumNetworkConfiguration.chain == chain
         : !isRippleNetworkConfigurationLoading,
   });
 
