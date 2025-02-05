@@ -30,6 +30,22 @@ export function Points(): React.JSX.Element {
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
+  const dividerHeight = useBreakpointValue({
+    base: '1px',
+    sm: '1px',
+    md: '320px',
+    lg: '250px',
+    xl: '230px',
+  });
+
+  const spacingValue = useBreakpointValue({
+    base: '25px',
+    sm: '25px',
+    md: '93px',
+    lg: '70px',
+    xl: '70px',
+  });
+
   function onConnectWalletClick(): void {
     dispatch(modalActions.toggleSelectWalletModalVisibility());
   }
@@ -123,7 +139,7 @@ export function Points(): React.JSX.Element {
                 h={'100%'}
                 pr={isMobile ? '0px' : '25px'}
                 alignItems={'start'}
-                spacing={isMobile ? '25px' : '45px'}
+                spacing={spacingValue}
               >
                 <VStack w={'100%'} h={'100%'} alignItems={'start'} spacing={'25px'}>
                   <HStack h={'25px'} spacing={'25px'}>
@@ -135,7 +151,7 @@ export function Points(): React.JSX.Element {
                     <Text
                       color={'white'}
                       fontWeight={200}
-                      fontSize={['xl', '2xl', '2xl', '4xl', '4xl']}
+                      fontSize={['xl', 'xl', 'xl', '2xl', '4xl']}
                     >
                       Use iBTC
                     </Text>
@@ -159,7 +175,7 @@ export function Points(): React.JSX.Element {
               <Divider
                 orientation={isMobile ? 'horizontal' : 'vertical'}
                 px={isMobile ? '0px' : '15px'}
-                height={isMobile ? '1px' : '200px'}
+                height={dividerHeight}
                 variant={'thick'}
                 w={isMobile ? '100%' : '1px'}
               />
@@ -171,33 +187,34 @@ export function Points(): React.JSX.Element {
               >
                 <VStack w={'100%'} h={'100%'} alignItems={'start'} spacing={'25px'}>
                   <HStack h={'25px'} spacing={'25px'}>
-                    <Image
-                      src={'./images/logos/bitcoin-logo.svg'}
-                      alt={'iBTC Logo'}
-                      boxSize={'35px'}
-                    />
                     <Text
                       color={'white'}
                       fontWeight={200}
-                      fontSize={['xl', '2xl', '2xl', '4xl', '4xl']}
+                      fontSize={['xl', 'xl', 'xl', '2xl', '4xl']}
                     >
-                      Provide Bitcoin
+                      How to earn points
                     </Text>
                   </HStack>
                   <HStack>
                     <Text color={'white.02'}>
-                      Become a merchant by providing BTC. Support the network and earn points for
-                      your contributions.
+                      Looking for a safer way to earn yield on your Bitcoin while also earning
+                      points? iBTC is introducing a rewards program that distributes points for
+                      holding, staking, and supporting iBTC.
                     </Text>
                   </HStack>
                 </VStack>
                 <Button
                   w={'100%'}
                   variant={'points'}
-                  onClick={() => window.open('https://www.dlc.link/merchants', '_blank')}
+                  onClick={() =>
+                    window.open(
+                      'https://media.ibtc.network/p/safe-btc-yield-meets-points-how-ibtc-s-points-system-works',
+                      '_blank'
+                    )
+                  }
                 >
                   <Text bgGradient={`linear(to-r, #AC50EF, #7059FB, #2ECFF6)`} bgClip="text">
-                    Become a Merchant
+                    Read more
                   </Text>
                 </Button>
               </VStack>
