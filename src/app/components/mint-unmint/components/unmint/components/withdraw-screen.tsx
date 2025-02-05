@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { VStack, useToast } from '@chakra-ui/react';
@@ -35,6 +35,13 @@ export function WithdrawScreen({
   const currentVault = unmintStep.vault;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (unmintStep.step === RedeemSteps.PENDING) {
+      setIsSubmitting(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unmintStep.step]);
 
   async function handleWithdraw(withdrawAmount: number): Promise<void> {
     if (currentVault) {

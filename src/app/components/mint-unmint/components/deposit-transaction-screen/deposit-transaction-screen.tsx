@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import { VStack, useToast } from '@chakra-ui/react';
@@ -45,6 +45,13 @@ export function DepositTransactionScreen({
   const currentVault = mintStep.vault;
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (mintStep.step === MintSteps.PENDING) {
+      setIsSubmitting(false);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mintStep.step]);
 
   async function handleDeposit(depositAmount: number) {
     if (!currentVault) return;
