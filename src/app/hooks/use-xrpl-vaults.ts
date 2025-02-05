@@ -12,7 +12,7 @@ import { modalActions } from '@store/slices/modal/modal.actions';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import Decimal from 'decimal.js';
 import { VaultState } from 'dlc-btc-lib/models';
-import { connectRippleClient, getAllRippleVaults } from 'dlc-btc-lib/ripple-functions';
+import { connectRippleClient, getAllXRPLVaults } from 'dlc-btc-lib/ripple-functions';
 
 const INITIAL_VAULT_UUID = '0x0000000000000000000000000000000000000000000000000000000000000000';
 
@@ -83,7 +83,7 @@ export function useXRPLVaults(): useXRPLVaultsReturnType {
     try {
       await connectRippleClient(rippleClient);
 
-      const xrplRawVaults = await getAllRippleVaults(rippleClient, issuerAddress, xrpUserAddress);
+      const xrplRawVaults = await getAllXRPLVaults(rippleClient, issuerAddress, xrpUserAddress);
       const xrplVaults = xrplRawVaults.map(formatVault);
 
       if (

@@ -28,6 +28,7 @@ interface UseLeatherReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
@@ -35,6 +36,7 @@ interface UseLeatherReturnType {
     vault: RawVault,
     bitcoinAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
@@ -42,6 +44,7 @@ interface UseLeatherReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<string>;
   isLoading: [boolean, string];
@@ -140,6 +143,7 @@ export function useLeather(): UseLeatherReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -152,6 +156,7 @@ export function useLeather(): UseLeatherReturnType {
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -184,6 +189,7 @@ export function useLeather(): UseLeatherReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -198,6 +204,7 @@ export function useLeather(): UseLeatherReturnType {
         formattedDepositAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -230,6 +237,7 @@ export function useLeather(): UseLeatherReturnType {
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<string> {
     try {
@@ -244,6 +252,7 @@ export function useLeather(): UseLeatherReturnType {
         formattedWithdrawAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 

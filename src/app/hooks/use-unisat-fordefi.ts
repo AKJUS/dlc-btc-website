@@ -22,6 +22,7 @@ interface UseUnisatFordefiReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
@@ -29,6 +30,7 @@ interface UseUnisatFordefiReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
@@ -36,6 +38,7 @@ interface UseUnisatFordefiReturnType {
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<string>;
   isLoading: [boolean, string];
@@ -157,6 +160,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -170,6 +174,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -202,6 +207,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -216,6 +222,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
         formattedDepositAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -248,6 +255,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<string> {
     try {
@@ -262,6 +270,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
         formattedWithdrawAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 

@@ -26,6 +26,7 @@ export interface Configuration {
   enabledEthereumNetworkIDs: EthereumNetworkID[];
   enabledRippleNetworkIDs: RippleNetworkID[];
   ethereumContractInformations: { name: string; deploymentPlans: EthereumDeploymentPlan[] }[];
+  attestorSharedConfigurationURL: string;
   l1Websocket: string;
   l1HTTP: string;
   arbitrumWebsocket: string;

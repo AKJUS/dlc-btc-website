@@ -11,10 +11,15 @@ import { RippleNetworkConfigurationContext } from '@providers/ripple-network-con
 import { XRPWalletContext } from '@providers/xrp-wallet-context-provider';
 import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import {
+  getAttestorConfigurationForChain,
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
 } from 'dlc-btc-lib/attestor-request-functions';
-import { getAttestorGroupPublicKey, getRawVault } from 'dlc-btc-lib/ethereum-functions';
+import {
+  getAttestorGroupPublicKey,
+  getFeeRecipient,
+  getRawVault,
+} from 'dlc-btc-lib/ethereum-functions';
 import { AttestorChainID, RawVault, Transaction, VaultState } from 'dlc-btc-lib/models';
 import { getRippleVault } from 'dlc-btc-lib/ripple-functions';
 import { useAccount } from 'wagmi';
@@ -30,6 +35,13 @@ interface UsePSBTReturnType {
   handleSignWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
   bitcoinDepositAmount: number;
   isLoading: [boolean, string];
+}
+
+interface NetworkConfig {
+  getUserAddress: () => string | undefined;
+  getVault: (vaultUUID: string) => Promise<RawVault>;
+  getAttestorGroupPublicKey: () => Promise<string>;
+  getFeeRecipient: () => Promise<string>;
 }
 
 export function usePSBT(): UsePSBTReturnType {
@@ -77,30 +89,69 @@ export function usePSBT(): UsePSBTReturnType {
     [NetworkType.BTC]: '',
   };
 
+  type SupportedNetworkType = Exclude<NetworkType, NetworkType.BTC>;
+
+  const isSupportedNetwork = (network: NetworkType): network is SupportedNetworkType => {
+    return network === NetworkType.EVM || network === NetworkType.XRPL;
+  };
+
+  const networkConfigs: Record<SupportedNetworkType, NetworkConfig> = {
+    [NetworkType.EVM]: {
+      getUserAddress: () => ethereumUserAddress,
+      getVault: vaultUUID => getRawVault(dlcManagerContract, vaultUUID),
+      getAttestorGroupPublicKey: () => getAttestorGroupPublicKey(dlcManagerContract),
+      getFeeRecipient: () => getFeeRecipient(dlcManagerContract),
+    },
+    [NetworkType.XRPL]: {
+      getUserAddress: () => rippleUserAddress,
+      getVault: vaultUUID =>
+        getRippleVault(rippleClient, appConfiguration.rippleIssuerAddress, vaultUUID),
+      getAttestorGroupPublicKey: getAttestorExtendedGroupPublicKey,
+      getFeeRecipient: async () => {
+        const config = await getAttestorConfigurationForChain(
+          appConfiguration.attestorSharedConfigurationURL,
+          'ripple',
+          attestorChainIDs[NetworkType.XRPL]
+        );
+        return config.btcFeeRecipient;
+      },
+    },
+  };
+
   const getRequiredPSBTInformation = async (
     vaultUUID: string
-  ): Promise<{ userAddress: string; vault: RawVault; attestorGroupPublicKey: string }> => {
-    if (networkType === NetworkType.EVM) {
-      if (!ethereumUserAddress) throw new Error('User Address is not setup');
-      const vault = await getRawVault(dlcManagerContract, vaultUUID);
-      const attestorGroupPublicKey = await getAttestorGroupPublicKey(dlcManagerContract);
-      return { userAddress: ethereumUserAddress, vault, attestorGroupPublicKey };
-    } else if (networkType === NetworkType.XRPL) {
-      if (!rippleUserAddress) throw new Error('User Address is not setup');
-      const vault = await getRippleVault(
-        rippleClient,
-        appConfiguration.rippleIssuerAddress,
-        vaultUUID
-      );
-      const attestorGroupPublicKey = await getAttestorExtendedGroupPublicKey();
-      return {
-        userAddress: rippleUserAddress,
-        vault,
-        attestorGroupPublicKey: attestorGroupPublicKey,
-      };
-    } else {
+  ): Promise<{
+    userAddress: string;
+    vault: RawVault;
+    attestorGroupPublicKey: string;
+    feeRecipient: string;
+  }> => {
+    if (!isSupportedNetwork(networkType)) {
+      throw new Error('Network Type is not supported');
+    }
+
+    const config = networkConfigs[networkType];
+    if (!config) {
       throw new Error('Network Type is not setup');
     }
+
+    const userAddress = config.getUserAddress();
+    if (!userAddress) {
+      throw new Error('User Address is not setup');
+    }
+
+    const [vault, attestorGroupPublicKey, feeRecipient] = await Promise.all([
+      config.getVault(vaultUUID),
+      config.getAttestorGroupPublicKey(),
+      config.getFeeRecipient(),
+    ]);
+
+    return {
+      userAddress,
+      vault,
+      attestorGroupPublicKey,
+      feeRecipient,
+    };
   };
 
   async function handleSignFundingTransaction(
@@ -112,7 +163,7 @@ export function usePSBT(): UsePSBTReturnType {
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const { userAddress, vault, attestorGroupPublicKey } =
+      const { userAddress, vault, attestorGroupPublicKey, feeRecipient } =
         await getRequiredPSBTInformation(vaultUUID);
 
       let fundingTransaction: Transaction;
@@ -125,6 +176,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -134,6 +186,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
           }
@@ -146,6 +199,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -155,6 +209,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -168,6 +223,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -177,6 +233,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
+                feeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -219,7 +276,8 @@ export function usePSBT(): UsePSBTReturnType {
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const { vault, attestorGroupPublicKey } = await getRequiredPSBTInformation(vaultUUID);
+      const { vault, attestorGroupPublicKey, feeRecipient } =
+        await getRequiredPSBTInformation(vaultUUID);
 
       let withdrawalTransactionHex: string;
       switch (bitcoinWalletType) {
@@ -229,6 +287,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
+            feeRecipient,
             feeRateMultiplier
           );
           break;
@@ -238,6 +297,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
+            feeRecipient,
             feeRateMultiplier
           );
           break;
@@ -247,6 +307,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
+            feeRecipient,
             feeRateMultiplier
           );
           break;

@@ -1,6 +1,7 @@
 {
   "appEnvironment": "mainnet",
   "coordinatorURL": "https://mainnet.dlc.link/attestor-1",
+  "attestorSharedConfigurationURL": "https://raw.githubusercontent.com/DLC-link/shared-attestor-configuration/refs/heads/main",
   "enabledEthereumNetworkIDs": ["1", "42161", "8453", "56", "43114"],
   "enabledRippleNetworkIDs": ["0"],
   "bitcoinNetwork": "mainnet",

@@ -46,6 +46,7 @@ interface UseLedgerReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
@@ -53,6 +54,7 @@ interface UseLedgerReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
@@ -60,6 +62,7 @@ interface UseLedgerReturnType {
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ) => Promise<string>;
   isLoading: [boolean, string];
@@ -282,6 +285,7 @@ export function useLedger(): UseLedgerReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -295,6 +299,7 @@ export function useLedger(): UseLedgerReturnType {
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -327,6 +332,7 @@ export function useLedger(): UseLedgerReturnType {
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
@@ -341,6 +347,7 @@ export function useLedger(): UseLedgerReturnType {
         formattedDepositAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 
@@ -373,6 +380,7 @@ export function useLedger(): UseLedgerReturnType {
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
+    feeRecipient: string,
     feeRateMultiplier: number
   ): Promise<string> {
     try {
@@ -387,6 +395,7 @@ export function useLedger(): UseLedgerReturnType {
         formattedWithdrawAmount,
         attestorGroupPublicKey,
         vault.fundingTxId,
+        feeRecipient,
         feeRateMultiplier
       );
 
