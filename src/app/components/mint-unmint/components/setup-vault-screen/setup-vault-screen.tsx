@@ -2,13 +2,13 @@ import { useContext, useState } from 'react';
 
 import { Button, VStack, useToast } from '@chakra-ui/react';
 import { TransactionScreenWalletInformation } from '@components/transaction-screen/transaction-screen.transaction-form/components/transaction-screen.transaction-form/components/transaction-screen.transaction-form.wallet-information';
-import { submitSetupXRPLVaultRequest } from '@functions/attestor-request.functions';
 import { useEthersSigner } from '@functions/configuration.functions';
 import { useXRPWallet } from '@hooks/use-xrp-wallet';
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { RippleNetworkConfigurationContext } from '@providers/ripple-network-configuration.provider';
 import { XRPWalletContext } from '@providers/xrp-wallet-context-provider';
+import { submitSetupXRPLVaultRequest } from 'dlc-btc-lib/attestor-request-functions';
 import { setupVault } from 'dlc-btc-lib/ethereum-functions';
 
 import { NetworkType } from '@shared/constants/network.constants';
@@ -35,6 +35,7 @@ export function SetupVaultScreen(): React.JSX.Element {
         case NetworkType.XRPL:
           await handleSetTrustLine();
           await submitSetupXRPLVaultRequest(
+            appConfiguration.coordinatorURL,
             rippleUserAddress!,
             rippleNetworkConfiguration.rippleAttestorChainID
           );
