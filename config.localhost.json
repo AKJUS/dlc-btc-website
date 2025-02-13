@@ -1,31 +1,17 @@
 {
   "appEnvironment": "localhost",
-  "coordinatorURL": "http://192.168.86.31:8811",
-  "enabledEthereumNetworkIDs": ["421614", "31337"],
+  "coordinatorURL": "http://localhost:8811",
+  "enabledEthereumNetworkIDs": ["31337"],
+  "enabledRippleNetworkIDs": ["1"],
   "bitcoinNetwork": "regtest",
   "bitcoinNetworkIndex": 1,
   "bitcoinNetworkPreFix": "bcrt1",
   "bitcoinBlockchainURL": "http://192.168.86.31:3004",
   "bitcoinBlockchainExplorerURL": "http://192.168.86.31:3004",
   "bitcoinBlockchainFeeEstimateURL": "https://devnet.dlc.link/electrs/fee-estimates",
-  "merchants": [
-    {
-      "name": "Amber",
-      "addresses": ["0xDdBE45eb79fa9920340a72020F50fB5b13dd3b6d"],
-      "logo": "/images/logos/amber-logotype.svg"
-    },
-    {
-      "name": "DLC.Link",
-      "addresses": ["0x0DD4f29E21F10cb2E485cf9bDAb9F2dD1f240Bfa"],
-      "logo": "/images/logos/ibtc-logotype.svg"
-    }
-  ],
-  "protocols": [
-    {
-      "name": "Curve",
-      "lpTokenAddress": "0xe957ce03ccdd88f02ed8b05c9a3a28abef38514a",
-      "gaugeAddress": "0x02b8e750e68cb648db2c2ac4bbb47a10a5c12588",
-      "logo": ""
-    }
-  ]
+  "rippleIssuerAddress": "",
+  "xrplWebsocket": "",
+  "ledgerApp": "",
+  "merchants": [],
+  "protocols": []
 }

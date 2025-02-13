@@ -7,7 +7,7 @@
   "bitcoinNetwork": "testnet",
   "bitcoinNetworkIndex": 1,
   "bitcoinNetworkPreFix": "tb1",
-  "bitcoinBlockchainURL": "https://blockstream.info/testnet/api",
+  "bitcoinBlockchainURL": "https://testnet.dlc.link/electrs",
   "bitcoinBlockchainExplorerURL": "https://mempool.space/testnet",
   "bitcoinBlockchainFeeEstimateURL": "https://mempool.space/testnet",
   "rippleIssuerAddress": "ra3oyRVfy4yD4NJPrVcewvDtisZ3FhkcYL",
