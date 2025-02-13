@@ -3,3 +3,5 @@ export enum NetworkType {
   XRPL = 'xrpl',
   BTC = 'bitcoin',
 }
+
+export type SupportedNonBitcoinNetwork = Exclude<NetworkType, NetworkType.BTC>;

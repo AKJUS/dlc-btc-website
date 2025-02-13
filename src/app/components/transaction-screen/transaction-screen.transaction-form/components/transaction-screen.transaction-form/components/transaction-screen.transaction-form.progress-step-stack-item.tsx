@@ -4,6 +4,7 @@ interface TransactionFormProgressStackItemProps {
   label: string;
   assetLogo: string;
   assetSymbol: string;
+  assetAmount?: number;
   isActive: boolean;
 }
 
@@ -12,6 +13,7 @@ export function TransactionFormProgressStackItem({
   assetLogo,
   assetSymbol,
   isActive,
+  assetAmount,
 }: TransactionFormProgressStackItemProps): React.JSX.Element {
   return (
     <HStack
@@ -23,7 +25,7 @@ export function TransactionFormProgressStackItem({
       borderRadius={'md'}
       opacity={isActive ? '100%' : '50%'}
     >
-      <HStack w={'65%'}>
+      <HStack w={'50%'}>
         <Image src={assetLogo} alt={'Asset Logo'} boxSize={'25px'} />
         <Stack>
           <Text color={'white.01'} fontSize={'sm'}>
@@ -31,9 +33,16 @@ export function TransactionFormProgressStackItem({
           </Text>
         </Stack>
       </HStack>
-      <Text fontSize={'sm'} fontWeight={'bold'} color={'white.01'}>
-        {assetSymbol}
-      </Text>
+      <HStack w={'50%'} justifyContent={'flex-end'}>
+        {assetAmount && (
+          <Text w={'70%'} textAlign={'right'} fontSize={'sm'} color={'white.01'}>
+            {assetAmount}
+          </Text>
+        )}
+        <Text w={'30%'} fontSize={'sm'} fontWeight={'bold'} color={'white.01'}>
+          {assetSymbol}
+        </Text>
+      </HStack>
     </HStack>
   );
 }

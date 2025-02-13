@@ -1,6 +1,9 @@
 import { HStack, VStack } from '@chakra-ui/react';
 import { VaultVerticalProgressBar } from '@components/vault/components/vault-vertical-progress-bar';
 import { TransactionFormAPI } from '@models/form.models';
+import { MintSteps, RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
+import Decimal from 'decimal.js';
+import { isNotNil } from 'ramda';
 
 import { TransactionFormInputField } from '../../transaction-screen.transaction-form.input';
 import { TransactionFormProgressStackItem } from '../../transaction-screen.transaction-form.progress-step-stack-item';
@@ -11,22 +14,68 @@ interface ProgressStackItemProps {
   assetSymbol: string;
 }
 
-const componentsMap = {
+const ASSET_INFORMATION = {
+  BTC: {
+    assetLogo: '/images/logos/bitcoin-logo.svg',
+    assetSymbol: 'BTC',
+  },
+  iBTC: {
+    assetLogo: '/images/logos/ibtc-logo.svg',
+    assetSymbol: 'iBTC',
+  },
+} as const;
+
+const FLOW_LABEL_MAP = {
   mint: {
-    A: { label: 'Deposit', assetLogo: '/images/logos/bitcoin-logo.svg', assetSymbol: 'BTC' },
-    B: { label: 'Mint', assetLogo: '/images/logos/ibtc-logo.svg', assetSymbol: 'iBTC' },
+    A: {
+      activeLabel: 'Depositing',
+      inactiveLabel: 'Deposited',
+      ...ASSET_INFORMATION.BTC,
+    },
+    B: {
+      label: 'Minting',
+      ...ASSET_INFORMATION.iBTC,
+    },
   },
   burn: {
-    A: { label: 'Burn', assetLogo: '/images/logos/ibtc-logo.svg', assetSymbol: 'iBTC' },
-    B: { label: 'Withdraw', assetLogo: '/images/logos/bitcoin-logo.svg', assetSymbol: 'BTC' },
+    A: {
+      activeLabel: 'Burning',
+      inactiveLabel: 'Burned',
+      ...ASSET_INFORMATION.iBTC,
+    },
+    B: {
+      label: 'Withdrawing',
+      ...ASSET_INFORMATION.BTC,
+    },
   },
+} as const;
+
+const getComponents = (
+  flow: 'mint' | 'burn',
+  currentStep: MintSteps | RedeemSteps,
+  isConfirmed: boolean
+): { A: ProgressStackItemProps; B: ProgressStackItemProps } => {
+  const isActive = flow === 'mint' ? !isConfirmed : currentStep === RedeemSteps.BURN;
+
+  const config = FLOW_LABEL_MAP[flow];
+
+  return {
+    A: {
+      ...config.A,
+      label: isActive ? config.A.activeLabel : config.A.inactiveLabel,
+    },
+    B: {
+      ...config.B,
+    },
+  };
 };
 
 interface ProgressStackProps {
   formAPI: TransactionFormAPI;
   isIncludeForm: boolean;
   flow: 'mint' | 'burn';
-  currentStep: number;
+  currentStep: MintSteps | RedeemSteps;
+  assetAmount?: number;
   activeStackItem: 0 | 1;
   currentBitcoinPrice: number;
   components: { A: ProgressStackItemProps; B: ProgressStackItemProps };
@@ -37,6 +86,7 @@ const ProgressStack = ({
   isIncludeForm,
   flow,
   currentStep,
+  assetAmount,
   activeStackItem,
   currentBitcoinPrice,
   components,
@@ -66,12 +116,14 @@ const ProgressStack = ({
             label={A.label}
             assetLogo={A.assetLogo}
             assetSymbol={A.assetSymbol}
+            assetAmount={assetAmount}
             isActive={activeStackItem === 0}
           />
           <TransactionFormProgressStackItem
             label={B.label}
             assetLogo={B.assetLogo}
             assetSymbol={B.assetSymbol}
+            assetAmount={assetAmount}
             isActive={activeStackItem === 1}
           />
         </>
@@ -83,9 +135,10 @@ const ProgressStack = ({
 interface ProgressStackByFlowProps {
   formAPI: TransactionFormAPI;
   flow: 'mint' | 'burn';
-  currentStep: number;
+  currentStep: MintSteps | RedeemSteps;
   confirmations?: number;
   currentBitcoinPrice: number;
+  assetAmount?: number;
 }
 
 const ProgressStackByFlow = ({
@@ -94,10 +147,13 @@ const ProgressStackByFlow = ({
   currentStep,
   confirmations = 0,
   currentBitcoinPrice,
+  assetAmount,
 }: ProgressStackByFlowProps): React.JSX.Element => {
-  const components = componentsMap[flow];
+  const isConfirmed = confirmations >= 6;
   const isIncludeForm = flow === 'mint' ? currentStep === 1 : currentStep === 0;
-  const activeStackItem = isIncludeForm || (flow === 'mint' && confirmations < 6) ? 0 : 1;
+
+  const components = getComponents(flow, currentStep, isConfirmed);
+  const activeStackItem = isIncludeForm || (flow === 'mint' && !isConfirmed) ? 0 : 1;
 
   return (
     <ProgressStack
@@ -108,16 +164,46 @@ const ProgressStackByFlow = ({
       activeStackItem={activeStackItem}
       currentBitcoinPrice={currentBitcoinPrice}
       components={components}
+      assetAmount={assetAmount}
     />
   );
 };
 
-interface TransactionFormProgressStackBurnVariantAProps {
+const getWithdrawAssetAmount = (valueLocked: number, vaultOutputValue?: number) =>
+  isNotNil(vaultOutputValue)
+    ? new Decimal(valueLocked).minus(vaultOutputValue).toNumber()
+    : undefined;
+
+const getBurnAssetAmount = (valueLocked: number, valueMinted: number) => {
+  return new Decimal(valueLocked).minus(valueMinted).toNumber();
+};
+
+const getAssetAmountByFlow = (
+  flow: 'mint' | 'burn',
+  currentStep: number,
+  valueLocked: number,
+  valueMinted: number,
+  vaultOutputValue?: number
+): number | undefined => {
+  switch (flow) {
+    case 'mint':
+      return vaultOutputValue;
+    case 'burn':
+      return currentStep === RedeemSteps.WITHDRAW
+        ? getBurnAssetAmount(valueLocked, valueMinted)
+        : getWithdrawAssetAmount(valueLocked, vaultOutputValue);
+  }
+};
+
+interface TransactionFormProgressStackProps {
   formAPI: TransactionFormAPI;
   flow: 'mint' | 'burn';
   currentBitcoinPrice: number;
-  currentStep: number;
+  currentStep: MintSteps | RedeemSteps;
   confirmations?: number;
+  valueLocked: number;
+  valueMinted: number;
+  vaultOutputValue?: number;
 }
 
 export const TransactionFormProgressStack = ({
@@ -126,7 +212,10 @@ export const TransactionFormProgressStack = ({
   currentStep,
   confirmations = 0,
   currentBitcoinPrice,
-}: TransactionFormProgressStackBurnVariantAProps): React.JSX.Element => {
+  vaultOutputValue,
+  valueLocked,
+  valueMinted,
+}: TransactionFormProgressStackProps): React.JSX.Element => {
   return (
     <HStack
       w="100%"
@@ -148,6 +237,13 @@ export const TransactionFormProgressStack = ({
         currentStep={currentStep}
         confirmations={confirmations}
         currentBitcoinPrice={currentBitcoinPrice}
+        assetAmount={getAssetAmountByFlow(
+          flow,
+          currentStep,
+          valueLocked,
+          valueMinted,
+          vaultOutputValue
+        )}
       />
     </HStack>
   );

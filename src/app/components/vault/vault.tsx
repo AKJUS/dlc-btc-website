@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 import { useDispatch } from 'react-redux';
 
 import { VStack } from '@chakra-ui/react';
+import { useVaultFundingAddress } from '@hooks/use-vault-funding-address';
 import { Vault as VaultModel } from '@models/vault';
 import { BitcoinTransactionConfirmationsContext } from '@providers/bitcoin-query-provider';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
@@ -22,6 +23,12 @@ interface VaultProps {
 export function Vault({ vault, variant, handleClose }: VaultProps): React.JSX.Element {
   const dispatch = useDispatch();
   const [isVaultExpanded, setIsVaultExpanded] = useState(false);
+
+  const { data: fundingBitcoinAddress } = useVaultFundingAddress({
+    vaultUUID: vault.uuid,
+    derivedUserPublicKey: vault.taprootPubKey,
+    bitcoinTransactionID: vault.fundingTX,
+  });
 
   function handleMainButtonClick() {
     if (variant === 'select') {
@@ -58,6 +65,7 @@ export function Vault({ vault, variant, handleClose }: VaultProps): React.JSX.El
           isVaultExpanded={isVaultExpanded}
           vaultFundingTX={vault.fundingTX}
           vaultWithdrawDepositTX={vault.withdrawDepositTX}
+          vaultFundingBitcoinAddress={fundingBitcoinAddress}
           handleClose={handleClose}
         />
       </VStack>

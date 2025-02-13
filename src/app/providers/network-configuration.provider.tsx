@@ -2,11 +2,11 @@ import React, { createContext, useState } from 'react';
 
 import { HasChildren } from '@models/has-children';
 
-import { NetworkType } from '@shared/constants/network.constants';
+import { NetworkType, SupportedNonBitcoinNetwork } from '@shared/constants/network.constants';
 
 interface NetworkConfigurationContext {
-  networkType: NetworkType;
-  setNetworkType: (networkType: NetworkType) => void;
+  networkType: SupportedNonBitcoinNetwork;
+  setNetworkType: (networkType: SupportedNonBitcoinNetwork) => void;
 }
 export const NetworkConfigurationContext = createContext<NetworkConfigurationContext>({
   networkType: NetworkType.EVM,
@@ -14,7 +14,7 @@ export const NetworkConfigurationContext = createContext<NetworkConfigurationCon
 });
 
 export function NetworkConfigurationContextProvider({ children }: HasChildren): React.JSX.Element {
-  const [networkType, setNetworkType] = useState<NetworkType>(NetworkType.EVM);
+  const [networkType, setNetworkType] = useState<SupportedNonBitcoinNetwork>(NetworkType.EVM);
 
   return (
     <NetworkConfigurationContext.Provider

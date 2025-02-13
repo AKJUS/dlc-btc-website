@@ -2,6 +2,7 @@ import React, { useContext, useState } from 'react';
 
 import { VStack } from '@chakra-ui/react';
 import { RiskBox } from '@components/mint-unmint/components/risk-box/risk-box';
+import { useVaultOutputValue } from '@hooks/use-vault-output-value';
 import { TransactionFormAPI } from '@models/form.models';
 import { Vault } from '@models/vault';
 import { BitcoinTransactionConfirmationsContext } from '@providers/bitcoin-query-provider';
@@ -129,6 +130,12 @@ export function VaultTransactionForm({
 }: VaultTransactionFormProps): React.JSX.Element {
   const [currentFieldValue, setCurrentFieldValue] = useState<number>(depositLimit?.minimumDeposit!);
 
+  const { data: vaultOutputValue } = useVaultOutputValue({
+    vaultUUID: vault.uuid,
+    derivedUserPublicKey: vault.taprootPubKey,
+    bitcoinTransactionID: vault.withdrawDepositTX,
+  });
+
   const confirmations = useContext(
     BitcoinTransactionConfirmationsContext
   ).bitcoinTransactionConfirmations.find(v => v[0] === vault.uuid)?.[1];
@@ -175,6 +182,9 @@ export function VaultTransactionForm({
           confirmations={confirmations}
           currentBitcoinPrice={currentBitcoinPrice!}
           currentStep={currentStep}
+          vaultOutputValue={vaultOutputValue}
+          valueLocked={vault.valueLocked}
+          valueMinted={vault.valueMinted}
         />
         <TransactionFormProtocolFeeStack
           flow={flow}

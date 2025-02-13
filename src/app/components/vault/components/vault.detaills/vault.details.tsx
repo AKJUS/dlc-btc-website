@@ -18,6 +18,7 @@ interface VaultDetailsProps {
   vaultTotalMintedValue: number;
   isVaultExpanded: boolean;
   vaultFundingTX?: string;
+  vaultFundingBitcoinAddress?: string;
   vaultWithdrawDepositTX?: string;
   variant?: 'select' | 'selected';
   handleClose?: () => void;
@@ -30,6 +31,7 @@ export function VaultDetails({
   vaultWithdrawDepositTX,
   vaultTotalLockedValue,
   vaultTotalMintedValue,
+  vaultFundingBitcoinAddress,
   isVaultExpanded,
   variant,
   handleClose,
@@ -77,6 +79,7 @@ export function VaultDetails({
             <VaultTransactionStack
               vaultFundingTX={vaultFundingTX}
               vaultWithdrawDepositTX={vaultWithdrawDepositTX}
+              vaultFundingBitcoinAddress={vaultFundingBitcoinAddress}
             />
             <VaultExpandedInformationButtonGroup
               variant={variant}
