@@ -58,10 +58,12 @@ export default defineConfig(async ({ mode }) =>  {
   const environmentName = env.VITE_APP_ENVIRONMENT;
   const branchName = env.VITE_ETHEREUM_DEPLOYMENT_BRANCH
 
+  const localDeploymentFilesURL = env.VITE_LOCAL_DEPLOYMENT_FILES_URL;
+
   const appConfigurationJSON = readFileSync(resolve(__dirname, `./config.${environmentName}.json`), 'utf-8');
   const appConfiguration = JSON.parse(appConfigurationJSON);
 
-  appConfiguration.ethereumContractInformations = await fetchEthereumDeploymentPlans(environmentName, branchName, appConfiguration.enabledEthereumNetworkIDs);
+  appConfiguration.ethereumContractInformations = await fetchEthereumDeploymentPlans(environmentName, branchName, appConfiguration.enabledEthereumNetworkIDs, localDeploymentFilesURL);
   const arbitrumURLs: string[] = env.VITE_ARBITRUM_OBSERVER_NODE.split(',');
   const l1URLs: string[] = env.VITE_L1_OBSERVER_NODE.split(',');
   const baseURLs: string[] = env.VITE_BASE_OBSERVER_NODE.split(',');
@@ -79,8 +81,8 @@ export default defineConfig(async ({ mode }) =>  {
   appConfiguration.bscWebsocket = bscURLs[0];
   appConfiguration.bscHTTP = bscURLs[1];
   appConfiguration.walletConnectProjectID = env.VITE_WALLET_CONNECT_PROJECT_ID;
-
-
+  appConfiguration.localAttestorExtendedGroupPublicKey = env.VITE_LOCAL_ATTESTOR_EXTENDED_GROUP_PUBLIC_KEY;
+  
   return {
   plugins: [react(), wasm(), ViteToml()],
   build: {

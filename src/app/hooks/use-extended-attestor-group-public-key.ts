@@ -25,7 +25,11 @@ export function useExtendedAttestorGroupPublicKey(): UseQueryResult<string, Erro
     return await getAttestorExtendedGroupPublicKey(coordinatorURL);
   };
 
-  const fetchFeeRecipient = async (): Promise<string> => {
+  const fetchExtendedAttestorGroupPublicKey = async (): Promise<string> => {
+    if (appConfiguration.appEnvironment === 'localhost') {
+      return appConfiguration.localAttestorExtendedGroupPublicKey!;
+    }
+
     try {
       switch (networkType) {
         case NetworkType.EVM:
@@ -40,7 +44,7 @@ export function useExtendedAttestorGroupPublicKey(): UseQueryResult<string, Erro
 
   return useQuery<string, Error>({
     queryKey: ['extendedAttestorGroupPublicKey', networkType],
-    queryFn: fetchFeeRecipient,
+    queryFn: fetchExtendedAttestorGroupPublicKey,
     enabled: !!networkType,
   });
 }
