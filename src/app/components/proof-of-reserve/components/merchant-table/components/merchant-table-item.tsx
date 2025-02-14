@@ -33,7 +33,7 @@ export function MerchantTableItem({
         justifyContent={'space-between'}
         py={'5px'}
         w={'100%'}
-        alignItems={isMobile ? 'center' : 'flex-start'}
+        alignItems={'center'}
         direction={isMobile ? 'column' : 'row'}
         gap={isMobile ? '10px' : '0px'}
       >
