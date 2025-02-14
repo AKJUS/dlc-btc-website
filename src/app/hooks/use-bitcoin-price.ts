@@ -1,26 +1,22 @@
 import { BitcoinError } from '@models/error-types';
-import { useQuery } from '@tanstack/react-query';
+import { UseQueryResult, useQuery } from '@tanstack/react-query';
 
-interface UseBitcoinPriceReturnType {
-  bitcoinPrice: number | undefined;
-}
-
-export function useBitcoinPrice(): UseBitcoinPriceReturnType {
+export function useBitcoinPrice(): UseQueryResult<number, BitcoinError> {
   const fetchBitcoinPrice = async (): Promise<number> => {
     try {
-      const response = await fetch('https://api.coindesk.com/v1/bpi/currentprice.json');
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd'
+      );
       const data = await response.json();
-      return data.bpi.USD.rate_float;
+      return data.bitcoin.usd;
     } catch (error) {
       throw new BitcoinError(`Error fetching Bitcoin price: ${error}`);
     }
   };
 
-  const { data: bitcoinPrice } = useQuery<number, BitcoinError>({
+  return useQuery<number, BitcoinError>({
     queryKey: ['bitcoinPrice'],
     queryFn: fetchBitcoinPrice,
     refetchInterval: 60000,
   });
-
-  return { bitcoinPrice };
 }

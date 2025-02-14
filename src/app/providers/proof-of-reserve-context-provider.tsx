@@ -39,7 +39,7 @@ export const ProofOfReserveContext = createContext<ProofOfReserveContextProvider
 export function ProofOfReserveContextProvider({ children }: HasChildren): React.JSX.Element {
   const proofOfReserve = useProofOfReserve();
   const { totalSupply } = useTotalSupply();
-  const { bitcoinPrice } = useBitcoinPrice();
+  const { data: bitcoinPrice } = useBitcoinPrice();
   const { allMintBurnEvents, merchantMintBurnEvents } = useMintBurnEvents();
   const { depositLimit } = useDepositLimits();
 
