@@ -163,7 +163,7 @@ export function usePSBT(): UsePSBTReturnType {
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const { userAddress, vault, attestorGroupPublicKey, feeRecipient } =
+      const { userAddress, vault, attestorGroupPublicKey } =
         await getRequiredPSBTInformation(vaultUUID);
 
       let fundingTransaction: Transaction;
@@ -176,7 +176,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -186,7 +186,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
           }
@@ -199,7 +199,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -209,7 +209,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -223,7 +223,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -233,7 +233,7 @@ export function usePSBT(): UsePSBTReturnType {
                 vault,
                 depositAmount,
                 attestorGroupPublicKey,
-                feeRecipient,
+                vault.btcFeeRecipient,
                 feeRateMultiplier
               );
               break;
@@ -276,8 +276,7 @@ export function usePSBT(): UsePSBTReturnType {
 
       const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
 
-      const { vault, attestorGroupPublicKey, feeRecipient } =
-        await getRequiredPSBTInformation(vaultUUID);
+      const { vault, attestorGroupPublicKey } = await getRequiredPSBTInformation(vaultUUID);
 
       let withdrawalTransactionHex: string;
       switch (bitcoinWalletType) {
@@ -287,7 +286,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            feeRecipient,
+            vault.btcFeeRecipient,
             feeRateMultiplier
           );
           break;
@@ -297,7 +296,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            feeRecipient,
+            vault.btcFeeRecipient,
             feeRateMultiplier
           );
           break;
@@ -307,7 +306,7 @@ export function usePSBT(): UsePSBTReturnType {
             vault,
             withdrawAmount,
             attestorGroupPublicKey,
-            feeRecipient,
+            vault.btcFeeRecipient,
             feeRateMultiplier
           );
           break;
