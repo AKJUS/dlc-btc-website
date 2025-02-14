@@ -29,7 +29,9 @@ export function MerchantDetails(): React.JSX.Element {
     useContext(ProofOfReserveContext);
   const navigate = useNavigate();
 
-  const selectedMerchant = proofOfReserve?.[1].find(item => item.merchant.name === name);
+  const selectedMerchant = proofOfReserve?.merchantProofOfReserves.find(
+    item => item.merchant.name === name
+  );
   const mintBurnEvents = merchantMintBurnEvents?.find(item => item.name === name)?.mintBurnEvents;
   const isMobile = useBreakpointValue({ base: true, md: false });
   const imageWidth = useBreakpointValue({ base: '150px', xl: '200px' });

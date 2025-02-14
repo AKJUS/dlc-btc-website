@@ -3,14 +3,14 @@ import { createContext } from 'react';
 import { useBitcoinPrice } from '@hooks/use-bitcoin-price';
 import { useDepositLimits } from '@hooks/use-deposit-limits';
 import { useMintBurnEvents } from '@hooks/use-mint-burn-events';
-import { useProofOfReserve } from '@hooks/use-proof-of-reserve';
+import { UseProofOfReserveReturnType, useProofOfReserve } from '@hooks/use-proof-of-reserve';
 import { useTotalSupply } from '@hooks/use-total-supply';
 import { DetailedEvent } from '@models/ethereum-models';
 import { HasChildren } from '@models/has-children';
-import { MerchantProofOfReserve } from '@models/merchant';
+import { Merchant } from '@models/merchant';
 
 interface ProofOfReserveContextProviderType {
-  proofOfReserve: [number | undefined, MerchantProofOfReserve[]] | undefined;
+  proofOfReserve: UseProofOfReserveReturnType;
   totalSupply: number | undefined;
   bitcoinPrice: number | undefined;
   allMintBurnEvents: DetailedEvent[] | undefined;
@@ -19,7 +19,16 @@ interface ProofOfReserveContextProviderType {
 }
 
 export const ProofOfReserveContext = createContext<ProofOfReserveContextProviderType>({
-  proofOfReserve: undefined,
+  proofOfReserve: {
+    proofOfReserveSum: undefined,
+    merchantProofOfReserves: appConfiguration.merchants.map((merchant: Merchant) => {
+      return {
+        merchant,
+        iBTCAmount: undefined,
+      };
+    }),
+    proofOfReserveByChain: [],
+  },
   totalSupply: undefined,
   bitcoinPrice: undefined,
   allMintBurnEvents: undefined,
@@ -28,7 +37,7 @@ export const ProofOfReserveContext = createContext<ProofOfReserveContextProvider
 });
 
 export function ProofOfReserveContextProvider({ children }: HasChildren): React.JSX.Element {
-  const { proofOfReserve } = useProofOfReserve();
+  const proofOfReserve = useProofOfReserve();
   const { totalSupply } = useTotalSupply();
   const { bitcoinPrice } = useBitcoinPrice();
   const { allMintBurnEvents, merchantMintBurnEvents } = useMintBurnEvents();
