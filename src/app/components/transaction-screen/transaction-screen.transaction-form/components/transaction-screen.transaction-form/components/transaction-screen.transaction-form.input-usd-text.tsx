@@ -2,6 +2,8 @@ import { Text } from '@chakra-ui/react';
 import { ValidationError } from '@tanstack/react-form';
 import Decimal from 'decimal.js';
 
+import { convertBitcoinToUSD } from '@shared/utils';
+
 interface TransactionFormInputUSDTextProps {
   errors: ValidationError[];
   assetAmount?: string;
@@ -15,9 +17,14 @@ export function TransactionFormInputUSDText({
 }: TransactionFormInputUSDTextProps): React.JSX.Element | false {
   if (errors.length) return false;
 
+  const totalSupplyValueInUSD =
+    assetAmount && currentBitcoinPrice
+      ? convertBitcoinToUSD(currentBitcoinPrice, new Decimal(assetAmount).toNumber())
+      : 0;
+
   return (
     <Text w={'100%'} pl={'12.5%'} color={'white.02'} fontSize={'xs'}>
-      {`~ $${assetAmount && currentBitcoinPrice ? new Decimal(assetAmount).mul(currentBitcoinPrice).toNumber().toLocaleString('en-US') : 0} USD`}
+      ~ {totalSupplyValueInUSD.toLocaleString('en-US')} USD
     </Text>
   );
 }

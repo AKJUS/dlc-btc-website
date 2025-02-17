@@ -2,6 +2,7 @@ import { DetailedEvent, FormattedEvent } from '@models/ethereum-models';
 import Decimal from 'decimal.js';
 import { supportedEthereumNetworks } from 'dlc-btc-lib/constants';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
+import { pipe, when } from 'ramda';
 import { Chain } from 'viem';
 
 import { SUPPORTED_VIEM_CHAINS } from './constants/ethereum.constants';
@@ -78,6 +79,20 @@ export function formatToFourDecimals(value: number): number {
     value < 0 ? -Math.abs(parseFloat(value.toFixed(4))) : parseFloat(value.toFixed(4));
   return roundedValue;
 }
+
+export const convertBitcoinToUSD = (
+  bitcoinPrice: number,
+  bitcoinAmount: number,
+  shouldRound = true
+): number =>
+  pipe(
+    (amount: number) => new Decimal(amount).mul(bitcoinPrice),
+    when(
+      () => shouldRound,
+      decimal => decimal.floor()
+    ),
+    (decimal: Decimal) => decimal.toNumber()
+  )(bitcoinAmount);
 
 export const breakpoints = ['300px', '400px', '600px', '850px', '1280px', '1400px'];
 export const titleTextSize = ['2xl', '2xl', '4xl', '6xl'];

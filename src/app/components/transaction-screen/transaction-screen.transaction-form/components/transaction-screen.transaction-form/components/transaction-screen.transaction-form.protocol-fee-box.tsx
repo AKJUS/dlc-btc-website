@@ -4,6 +4,8 @@ import Decimal from 'decimal.js';
 import { getFeeAmount } from 'dlc-btc-lib/bitcoin-functions';
 import { shiftValue, unshiftValue } from 'dlc-btc-lib/utilities';
 
+import { convertBitcoinToUSD } from '@shared/utils';
+
 interface TransactionFormProtocolFeeStackProps {
   flow: 'mint' | 'burn';
   vault: Vault;
@@ -12,21 +14,6 @@ interface TransactionFormProtocolFeeStackProps {
   bitcoinPrice?: number;
   protocolFeeBasisPoints?: number;
   isBitcoinWalletLoading: [boolean, string];
-}
-
-function calculateProtocolFeeInUSD(
-  assetAmount: number,
-  usdPrice: number,
-  feeBasisPoints: number
-): string {
-  try {
-    const feeAmount = new Decimal(getFeeAmount(assetAmount, feeBasisPoints));
-    const result = feeAmount.mul(new Decimal(usdPrice));
-
-    return result.toNumber().toLocaleString('en-US');
-  } catch (error) {
-    return '0';
-  }
 }
 
 export function TransactionFormProtocolFeeStack({
@@ -45,6 +32,13 @@ export function TransactionFormProtocolFeeStack({
       ? shiftValue(new Decimal(vault.valueLocked).minus(vault.valueMinted).toNumber())
       : shiftValue(assetAmount!);
 
+  const [feeAmount, protocolFeeValueInUSD] =
+    amount && protocolFeeBasisPoints && bitcoinPrice
+      ? (fee => [fee, convertBitcoinToUSD(bitcoinPrice, fee)])(
+          unshiftValue(getFeeAmount(amount, protocolFeeBasisPoints))
+        )
+      : [0, 0];
+
   return (
     <VStack
       alignItems={'end'}
@@ -59,18 +53,11 @@ export function TransactionFormProtocolFeeStack({
           Protocol Fee
         </Text>
         <Text color={'white.01'} fontSize={'xs'} fontWeight={800}>
-          {`${amount && protocolFeeBasisPoints ? unshiftValue(getFeeAmount(amount, protocolFeeBasisPoints)) : 0}
-          BTC`}
-        </Text>{' '}
+          {feeAmount} BTC
+        </Text>
       </HStack>
       <Text color={'white.02'} fontSize={'xs'}>
-        {`~
-        ${
-          assetAmount && bitcoinPrice && protocolFeeBasisPoints
-            ? calculateProtocolFeeInUSD(amount, bitcoinPrice, protocolFeeBasisPoints)
-            : 0
-        }
-        $`}
+        ~ {protocolFeeValueInUSD.toLocaleString('en-US')} USD
       </Text>
     </VStack>
   );
