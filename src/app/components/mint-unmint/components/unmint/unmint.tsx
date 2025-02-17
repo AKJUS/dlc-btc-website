@@ -34,7 +34,7 @@ export function Unmint(): React.JSX.Element {
         )}
         {[1, 2].includes(unmintStep.step) && (
           <WithdrawScreen
-            isBitcoinWalletLoading={isBitcoinWalletLoading}
+            isBitcoinWalletLoading={isBitcoinWalletLoading ?? [false, '']}
             handleSignWithdrawTransaction={handleSignWithdrawTransaction}
           />
         )}

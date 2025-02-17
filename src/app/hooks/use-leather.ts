@@ -10,7 +10,6 @@ import {
   RpcResponse,
 } from '@models/software-wallet.models';
 import { BitcoinWalletAction, BitcoinWalletType } from '@models/wallet';
-import { bytesToHex } from '@noble/hashes/utils';
 import {
   BitcoinWalletContext,
   BitcoinWalletContextState,
@@ -24,7 +23,6 @@ import { BITCOIN_NETWORK_MAP, walletLoadingState } from '@shared/constants/bitco
 interface UseLeatherReturnType {
   connectLeatherWallet: () => Promise<void>;
   handleFundingTransaction: (
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -32,7 +30,6 @@ interface UseLeatherReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     bitcoinAmount: number,
     attestorGroupPublicKey: string,
@@ -40,19 +37,23 @@ interface UseLeatherReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ) => Promise<string>;
+  ) => Promise<Transaction>;
   isLoading: [boolean, string];
 }
 
 export function useLeather(): UseLeatherReturnType {
-  const { setDLCHandler, setBitcoinWalletContextState, setBitcoinWalletType, bitcoinWalletType } =
-    useContext(BitcoinWalletContext);
+  const {
+    setDLCHandler,
+    dlcHandler,
+    setBitcoinWalletContextState,
+    setBitcoinWalletType,
+    bitcoinWalletType,
+  } = useContext(BitcoinWalletContext);
 
   const [isLoading, setIsLoading] = useState<[boolean, string]>([false, '']);
 
@@ -130,7 +131,6 @@ export function useLeather(): UseLeatherReturnType {
 
   /**
    * Creates the Funding Transaction and signs it with Leather Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param bitcoinAmount The Bitcoin Amount to fund the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -139,7 +139,6 @@ export function useLeather(): UseLeatherReturnType {
    * @returns The Signed Funding Transaction.
    */
   async function handleFundingTransaction(
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -147,12 +146,14 @@ export function useLeather(): UseLeatherReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LeatherError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Funding')
       );
       const formattedDepositAmount = BigInt(shiftValue(depositAmount));
 
-      const fundingPSBT = await dlcHandler?.createFundingPSBT(
+      const fundingPSBT = await dlcHandler.createFundingPSBT(
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
@@ -176,7 +177,6 @@ export function useLeather(): UseLeatherReturnType {
 
   /**
    * Creates a Deposit Transaction and signs it with Leather Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param depositAmount The Bitcoin Amount to deposit into the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -185,7 +185,6 @@ export function useLeather(): UseLeatherReturnType {
    * @returns The Signed Deposit Transaction.
    */
   async function handleDepositTransaction(
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -193,13 +192,15 @@ export function useLeather(): UseLeatherReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LeatherError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Deposit')
       );
 
       const formattedDepositAmount = BigInt(shiftValue(depositAmount));
 
-      const depositPSBT = await dlcHandler?.createDepositPSBT(
+      const depositPSBT = await dlcHandler.createDepositPSBT(
         vault,
         formattedDepositAmount,
         attestorGroupPublicKey,
@@ -224,7 +225,6 @@ export function useLeather(): UseLeatherReturnType {
 
   /**
    * Creates a Withdraw Transaction and signs it with Unisat or Fordefi Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param withdrawAmount The Bitcoin Amount to withdraw from the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -233,14 +233,15 @@ export function useLeather(): UseLeatherReturnType {
    * @returns The Signed Withdraw Transaction.
    */
   async function handleWithdrawTransaction(
-    dlcHandler: LeatherDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ): Promise<string> {
+  ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LeatherError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Withdraw')
       );
@@ -265,7 +266,7 @@ export function useLeather(): UseLeatherReturnType {
         'withdraw'
       );
 
-      return bytesToHex(signedWithdrawTransaction.toPSBT());
+      return signedWithdrawTransaction;
     } catch (error) {
       throw new LeatherError(`Error handling Withdrawal Transaction: ${error}`);
     } finally {

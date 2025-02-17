@@ -4,7 +4,6 @@ import { ALL_SUPPORTED_BITCOIN_NETWORK_PREFIX } from '@models/configuration';
 import { UnisatFordefiError } from '@models/error-types';
 import { BitcoinTaprootAccount } from '@models/software-wallet.models';
 import { BitcoinWalletAction, BitcoinWalletType } from '@models/wallet';
-import { bytesToHex } from '@noble/hashes/utils';
 import {
   BitcoinWalletContext,
   BitcoinWalletContextState,
@@ -18,7 +17,6 @@ import { BITCOIN_NETWORK_MAP, walletLoadingState } from '@shared/constants/bitco
 interface UseUnisatFordefiReturnType {
   connectUnisatOrFordefiWallet: (isFordefi?: boolean) => Promise<void>;
   handleFundingTransaction: (
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -26,7 +24,6 @@ interface UseUnisatFordefiReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -34,19 +31,23 @@ interface UseUnisatFordefiReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ) => Promise<string>;
+  ) => Promise<Transaction>;
   isLoading: [boolean, string];
 }
 
 export function useUnisatFordefi(): UseUnisatFordefiReturnType {
-  const { setDLCHandler, setBitcoinWalletContextState, setBitcoinWalletType, bitcoinWalletType } =
-    useContext(BitcoinWalletContext);
+  const {
+    setDLCHandler,
+    dlcHandler,
+    setBitcoinWalletContextState,
+    setBitcoinWalletType,
+    bitcoinWalletType,
+  } = useContext(BitcoinWalletContext);
 
   const [isLoading, setIsLoading] = useState<[boolean, string]>([false, '']);
 
@@ -147,7 +148,6 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
 
   /**
    * Creates the Funding Transaction and signs it with Unisat or Fordefi Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param depositAmount The Bitcoin Amount to fund the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -156,7 +156,6 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
    * @returns The Signed Funding Transaction.
    */
   async function handleFundingTransaction(
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -164,6 +163,8 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new UnisatFordefiError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Funding')
       );
@@ -194,7 +195,6 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
 
   /**
    * Creates a Deposit Transaction and signs it with Unisat or Fordefi Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param depositAmount The Bitcoin Amount to deposit into the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -203,7 +203,6 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
    * @returns The Signed Deposit Transaction.
    */
   async function handleDepositTransaction(
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -211,6 +210,8 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new UnisatFordefiError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Deposit')
       );
@@ -242,7 +243,6 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
 
   /**
    * Creates a Withdraw Transaction and signs it with Unisat or Fordefi Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param withdrawAmount The Bitcoin Amount to withdraw from the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -251,14 +251,15 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
    * @returns The Signed Withdraw Transaction.
    */
   async function handleWithdrawTransaction(
-    dlcHandler: UnisatFordefiDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ): Promise<string> {
+  ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new UnisatFordefiError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.CREATING_TRANSACTION, bitcoinWalletType, 'Withdraw')
       );
@@ -283,7 +284,7 @@ export function useUnisatFordefi(): UseUnisatFordefiReturnType {
         'withdraw'
       );
 
-      return bytesToHex(signedWithdrawTransaction.toPSBT());
+      return signedWithdrawTransaction;
     } catch (error) {
       throw new UnisatFordefiError(`Error handling Withdraw Transaction: ${error}`);
     } finally {

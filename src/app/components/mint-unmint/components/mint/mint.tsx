@@ -14,7 +14,7 @@ import { Walkthrough } from '../walkthrough/walkthrough';
 import { MintLayout } from './components/mint.layout';
 
 export function Mint(): React.JSX.Element {
-  const { handleSignFundingTransaction, isLoading: isBitcoinWalletLoading } = usePSBT();
+  const { handleSignDepositTransaction, isLoading: isBitcoinWalletLoading } = usePSBT();
   const { networkType } = useContext(NetworkConfigurationContext);
 
   const { mintStep } = useSelector((state: RootState) => state.mintunmint);
@@ -28,8 +28,8 @@ export function Mint(): React.JSX.Element {
         {[0].includes(mintStep.step) && <SetupVaultScreen />}
         {[1, 2].includes(mintStep.step) && (
           <DepositTransactionScreen
-            handleSignFundingTransaction={handleSignFundingTransaction}
-            isBitcoinWalletLoading={isBitcoinWalletLoading}
+            handleSignDepositTransaction={handleSignDepositTransaction}
+            isBitcoinWalletLoading={isBitcoinWalletLoading ?? [false, '']}
             userEthereumAddressRiskLevel={risk!}
             fetchUserEthereumAddressRiskLevel={fetchUserAddressRisk}
             isUserEthereumAddressRiskLevelLoading={isLoading}

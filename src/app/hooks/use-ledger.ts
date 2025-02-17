@@ -6,7 +6,6 @@ import { LedgerError } from '@models/error-types';
 import { LEDGER_APPS_MAP } from '@models/ledger';
 import { SupportedPaymentType } from '@models/supported-payment-types';
 import { BitcoinWalletAction, BitcoinWalletType } from '@models/wallet';
-import { bytesToHex } from '@noble/hashes/utils';
 import {
   BitcoinWalletContext,
   BitcoinWalletContextState,
@@ -42,7 +41,6 @@ interface UseLedgerReturnType {
     paymentType: SupportedPaymentType
   ) => Promise<void>;
   handleFundingTransaction: (
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -50,7 +48,6 @@ interface UseLedgerReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleDepositTransaction: (
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -58,18 +55,17 @@ interface UseLedgerReturnType {
     feeRateMultiplier: number
   ) => Promise<Transaction>;
   handleWithdrawTransaction: (
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ) => Promise<string>;
+  ) => Promise<Transaction>;
   isLoading: [boolean, string];
 }
 
 export function useLedger(): UseLedgerReturnType {
-  const { setBitcoinWalletContextState, setDLCHandler, bitcoinWalletType } =
+  const { setDLCHandler, dlcHandler, setBitcoinWalletContextState, bitcoinWalletType } =
     useContext(BitcoinWalletContext);
 
   const [ledgerApp, setLedgerApp] = useState<AppClient | undefined>(undefined);
@@ -281,7 +277,6 @@ export function useLedger(): UseLedgerReturnType {
    * @returns The Signed Funding Transaction.
    */
   async function handleFundingTransaction(
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -289,6 +284,8 @@ export function useLedger(): UseLedgerReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LedgerError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
       );
@@ -319,7 +316,6 @@ export function useLedger(): UseLedgerReturnType {
 
   /**
    * Creates a Deposit Transaction and signs it with Ledger Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param depositAmount The Bitcoin Amount to deposit into the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -328,7 +324,6 @@ export function useLedger(): UseLedgerReturnType {
    * @returns The Signed Deposit Transaction.
    */
   async function handleDepositTransaction(
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     depositAmount: number,
     attestorGroupPublicKey: string,
@@ -336,6 +331,8 @@ export function useLedger(): UseLedgerReturnType {
     feeRateMultiplier: number
   ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LedgerError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
       );
@@ -367,7 +364,6 @@ export function useLedger(): UseLedgerReturnType {
 
   /**
    * Creates a Withdraw Transaction and signs it with Ledger Wallet.
-   * @param dlcHandler The DLC Handler.
    * @param vault The Vault to interact with.
    * @param withdrawAmount The Bitcoin Amount to withdraw from the Vault.
    * @param attestorGroupPublicKey The Attestor Group Public Key.
@@ -376,14 +372,15 @@ export function useLedger(): UseLedgerReturnType {
    * @returns The Signed Withdraw Transaction.
    */
   async function handleWithdrawTransaction(
-    dlcHandler: LedgerDLCHandler,
     vault: RawVault,
     withdrawAmount: number,
     attestorGroupPublicKey: string,
     feeRecipient: string,
     feeRateMultiplier: number
-  ): Promise<string> {
+  ): Promise<Transaction> {
     try {
+      if (!dlcHandler) throw new LedgerError('DLC Handler is not set');
+
       setIsLoading(
         walletLoadingState(BitcoinWalletAction.ACCEPT_MULTI_SIG_WALLET_POLICY, bitcoinWalletType)
       );
@@ -405,7 +402,7 @@ export function useLedger(): UseLedgerReturnType {
 
       const withdrawalTransaction = await dlcHandler.signPSBT(withdrawalPSBT, 'withdraw');
 
-      return bytesToHex(withdrawalTransaction.toPSBT());
+      return withdrawalTransaction;
     } catch (error) {
       throw new LedgerError(`Error handling Withdrawal Transaction: ${error}`);
     } finally {

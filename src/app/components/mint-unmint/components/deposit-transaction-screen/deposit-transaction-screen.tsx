@@ -18,7 +18,7 @@ import { modalActions } from '@store/slices/modal/modal.actions';
 import { NetworkType } from '@shared/constants/network.constants';
 
 interface DepositTransactionScreenProps {
-  handleSignFundingTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
+  handleSignDepositTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
   isBitcoinWalletLoading: [boolean, string];
   userEthereumAddressRiskLevel: string;
   fetchUserEthereumAddressRiskLevel: () => Promise<string>;
@@ -26,7 +26,7 @@ interface DepositTransactionScreenProps {
 }
 
 export function DepositTransactionScreen({
-  handleSignFundingTransaction,
+  handleSignDepositTransaction,
   isBitcoinWalletLoading,
   userEthereumAddressRiskLevel,
   fetchUserEthereumAddressRiskLevel,
@@ -62,7 +62,7 @@ export function DepositTransactionScreen({
         const currentRisk = await fetchUserEthereumAddressRiskLevel();
         if (currentRisk === 'High') throw new Error('Risk Level is too high');
       }
-      await handleSignFundingTransaction(currentVault.uuid, depositAmount);
+      await handleSignDepositTransaction(currentVault.uuid, depositAmount);
     } catch (error: any) {
       setIsSubmitting(false);
       toast({

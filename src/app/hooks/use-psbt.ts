@@ -1,342 +1,203 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 
-import { getAttestorExtendedGroupPublicKey } from '@functions/attestor-request.functions';
 import { BitcoinError } from '@models/error-types';
+import {
+  HandlerType,
+  PSBTSubmissionParams,
+  TransactionHandlers,
+  TransactionParams,
+  TransactionType,
+} from '@models/transaction.models';
 import { BitcoinWalletType } from '@models/wallet';
 import { bytesToHex } from '@noble/hashes/utils';
 import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider';
-import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
-import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
-import { RippleNetworkConfigurationContext } from '@providers/ripple-network-configuration.provider';
-import { XRPWalletContext } from '@providers/xrp-wallet-context-provider';
 import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import {
-  getAttestorConfigurationForChain,
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
 } from 'dlc-btc-lib/attestor-request-functions';
-import {
-  getAttestorGroupPublicKey,
-  getFeeRecipient,
-  getRawVault,
-} from 'dlc-btc-lib/ethereum-functions';
-import { AttestorChainID, RawVault, Transaction, VaultState } from 'dlc-btc-lib/models';
-import { getRippleVault } from 'dlc-btc-lib/ripple-functions';
-import { useAccount } from 'wagmi';
+import { VaultState } from 'dlc-btc-lib/models';
+import { equals } from 'ramda';
 
-import { NetworkType } from '@shared/constants/network.constants';
-
+import { useAttestorChainID } from './use-attestor-chain-id';
+import { useExtendedAttestorGroupPublicKey } from './use-extended-attestor-group-public-key';
+import { useFeeRecipient } from './use-fee-recipient';
+import { useFetchVault } from './use-get-vault';
 import { useLeather } from './use-leather';
 import { useLedger } from './use-ledger';
 import { useUnisatFordefi } from './use-unisat-fordefi';
+import { useUserAddress } from './use-user-address';
 
-interface UsePSBTReturnType {
-  handleSignFundingTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
-  handleSignWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
-  bitcoinDepositAmount: number;
-  isLoading: [boolean, string];
+interface RequiredDependencies {
+  dlcHandler: LeatherDLCHandler | LedgerDLCHandler | UnisatFordefiDLCHandler;
+  bitcoinWalletType: BitcoinWalletType;
+  userAddress: string;
 }
 
-interface NetworkConfig {
-  getUserAddress: () => string | undefined;
-  getVault: (vaultUUID: string) => Promise<RawVault>;
-  getAttestorGroupPublicKey: () => Promise<string>;
-  getFeeRecipient: () => Promise<string>;
+interface UsePSBTReturnType {
+  handleSignDepositTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
+  handleSignWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
+  isLoading: [boolean, string] | undefined;
 }
 
 export function usePSBT(): UsePSBTReturnType {
-  const {
-    ethereumNetworkConfiguration: { dlcManagerContract, ethereumAttestorChainID },
-  } = useContext(EthereumNetworkConfigurationContext);
-  const { address: ethereumUserAddress } = useAccount();
-  const { userAddress: rippleUserAddress } = useContext(XRPWalletContext);
-  const {
-    rippleClient,
-    rippleNetworkConfiguration: { rippleAttestorChainID },
-  } = useContext(RippleNetworkConfigurationContext);
-
-  const { bitcoinWalletType, dlcHandler, resetBitcoinWalletContext } =
+  const { dlcHandler, bitcoinWalletType, resetBitcoinWalletContext } =
     useContext(BitcoinWalletContext);
 
-  const { networkType } = useContext(NetworkConfigurationContext);
+  const { coordinatorURL, bitcoinFeeRateMultiplier } = appConfiguration;
 
-  const {
-    handleFundingTransaction: handleFundingTransactionWithLedger,
-    handleWithdrawTransaction: handleWithdrawTransactionWithLedger,
-    handleDepositTransaction: handleDepositTransactionWithLedger,
-    isLoading: isLedgerLoading,
-  } = useLedger();
+  const { data: feeRecipient } = useFeeRecipient();
+  const { data: extendedAttestorGroupPublicKey } = useExtendedAttestorGroupPublicKey();
 
-  const {
-    handleFundingTransaction: handleFundingTransactionWithLeather,
-    handleWithdrawTransaction: handleWithdrawTransactionWithLeather,
-    handleDepositTransaction: handleDepositTransactionWithLeather,
-    isLoading: isLeatherLoading,
-  } = useLeather();
+  const { fetchVault } = useFetchVault();
 
-  const {
-    handleFundingTransaction: handleFundingTransactionWithUnisatFordefi,
-    handleWithdrawTransaction: handleWithdrawTransactionWithUnisatFordefi,
-    handleDepositTransaction: handleDepositTransactionWithUnisatFordefi,
-    isLoading: isUnisatLoading,
-  } = useUnisatFordefi();
+  const { data: userAddress } = useUserAddress();
 
-  const [bitcoinDepositAmount, setBitcoinDepositAmount] = useState(0);
+  const attestorChainID = useAttestorChainID();
 
-  const attestorChainIDs = {
-    [NetworkType.EVM]: ethereumAttestorChainID,
-    [NetworkType.XRPL]: rippleAttestorChainID,
-    [NetworkType.BTC]: '',
-  };
+  const ledgerTransactionHandler = useLedger();
+  const leatherTransactionHandler = useLeather();
+  const unisatFordefiTransactionHandler = useUnisatFordefi();
 
-  type SupportedNetworkType = Exclude<NetworkType, NetworkType.BTC>;
-
-  const isSupportedNetwork = (network: NetworkType): network is SupportedNetworkType => {
-    return network === NetworkType.EVM || network === NetworkType.XRPL;
-  };
-
-  const networkConfigs: Record<SupportedNetworkType, NetworkConfig> = {
-    [NetworkType.EVM]: {
-      getUserAddress: () => ethereumUserAddress,
-      getVault: vaultUUID => getRawVault(dlcManagerContract, vaultUUID),
-      getAttestorGroupPublicKey: () => getAttestorGroupPublicKey(dlcManagerContract),
-      getFeeRecipient: () => getFeeRecipient(dlcManagerContract),
+  const transactionHandlers: TransactionHandlers = {
+    handleFundingTransaction: {
+      [BitcoinWalletType.Leather]: leatherTransactionHandler.handleFundingTransaction,
+      [BitcoinWalletType.Ledger]: ledgerTransactionHandler.handleFundingTransaction,
+      [BitcoinWalletType.Unisat]: unisatFordefiTransactionHandler.handleFundingTransaction,
+      [BitcoinWalletType.Fordefi]: unisatFordefiTransactionHandler.handleFundingTransaction,
     },
-    [NetworkType.XRPL]: {
-      getUserAddress: () => rippleUserAddress,
-      getVault: vaultUUID =>
-        getRippleVault(rippleClient, appConfiguration.rippleIssuerAddress, vaultUUID),
-      getAttestorGroupPublicKey: getAttestorExtendedGroupPublicKey,
-      getFeeRecipient: async () => {
-        const config = await getAttestorConfigurationForChain(
-          appConfiguration.attestorSharedConfigurationURL,
-          'ripple',
-          attestorChainIDs[NetworkType.XRPL]
-        );
-        return config.btcFeeRecipient;
-      },
+    handleWithdrawTransaction: {
+      [BitcoinWalletType.Leather]: leatherTransactionHandler.handleWithdrawTransaction,
+      [BitcoinWalletType.Ledger]: ledgerTransactionHandler.handleWithdrawTransaction,
+      [BitcoinWalletType.Unisat]: unisatFordefiTransactionHandler.handleWithdrawTransaction,
+      [BitcoinWalletType.Fordefi]: unisatFordefiTransactionHandler.handleWithdrawTransaction,
+    },
+    handleDepositTransaction: {
+      [BitcoinWalletType.Leather]: leatherTransactionHandler.handleDepositTransaction,
+      [BitcoinWalletType.Ledger]: ledgerTransactionHandler.handleDepositTransaction,
+      [BitcoinWalletType.Unisat]: unisatFordefiTransactionHandler.handleDepositTransaction,
+      [BitcoinWalletType.Fordefi]: unisatFordefiTransactionHandler.handleDepositTransaction,
     },
   };
 
-  const getRequiredPSBTInformation = async (
-    vaultUUID: string
-  ): Promise<{
-    userAddress: string;
-    vault: RawVault;
-    attestorGroupPublicKey: string;
-    feeRecipient: string;
-  }> => {
-    if (!isSupportedNetwork(networkType)) {
-      throw new Error('Network Type is not supported');
-    }
+  const submitPSBT = async ({
+    transaction,
+    vault,
+    userAddress,
+    dlcHandler,
+    coordinatorURL,
+    attestorChainID,
+  }: PSBTSubmissionParams): Promise<void> => {
+    const transactionPSBT = bytesToHex(transaction.toPSBT());
 
-    const config = networkConfigs[networkType];
-    if (!config) {
-      throw new Error('Network Type is not setup');
+    switch (equals(vault.status, VaultState.READY)) {
+      case true:
+        return submitFundingPSBT([coordinatorURL], {
+          vaultUUID: vault.uuid,
+          fundingPSBT: transactionPSBT,
+          userEthereumAddress: userAddress,
+          userBitcoinTaprootPublicKey: dlcHandler.getUserTaprootPublicKey(),
+          attestorChainID,
+        });
+      default:
+        return submitWithdrawDepositPSBT([coordinatorURL], {
+          vaultUUID: vault.uuid,
+          withdrawDepositPSBT: transactionPSBT,
+        });
     }
+  };
 
-    const userAddress = config.getUserAddress();
-    if (!userAddress) {
-      throw new Error('User Address is not setup');
-    }
+  const getPSBTParameters = async (
+    vaultUUID: string,
+    amount: number
+  ): Promise<TransactionParams> => {
+    if (!feeRecipient) throw new Error('Fee Recipient is not setup');
+    if (!extendedAttestorGroupPublicKey)
+      throw new Error('Extended Attestor Group Public Key is not setup');
 
-    const [vault, attestorGroupPublicKey, feeRecipient] = await Promise.all([
-      config.getVault(vaultUUID),
-      config.getAttestorGroupPublicKey(),
-      config.getFeeRecipient(),
-    ]);
+    const vault = await fetchVault(vaultUUID);
 
     return {
-      userAddress,
       vault,
-      attestorGroupPublicKey,
+      amount,
+      extendedAttestorGroupPublicKey,
       feeRecipient,
+      bitcoinFeeRateMultiplier,
     };
   };
 
-  async function handleSignFundingTransaction(
-    vaultUUID: string,
-    depositAmount: number
-  ): Promise<void> {
-    try {
-      if (!dlcHandler) throw new Error('DLC Handler is not setup');
+  const getRequiredDependencies = (): RequiredDependencies => {
+    if (!dlcHandler) throw new Error('DLC Handler is not setup');
+    if (!bitcoinWalletType) throw new BitcoinError('Bitcoin Wallet Type is not setup');
+    if (!userAddress) throw new Error('User Address is not setup');
 
-      const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
+    return { dlcHandler, bitcoinWalletType, userAddress };
+  };
 
-      const { userAddress, vault, attestorGroupPublicKey, feeRecipient } =
-        await getRequiredPSBTInformation(vaultUUID);
-
-      let fundingTransaction: Transaction;
-      switch (bitcoinWalletType) {
-        case 'Ledger':
-          switch (vault.valueLocked.toNumber()) {
-            case 0:
-              fundingTransaction = await handleFundingTransactionWithLedger(
-                dlcHandler as LedgerDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-              break;
-            default:
-              fundingTransaction = await handleDepositTransactionWithLedger(
-                dlcHandler as LedgerDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-          }
-          break;
-        case 'Unisat':
-          switch (vault.valueLocked.toNumber()) {
-            case 0:
-              fundingTransaction = await handleFundingTransactionWithUnisatFordefi(
-                dlcHandler as UnisatFordefiDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-              break;
-            default:
-              fundingTransaction = await handleDepositTransactionWithUnisatFordefi(
-                dlcHandler as UnisatFordefiDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-              break;
-          }
-          break;
-        case 'Leather':
-          switch (vault.valueLocked.toNumber()) {
-            case 0:
-              fundingTransaction = await handleFundingTransactionWithLeather(
-                dlcHandler as LeatherDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-              break;
-            default:
-              fundingTransaction = await handleDepositTransactionWithLeather(
-                dlcHandler as LeatherDLCHandler,
-                vault,
-                depositAmount,
-                attestorGroupPublicKey,
-                feeRecipient,
-                feeRateMultiplier
-              );
-              break;
-          }
-          break;
-        default:
-          throw new BitcoinError('Invalid Bitcoin Wallet Type');
-      }
-
-      switch (vault.status) {
-        case VaultState.READY:
-          await submitFundingPSBT([appConfiguration.coordinatorURL], {
-            vaultUUID,
-            fundingPSBT: bytesToHex(fundingTransaction.toPSBT()),
-            userEthereumAddress: userAddress,
-            userBitcoinTaprootPublicKey: dlcHandler.getUserTaprootPublicKey(),
-            attestorChainID: attestorChainIDs[networkType] as AttestorChainID,
-          });
-          break;
-        default:
-          await submitWithdrawDepositPSBT([appConfiguration.coordinatorURL], {
-            vaultUUID,
-            withdrawDepositPSBT: bytesToHex(fundingTransaction.toPSBT()),
-          });
-      }
-
-      setBitcoinDepositAmount(depositAmount);
-      resetBitcoinWalletContext();
-    } catch (error) {
-      throw new BitcoinError(`Error signing Funding Transaction: ${error}`);
+  const throwTransactionError = (type: TransactionType, error: any): never => {
+    if (error instanceof Error) {
+      throw new BitcoinError(`Error signing ${type} Transaction: ${error.message}`);
     }
-  }
+    throw new BitcoinError(`Unknown error signing ${type} Transaction`);
+  };
 
-  async function handleSignWithdrawTransaction(
-    vaultUUID: string,
-    withdrawAmount: number
-  ): Promise<void> {
-    try {
-      if (!dlcHandler) throw new Error('DLC Handler is not setup');
+  const handlerTypeMap = {
+    withdraw: (): HandlerType => 'handleWithdrawTransaction',
+    deposit: (valueLocked: number): HandlerType =>
+      equals(valueLocked, 0) ? 'handleFundingTransaction' : 'handleDepositTransaction',
+  } as const;
 
-      const feeRateMultiplier = import.meta.env.VITE_FEE_RATE_MULTIPLIER;
+  const createTransactionHandler =
+    (type: TransactionType) =>
+    async (vaultUUID: string, value: number): Promise<void> => {
+      try {
+        const { dlcHandler, bitcoinWalletType, userAddress } = getRequiredDependencies();
 
-      const { vault, attestorGroupPublicKey, feeRecipient } =
-        await getRequiredPSBTInformation(vaultUUID);
+        const {
+          vault,
+          amount,
+          extendedAttestorGroupPublicKey,
+          feeRecipient,
+          bitcoinFeeRateMultiplier,
+        } = await getPSBTParameters(vaultUUID, value);
 
-      let withdrawalTransactionHex: string;
-      switch (bitcoinWalletType) {
-        case 'Ledger':
-          withdrawalTransactionHex = await handleWithdrawTransactionWithLedger(
-            dlcHandler as LedgerDLCHandler,
-            vault,
-            withdrawAmount,
-            attestorGroupPublicKey,
-            feeRecipient,
-            feeRateMultiplier
-          );
-          break;
-        case 'Unisat':
-          withdrawalTransactionHex = await handleWithdrawTransactionWithUnisatFordefi(
-            dlcHandler as UnisatFordefiDLCHandler,
-            vault,
-            withdrawAmount,
-            attestorGroupPublicKey,
-            feeRecipient,
-            feeRateMultiplier
-          );
-          break;
-        case 'Leather':
-          withdrawalTransactionHex = await handleWithdrawTransactionWithLeather(
-            dlcHandler as LeatherDLCHandler,
-            vault,
-            withdrawAmount,
-            attestorGroupPublicKey,
-            feeRecipient,
-            feeRateMultiplier
-          );
-          break;
-        default:
-          throw new BitcoinError('Invalid Bitcoin Wallet Type');
+        const handlerType = handlerTypeMap[type](vault.valueLocked.toNumber());
+
+        const transactionHandler = transactionHandlers[handlerType][bitcoinWalletType];
+
+        const transaction = await transactionHandler(
+          vault,
+          amount,
+          extendedAttestorGroupPublicKey,
+          feeRecipient,
+          bitcoinFeeRateMultiplier
+        );
+
+        await submitPSBT({
+          transaction,
+          vault,
+          userAddress,
+          dlcHandler,
+          coordinatorURL,
+          attestorChainID,
+        });
+
+        resetBitcoinWalletContext();
+      } catch (error) {
+        throwTransactionError(type, error);
       }
-
-      await submitWithdrawDepositPSBT([appConfiguration.coordinatorURL], {
-        vaultUUID,
-        withdrawDepositPSBT: withdrawalTransactionHex,
-      });
-
-      resetBitcoinWalletContext();
-    } catch (error) {
-      throw new BitcoinError(`Error signing Withdraw Transaction: ${error}`);
-    }
-  }
+    };
 
   const loadingStates = {
-    [BitcoinWalletType.Ledger]: isLedgerLoading,
-    [BitcoinWalletType.Leather]: isLeatherLoading,
-    [BitcoinWalletType.Unisat]: isUnisatLoading,
-    [BitcoinWalletType.Fordefi]: isUnisatLoading,
+    [BitcoinWalletType.Ledger]: ledgerTransactionHandler.isLoading,
+    [BitcoinWalletType.Leather]: leatherTransactionHandler.isLoading,
+    [BitcoinWalletType.Unisat]: unisatFordefiTransactionHandler.isLoading,
+    [BitcoinWalletType.Fordefi]: unisatFordefiTransactionHandler.isLoading,
   };
 
   return {
-    handleSignFundingTransaction,
-    handleSignWithdrawTransaction,
-    bitcoinDepositAmount,
-    isLoading: bitcoinWalletType ? loadingStates[bitcoinWalletType] : [false, ''],
+    handleSignDepositTransaction: createTransactionHandler('deposit'),
+    handleSignWithdrawTransaction: createTransactionHandler('withdraw'),
+    isLoading: loadingStates[bitcoinWalletType!],
   };
 }
