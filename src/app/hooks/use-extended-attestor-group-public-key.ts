@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 
+import { getExtendedAttestorGroupPublicKey } from '@functions/netlify-fetch.functions';
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { UseQueryResult, useQuery } from '@tanstack/react-query';
-import { getAttestorExtendedGroupPublicKey } from 'dlc-btc-lib/attestor-request-functions';
 import { getAttestorGroupPublicKey } from 'dlc-btc-lib/ethereum-functions';
 
 import { NetworkType } from '@shared/constants/network.constants';
@@ -22,7 +22,7 @@ export function useExtendedAttestorGroupPublicKey(): UseQueryResult<string, Erro
   };
 
   const fetchXRPLExtendedAttestorGroupPublicKey = async (): Promise<string> => {
-    return await getAttestorExtendedGroupPublicKey(coordinatorURL);
+    return await getExtendedAttestorGroupPublicKey(coordinatorURL);
   };
 
   const fetchExtendedAttestorGroupPublicKey = async (): Promise<string> => {
