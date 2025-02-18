@@ -10,7 +10,7 @@
 for = "/*"
 
 [headers.values]
-  Content-Security-Policy = "default-src 'self'; connect-src 'self' *; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; img-src 'self' https: data:; media-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http://www.youtube.com https://www.youtube.com https://s.ytimg.com; frame-src 'self' http://www.youtube.com https://www.youtube.com; style-src 'self' 'unsafe-inline'"
+  Content-Security-Policy = "default-src 'self'; connect-src 'self' https: wss:; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' https: data:; media-src 'self'; object-src 'none'; script-src 'self' 'unsafe-inline' 'unsafe-eval' http: https:; frame-src 'self' http: https:; style-src 'self' 'unsafe-inline'; font-src 'self' https: data:"
   Referrer-Policy = "strict-origin-when-cross-origin"
   Strict-Transport-Security = "max-age=31536000; includeSubDomains"
   X-Content-Type-Options = "nosniff"
