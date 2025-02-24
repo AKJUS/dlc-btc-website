@@ -111,7 +111,7 @@ export function Points(): React.JSX.Element {
                   />
                   <PointsStatsBoardAction
                     token={iBTC}
-                    totalSupply={userPoints?.protocols.find(p => p.name == 'dlcBTC')?.points}
+                    totalSupply={userPoints?.protocols.find(p => p.name == 'iBTC')?.points}
                     tokenSuffix={'Hold'}
                   />
                 </Stack>
