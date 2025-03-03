@@ -2,7 +2,7 @@ import { DetailedEvent } from '@models/ethereum-models';
 import { Merchant } from '@models/merchant';
 import { useQuery } from '@tanstack/react-query';
 
-import { MINT_BURN_EVENTS_API_URL } from '@shared/constants/api.constants';
+import { API_HELPERS } from '@shared/constants/api.constants';
 
 interface UseMintBurnEventsReturnType {
   allMintBurnEvents: DetailedEvent[] | undefined;
@@ -12,9 +12,8 @@ interface UseMintBurnEventsReturnType {
 export function useMintBurnEvents(): UseMintBurnEventsReturnType {
   async function fetchMintBurnEvents(ethereumAddress: string): Promise<DetailedEvent[]> {
     try {
-      const response = await fetch(
-        `${MINT_BURN_EVENTS_API_URL}/${appConfiguration.appEnvironment}/${ethereumAddress}`
-      );
+      const apiURL = API_HELPERS.getMintBurnEventsURL({ address: ethereumAddress });
+      const response = await fetch(apiURL);
 
       if (!response.ok) {
         throw new Error(`Error fetching mint burn events`);

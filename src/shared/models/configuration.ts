@@ -10,7 +10,7 @@ enum BitcoinNetworkName {
   REGTEST = 'regtest',
 }
 
-enum AppEnvironment {
+export enum AppEnvironment {
   MAINNET = 'mainnet',
   TESTNET = 'testnet',
   DEVNET = 'devnet',

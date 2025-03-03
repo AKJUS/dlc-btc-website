@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 
-import { TOTAL_SUPPLY_API_URL } from '@shared/constants/api.constants';
+import { API_HELPERS } from '@shared/constants/api.constants';
 
 interface UseTotalSupplyReturnType {
   totalSupply: number | undefined;
@@ -9,7 +9,8 @@ interface UseTotalSupplyReturnType {
 export function useTotalSupply(): UseTotalSupplyReturnType {
   const fetchTotalSupply = async () => {
     try {
-      const response = await fetch(`${TOTAL_SUPPLY_API_URL}/${appConfiguration.appEnvironment}`);
+      const apiUrl = API_HELPERS.getTotalSupplyURL({});
+      const response = await fetch(apiUrl);
 
       if (!response.ok) {
         throw new Error(`Response was not OK: ${response.status}`);

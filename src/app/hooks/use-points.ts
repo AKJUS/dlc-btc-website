@@ -2,7 +2,7 @@ import { PointsData } from '@models/points.models';
 import { useQuery } from '@tanstack/react-query';
 import { useAccount } from 'wagmi';
 
-import { POINTS_API_URL } from '@shared/constants/api.constants';
+import { API_HELPERS } from '@shared/constants/api.constants';
 
 interface UsePointsReturnType {
   userPoints: PointsData | undefined;
@@ -13,9 +13,8 @@ export function usePoints(): UsePointsReturnType {
 
   async function fetchUserPoints(): Promise<PointsData | undefined> {
     try {
-      const response = await fetch(
-        `${POINTS_API_URL}/${appConfiguration.appEnvironment}/${address}`
-      );
+      const apiURL = API_HELPERS.getPointsURL({ address: address! });
+      const response = await fetch(apiURL);
 
       if (!response.ok) {
         throw new Error(`Error fetching user: ${address} points`);

@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
 import { pluck } from 'ramda';
 
-import { PROOF_OF_RESERVE_API_URL } from '@shared/constants/api.constants';
+import { API_HELPERS } from '@shared/constants/api.constants';
 import { NetworkType } from '@shared/constants/network.constants';
 
 export interface UseProofOfReserveReturnType {
@@ -24,9 +24,7 @@ interface ProofOfReserveByChainReturnType {
 export function useProofOfReserve(): UseProofOfReserveReturnType {
   async function fetchProofOfReserve(merchantAddress?: string): Promise<number> {
     try {
-      const apiURL = merchantAddress
-        ? `${PROOF_OF_RESERVE_API_URL}/${appConfiguration.appEnvironment}?address=${merchantAddress}`
-        : `${PROOF_OF_RESERVE_API_URL}/${appConfiguration.appEnvironment}`;
+      const apiURL = API_HELPERS.getProofOfReserveURL({ address: merchantAddress });
 
       const response = await fetch(apiURL);
 
@@ -53,14 +51,9 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
       return chain ? chain.toLowerCase() : '';
     };
 
-    const buildApiUrl = (chainParam: string): string => {
-      const baseUrl = `${PROOF_OF_RESERVE_API_URL}/${appConfiguration.appEnvironment}`;
-      return `${baseUrl}?chain=${chainParam}`;
-    };
-
     try {
       const chainParam = formatChainParam(chainName, networkType);
-      const apiUrl = buildApiUrl(chainParam);
+      const apiUrl = API_HELPERS.getProofOfReserveURL({ chain: chainParam });
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
