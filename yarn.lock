@@ -4330,10 +4330,10 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-dlc-btc-lib@2.5.17:
-  version "2.5.17"
-  resolved "https://registry.yarnpkg.com/dlc-btc-lib/-/dlc-btc-lib-2.5.17.tgz#b8ef2f84fe4659ad990cfb71c7c62f86bbc23855"
-  integrity sha512-+Sr9sPFKZxLDhvo+gggjRybXtA0oyy4FvT96dYY9YoQGJKR1lsZSDqTXs4wNERicfhzA9T98QB2B4oxWDDDv/w==
+dlc-btc-lib@2.6.5:
+  version "2.6.5"
+  resolved "https://registry.yarnpkg.com/dlc-btc-lib/-/dlc-btc-lib-2.6.5.tgz#f5982dac201a73e643fc430d1aa745a8f2667584"
+  integrity sha512-erbJbtYbehCWEQv8gp1huBUG91BZLxGzKT+GF3btq2920bjn+yILSZyLXZQi9HCu2A3HvYue9t57bQJp5TOFLg==
   dependencies:
     "@dfns/sdk" "^0.5.9"
     "@dfns/sdk-browser" "^0.5.9"

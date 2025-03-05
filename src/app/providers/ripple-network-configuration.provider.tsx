@@ -3,7 +3,7 @@ import React, { createContext, useEffect, useState } from 'react';
 import { getRippleNetworkByID } from '@functions/configuration.functions';
 import { HasChildren } from '@models/has-children';
 import { RippleNetwork, RippleNetworkConfiguration, RippleNetworkID } from '@models/ripple.models';
-import { Client } from 'dlc-btc-lib/models';
+import { Client, XRPLAttestorChainID } from 'dlc-btc-lib/models';
 import { getRippleClient } from 'dlc-btc-lib/ripple-functions';
 import { equals, find } from 'ramda';
 
@@ -32,13 +32,13 @@ function getRippleNetworkConfiguration(
       return {
         rippleExplorerAPIURL: 'https://livenet.xrpl.org/',
         websocketURL: 'wss://s1.ripple.com/',
-        rippleAttestorChainID: 'ripple-xrpl-mainnet',
+        rippleAttestorChainID: XRPLAttestorChainID['ripple-xrpl-mainnet'],
       };
     case RippleNetworkID.Testnet:
       return {
         rippleExplorerAPIURL: 'https://testnet.xrpl.org/',
         websocketURL: 'wss://s.altnet.rippletest.net:51233',
-        rippleAttestorChainID: 'ripple-xrpl-testnet',
+        rippleAttestorChainID: XRPLAttestorChainID['ripple-xrpl-testnet'],
       };
 
     default:

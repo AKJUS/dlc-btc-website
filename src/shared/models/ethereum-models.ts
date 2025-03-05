@@ -1,4 +1,4 @@
-import { EthereumNetwork } from 'dlc-btc-lib/models';
+import { EVMAttestorChainID, EthereumNetwork } from 'dlc-btc-lib/models';
 import { Contract } from 'ethers';
 import { Chain } from 'viem';
 
@@ -6,17 +6,7 @@ export interface EthereumNetworkConfiguration {
   ethereumExplorerAPIURL: string;
   websocketURL: string;
   httpURL: string;
-  ethereumAttestorChainID:
-    | 'evm-mainnet'
-    | 'evm-sepolia'
-    | 'evm-arbitrum'
-    | 'evm-arbsepolia'
-    | 'evm-base'
-    | 'evm-basesepolia'
-    | 'evm-avax'
-    | 'evm-bsc'
-    | 'evm-hardhat-arb'
-    | 'evm-hardhat-eth';
+  ethereumAttestorChainID: EVMAttestorChainID;
   enabledEthereumNetworks: EthereumNetwork[];
   dlcManagerContract: Contract;
   iBTCContract: Contract;
@@ -30,7 +20,7 @@ export interface DetailedEvent {
   timestamp: number;
   txHash: string;
   isCCIP: boolean;
-  chain: string;
+  chain: EVMAttestorChainID;
   eventType: 'mint' | 'burn' | 'transfer';
 }
 export interface FormattedEvent {
@@ -38,7 +28,7 @@ export interface FormattedEvent {
   iBTCAmount: number;
   txHash: string;
   date: string;
-  chain: string;
+  chain: EVMAttestorChainID;
   isMint: boolean;
   isCCIP: boolean;
   displayAmount: number | null;

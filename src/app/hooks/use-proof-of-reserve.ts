@@ -4,11 +4,12 @@ import { Merchant, MerchantProofOfReserve } from '@models/merchant';
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
 import { RippleNetworkConfigurationContext } from '@providers/ripple-network-configuration.provider';
 import { useQuery } from '@tanstack/react-query';
+import { AttestorChainID } from 'dlc-btc-lib/models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
-import { pluck } from 'ramda';
 
 import { API_HELPERS } from '@shared/constants/api.constants';
-import { NetworkType } from '@shared/constants/network.constants';
+import { EVMAttestorChainIDMap } from '@shared/constants/ethereum.constants';
+import { XRPLAttestorChainIDMap } from '@shared/constants/ripple.constants';
 
 export interface UseProofOfReserveReturnType {
   proofOfReserveSum?: number;
@@ -41,19 +42,10 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
   }
 
   async function fetchProofOfReserveByChain(
-    chainName: string,
-    networkType: NetworkType
+    chainName: AttestorChainID
   ): Promise<ProofOfReserveByChainReturnType> {
-    const formatChainParam = (chain: string, network: NetworkType): string => {
-      if (network === NetworkType.XRPL) {
-        return `${network.toLowerCase()}-${chain.toLowerCase()}`;
-      }
-      return chain ? chain.toLowerCase() : '';
-    };
-
     try {
-      const chainParam = formatChainParam(chainName, networkType);
-      const apiUrl = API_HELPERS.getProofOfReserveURL({ chain: chainParam });
+      const apiUrl = API_HELPERS.getProofOfReserveURL({ chain: chainName });
 
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -62,7 +54,7 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
 
       const data = await response.json();
       return {
-        chain: `${networkType}-${chainName}`,
+        chain: chainName,
         value: data,
       };
     } catch (error) {
@@ -83,14 +75,18 @@ export function useProofOfReserve(): UseProofOfReserveReturnType {
   async function fetchAllProofOfReserve(): Promise<UseProofOfReserveReturnType> {
     const proofOfReserve = await fetchProofOfReserve();
 
-    const ethereumChainNames = pluck('name', enabledEthereumNetworks);
-    const rippleChainNames = pluck('name', enabledRippleNetworks);
+    const evmAttestorChainIDs = enabledEthereumNetworks.map(
+      network => EVMAttestorChainIDMap[network.id]
+    );
+    const xrpAttestorChainIDs = enabledRippleNetworks.map(
+      network => XRPLAttestorChainIDMap[network.id]
+    );
 
     const evmPorByChains = await Promise.allSettled(
-      ethereumChainNames.map(async chain => fetchProofOfReserveByChain(chain, NetworkType.EVM))
+      evmAttestorChainIDs.map(async chain => fetchProofOfReserveByChain(chain))
     );
     const xrplPorByChains = await Promise.allSettled(
-      rippleChainNames.map(async chain => fetchProofOfReserveByChain(chain, NetworkType.XRPL))
+      xrpAttestorChainIDs.map(async chain => fetchProofOfReserveByChain(chain))
     );
 
     const fulfilledPorByChains = [...evmPorByChains, ...xrplPorByChains]

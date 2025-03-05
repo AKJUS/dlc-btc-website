@@ -18,7 +18,7 @@ export function useTotalSupply(): UseTotalSupplyReturnType {
 
       const responseData = await response.json();
 
-      return responseData;
+      return responseData.totalSupply;
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Error fetching Total Supply', error);

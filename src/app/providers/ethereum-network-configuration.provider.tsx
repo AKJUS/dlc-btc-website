@@ -7,7 +7,7 @@ import {
 } from '@functions/configuration.functions';
 import { EthereumNetworkConfiguration } from '@models/ethereum-models';
 import { HasChildren } from '@models/has-children';
-import { EthereumNetworkID } from 'dlc-btc-lib/models';
+import { EVMAttestorChainID, EthereumNetworkID } from 'dlc-btc-lib/models';
 import { equals, find } from 'ramda';
 import {
   arbitrum,
@@ -48,7 +48,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: mainnet.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.l1Websocket,
         httpURL: appConfiguration.l1HTTP,
-        ethereumAttestorChainID: 'evm-mainnet',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-mainnet'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(mainnet),
@@ -69,7 +69,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: sepolia.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.l1Websocket,
         httpURL: appConfiguration.l1HTTP,
-        ethereumAttestorChainID: 'evm-sepolia',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-sepolia'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(sepolia),
@@ -90,7 +90,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: base.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.baseWebsocket,
         httpURL: appConfiguration.baseHTTP,
-        ethereumAttestorChainID: 'evm-base',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-base'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(base),
@@ -111,7 +111,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: baseSepolia.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.baseWebsocket,
         httpURL: appConfiguration.baseHTTP,
-        ethereumAttestorChainID: 'evm-basesepolia',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-basesepolia'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(baseSepolia),
@@ -132,7 +132,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: arbitrum.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.arbitrumWebsocket,
         httpURL: appConfiguration.arbitrumHTTP,
-        ethereumAttestorChainID: 'evm-arbitrum',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-arbitrum'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(arbitrum),
@@ -153,7 +153,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: arbitrumSepolia.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.arbitrumWebsocket,
         httpURL: appConfiguration.arbitrumHTTP,
-        ethereumAttestorChainID: 'evm-arbsepolia',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-arbsepolia'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(arbitrumSepolia),
@@ -174,7 +174,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: avalanche.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.avalancheWebsocket,
         httpURL: appConfiguration.avalancheHTTP,
-        ethereumAttestorChainID: 'evm-avax',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-avax'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(avalanche),
@@ -195,7 +195,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: bsc.blockExplorers.default.apiUrl,
         websocketURL: appConfiguration.bscWebsocket,
         httpURL: appConfiguration.bscHTTP,
-        ethereumAttestorChainID: 'evm-bsc',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-bsc'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(bsc),
@@ -216,7 +216,7 @@ function getEthereumNetworkConfiguration(
         ethereumExplorerAPIURL: '',
         websocketURL: hardhat.rpcUrls.default.http[0],
         httpURL: hardhat.rpcUrls.default.http[0],
-        ethereumAttestorChainID: 'evm-hardhat-arb',
+        ethereumAttestorChainID: EVMAttestorChainID['evm-hardhat-eth'],
         enabledEthereumNetworks,
         dlcManagerContract: getEthereumContractWithProvider(
           getEthereumNetworkDeploymentPlans(hardhat),

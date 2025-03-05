@@ -4,7 +4,7 @@ import { CustomSkeleton } from '@components/custom-skeleton/custom-skeleton';
 import { DetailedEvent } from '@models/ethereum-models';
 import { truncateAddress } from 'dlc-btc-lib/utilities';
 
-import { findEthereumNetworkByName, formatEvent } from '@shared/utils';
+import { formatEvent, getEthereumNetworkIDByAttestorChainID } from '@shared/utils';
 
 export function ProtocolHistoryTableItem(
   protocolHistoryTableItem: DetailedEvent
@@ -20,7 +20,7 @@ export function ProtocolHistoryTableItem(
     chain: eventChain,
   } = formatEvent(protocolHistoryTableItem);
 
-  const ethereumNetwork = findEthereumNetworkByName(eventChain);
+  const ethereumNetwork = getEthereumNetworkIDByAttestorChainID(eventChain);
 
   const isMobile = useBreakpointValue({ base: true, lg: false });
   return (

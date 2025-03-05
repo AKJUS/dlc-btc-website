@@ -31,8 +31,6 @@ export function ProofOfReserve(): React.JSX.Element {
   const isMobile = useBreakpointValue({ base: true, md: false }) ?? false;
 
   function getChainImagePath(chainName: string): string {
-    const lowerCaseChainName = chainName.toLowerCase();
-
     const chainImagePaths: { [key: string]: string } = {
       'evm-mainnet': '/images/logos/eth-token.svg',
       'evm-arbitrum': '/images/logos/arbitrum-token.svg',
@@ -50,9 +48,9 @@ export function ProofOfReserve(): React.JSX.Element {
       'evm-localhost': '',
       'evm-hardhat-arb': '',
       'evm-hardhat-eth': '',
-      'xrpl-mainnet': '/images/logos/xrpl-token.svg',
+      'ripple-xrpl-mainnet': '/images/logos/xrpl-token.svg',
     };
-    return chainImagePaths[lowerCaseChainName];
+    return chainImagePaths[chainName];
   }
 
   const chainData: ChainData[] = proofOfReserveByChain.map(chain => {

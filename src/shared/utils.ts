@@ -1,11 +1,11 @@
 import { DetailedEvent, FormattedEvent } from '@models/ethereum-models';
 import Decimal from 'decimal.js';
-import { supportedEthereumNetworks } from 'dlc-btc-lib/constants';
+import { EVMAttestorChainID, EthereumNetworkID } from 'dlc-btc-lib/models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
 import { pipe, when } from 'ramda';
 import { Chain } from 'viem';
 
-import { SUPPORTED_VIEM_CHAINS } from './constants/ethereum.constants';
+import { EVMAttestorChainIDMap, SUPPORTED_VIEM_CHAINS } from './constants/ethereum.constants';
 
 export function formatNumber(value: number): string {
   if (value < 10000) {
@@ -19,22 +19,6 @@ export function formatNumber(value: number): string {
   } else {
     return new Decimal(value).dividedBy(1000000000000).toFixed(1).replace(/\.0$/, '') + 'T';
   }
-}
-
-export function findEthereumNetworkByName(ethereumNetworkName: string): Chain {
-  const ethereumNetworkID = supportedEthereumNetworks.find(
-    network => network.name.toLowerCase() === ethereumNetworkName
-  )?.id;
-  if (!ethereumNetworkID) {
-    throw new Error(`Could not find Ethereum network with name ${ethereumNetworkName}`);
-  }
-  const chain = SUPPORTED_VIEM_CHAINS.find(chain => chain.id === parseInt(ethereumNetworkID));
-
-  if (!chain) {
-    throw new Error(`Could not find chain with id ${ethereumNetworkID}`);
-  }
-
-  return chain;
 }
 
 export function formatEvent(event: DetailedEvent): FormattedEvent {
@@ -93,6 +77,24 @@ export const convertBitcoinToUSD = (
     ),
     (decimal: Decimal) => decimal.toNumber()
   )(bitcoinAmount);
+
+export function getEthereumNetworkIDByAttestorChainID(attestorChainID: EVMAttestorChainID): Chain {
+  const networkID = Object.entries(EVMAttestorChainIDMap).find(
+    ([, chainID]) => chainID === attestorChainID
+  )?.[0] as EthereumNetworkID;
+
+  if (!networkID) {
+    throw new Error(`Could not find Ethereum network with attestor chain ID ${attestorChainID}`);
+  }
+
+  const chain = SUPPORTED_VIEM_CHAINS.find(chain => chain.id === parseInt(networkID));
+
+  if (!chain) {
+    throw new Error(`Could not find chain with id ${networkID}`);
+  }
+
+  return chain;
+}
 
 export const breakpoints = ['300px', '400px', '600px', '850px', '1280px', '1400px'];
 export const titleTextSize = ['2xl', '2xl', '4xl', '6xl'];

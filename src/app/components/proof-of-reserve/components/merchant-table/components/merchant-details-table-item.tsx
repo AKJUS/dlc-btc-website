@@ -4,7 +4,11 @@ import { CustomSkeleton } from '@components/custom-skeleton/custom-skeleton';
 import { DetailedEvent } from '@models/ethereum-models';
 import { truncateAddress, unshiftValue } from 'dlc-btc-lib/utilities';
 
-import { findEthereumNetworkByName, formatEvent, formatToFourDecimals } from '@shared/utils';
+import {
+  formatEvent,
+  formatToFourDecimals,
+  getEthereumNetworkIDByAttestorChainID,
+} from '@shared/utils';
 
 export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent): React.JSX.Element {
   if (!merchantFocusTableItem) return <CustomSkeleton height={'35px'} />;
@@ -16,7 +20,7 @@ export function MerchantDetailsTableItem(merchantFocusTableItem: DetailedEvent):
     isMint,
     chain: eventChain,
   } = formatEvent(merchantFocusTableItem);
-  const ethereumNetwork = findEthereumNetworkByName(eventChain);
+  const ethereumNetwork = getEthereumNetworkIDByAttestorChainID(eventChain);
 
   const isMobile = useBreakpointValue({ base: true, md: false });
 
