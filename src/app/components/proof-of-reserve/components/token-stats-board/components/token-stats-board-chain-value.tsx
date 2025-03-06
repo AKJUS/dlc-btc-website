@@ -1,6 +1,5 @@
 import { HStack, Image, Text } from '@chakra-ui/react';
 import { useBitcoinPrice } from '@hooks/use-bitcoin-price';
-import { unshiftValue } from 'dlc-btc-lib/utilities';
 
 import { convertBitcoinToUSD } from '@shared/utils';
 
@@ -16,7 +15,7 @@ export function TokenStatsBoardChainValue({
   const { data: bitcoinPrice } = useBitcoinPrice();
 
   const chainValueInUSD =
-    chainValue && bitcoinPrice ? convertBitcoinToUSD(unshiftValue(bitcoinPrice), chainValue) : 0;
+    chainValue && bitcoinPrice ? convertBitcoinToUSD(bitcoinPrice, chainValue) : 0;
 
   return (
     <HStack w={'100%'} h={'100%'} alignItems={'start'}>

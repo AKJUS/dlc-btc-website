@@ -49,6 +49,7 @@ export function ProofOfReserve(): React.JSX.Element {
       'evm-hardhat-arb': '',
       'evm-hardhat-eth': '',
       'ripple-xrpl-mainnet': '/images/logos/xrpl-token.svg',
+      'ripple-xrpl-testnet': '/images/logos/xrpl-token.svg',
     };
     return chainImagePaths[chainName];
   }
@@ -56,7 +57,7 @@ export function ProofOfReserve(): React.JSX.Element {
   const chainData: ChainData[] = proofOfReserveByChain.map(chain => {
     return {
       chain: getChainImagePath(chain.chain),
-      value: chain.value,
+      value: chain.proofOfReserve,
     };
   });
 

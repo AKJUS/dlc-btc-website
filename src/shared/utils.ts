@@ -2,7 +2,6 @@ import { DetailedEvent, FormattedEvent } from '@models/ethereum-models';
 import Decimal from 'decimal.js';
 import { EVMAttestorChainID, EthereumNetworkID } from 'dlc-btc-lib/models';
 import { unshiftValue } from 'dlc-btc-lib/utilities';
-import { pipe, when } from 'ramda';
 import { Chain } from 'viem';
 
 import { EVMAttestorChainIDMap, SUPPORTED_VIEM_CHAINS } from './constants/ethereum.constants';
@@ -68,15 +67,11 @@ export const convertBitcoinToUSD = (
   bitcoinPrice: number,
   bitcoinAmount: number,
   shouldRound = true
-): number =>
-  pipe(
-    (amount: number) => new Decimal(amount).mul(bitcoinPrice),
-    when(
-      () => shouldRound,
-      decimal => decimal.floor()
-    ),
-    (decimal: Decimal) => decimal.toNumber()
-  )(bitcoinAmount);
+): number => {
+  const amount = new Decimal(bitcoinAmount).mul(bitcoinPrice);
+
+  return shouldRound ? amount.floor().toNumber() : amount.toNumber();
+};
 
 export function getEthereumNetworkIDByAttestorChainID(attestorChainID: EVMAttestorChainID): Chain {
   const networkID = Object.entries(EVMAttestorChainIDMap).find(
