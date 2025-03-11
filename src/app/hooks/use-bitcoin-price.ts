@@ -17,6 +17,6 @@ export function useBitcoinPrice(): UseQueryResult<number, BitcoinError> {
   return useQuery<number, BitcoinError>({
     queryKey: ['bitcoinPrice'],
     queryFn: fetchBitcoinPrice,
-    refetchInterval: 60000,
+    refetchInterval: 300000,
   });
 }

@@ -1,5 +1,7 @@
+import { useContext } from 'react';
+
 import { HStack, Image, Text } from '@chakra-ui/react';
-import { useBitcoinPrice } from '@hooks/use-bitcoin-price';
+import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
 
 import { convertBitcoinToUSD } from '@shared/utils';
 
@@ -12,7 +14,7 @@ export function TokenStatsBoardChainValue({
   chain,
   chainValue,
 }: TokenStatsBoardChainValueProps): React.JSX.Element {
-  const { data: bitcoinPrice } = useBitcoinPrice();
+  const { bitcoinPrice } = useContext(ProofOfReserveContext);
 
   const chainValueInUSD =
     chainValue && bitcoinPrice ? convertBitcoinToUSD(bitcoinPrice, chainValue) : 0;
