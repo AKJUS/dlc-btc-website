@@ -1,8 +1,21 @@
 import { DetailedEvent } from '@models/ethereum-models';
 import { Merchant } from '@models/merchant';
 import { useQuery } from '@tanstack/react-query';
+import { AttestorChainID } from 'dlc-btc-lib/models';
 
 import { API_HELPERS } from '@shared/constants/api.constants';
+
+interface GetEventsResult {
+  chain: AttestorChainID;
+  events: DetailedEvent[];
+  error?: string;
+}
+
+interface AggregatedEventsResultData {
+  events: DetailedEvent[];
+  chains: GetEventsResult[];
+  error?: string;
+}
 
 interface UseMintBurnEventsReturnType {
   allMintBurnEvents: DetailedEvent[] | undefined;
@@ -10,7 +23,7 @@ interface UseMintBurnEventsReturnType {
 }
 
 export function useMintBurnEvents(): UseMintBurnEventsReturnType {
-  async function fetchMintBurnEvents(ethereumAddress: string): Promise<DetailedEvent[]> {
+  async function fetchMintBurnEvents(ethereumAddress: string): Promise<AggregatedEventsResultData> {
     try {
       const apiURL = API_HELPERS.getMintBurnEventsURL({ address: ethereumAddress });
       const response = await fetch(apiURL);
@@ -23,7 +36,11 @@ export function useMintBurnEvents(): UseMintBurnEventsReturnType {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(`Error fetching mint burn events`, error);
-      return [];
+      return {
+        events: [],
+        chains: [],
+        error: `Error fetching mint burn events`,
+      };
     }
   }
 
@@ -37,15 +54,11 @@ export function useMintBurnEvents(): UseMintBurnEventsReturnType {
             })
           );
 
-          const sortedAllMerchantMinBurnEvents = allMerchantMinBurnEvents
-            .flat()
-            .sort((a: DetailedEvent, b: DetailedEvent) => {
-              return b.timestamp - a.timestamp;
-            });
+          const mintBurnEvents = allMerchantMinBurnEvents.map(event => event.events).flat();
 
           return {
             name: merchant.name,
-            mintBurnEvents: sortedAllMerchantMinBurnEvents,
+            mintBurnEvents,
           };
         })
       );
