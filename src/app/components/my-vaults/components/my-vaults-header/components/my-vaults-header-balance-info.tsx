@@ -25,7 +25,7 @@ export function MyVaultsHeaderBalanceInfo({
         <HStack>
           <Image src={imageSrc} alt={altText} boxSize={'25px'} />
           <Text color={'white'} fontWeight={800} fontSize={'xl'}>
-            {showNone ? '-' : unshiftValue(assetAmount!)}
+            {showNone ? '-' : unshiftValue(assetAmount!).toFixed(4)}
           </Text>
         </HStack>
       </Skeleton>
