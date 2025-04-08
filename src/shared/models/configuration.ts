@@ -49,6 +49,7 @@ export interface Configuration {
   bitcoinFeeRateMultiplier: number;
   rippleIssuerAddress: string;
   ledgerApp: string;
+  enableRisk: boolean;
   merchants: Merchant[];
   protocols: Protocol[];
 }

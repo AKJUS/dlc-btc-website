@@ -10,17 +10,7 @@ import { VaultState } from 'dlc-btc-lib/models';
 
 import { BurnTokenTransactionForm } from '../../burn-transaction-screen/burn-transaction-screen';
 
-interface UnmintVaultSelectorProps {
-  userEthereumAddressRiskLevel: string;
-  fetchUserEthereumAddressRiskLevel: () => Promise<string>;
-  isUserEthereumAddressRiskLevelLoading: boolean;
-}
-
-export function UnmintVaultSelector({
-  userEthereumAddressRiskLevel,
-  fetchUserEthereumAddressRiskLevel,
-  isUserEthereumAddressRiskLevelLoading,
-}: UnmintVaultSelectorProps): React.JSX.Element {
+export function UnmintVaultSelector(): React.JSX.Element {
   const { fundedVaults } = useContext(VaultContext);
 
   const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
@@ -28,12 +18,7 @@ export function UnmintVaultSelector({
   return (
     <>
       {unmintStep.vault ? (
-        <BurnTokenTransactionForm
-          isBitcoinWalletLoading={[false, '']}
-          userEthereumAddressRiskLevel={userEthereumAddressRiskLevel}
-          fetchUserEthereumAddressRiskLevel={fetchUserEthereumAddressRiskLevel}
-          isUserEthereumAddressRiskLevelLoading={isUserEthereumAddressRiskLevelLoading}
-        />
+        <BurnTokenTransactionForm isBitcoinWalletLoading={[false, '']} />
       ) : fundedVaults.length == 0 ? (
         <VStack w={'45%'}>
           <Text color={'white'}>You don't have any active vaults.</Text>

@@ -10,6 +10,7 @@ import {
 } from '@providers/bitcoin-wallet-context-provider';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
+import { RiskContext } from '@providers/risk.provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
 import { MintSteps } from '@store/slices/mintunmint/mintunmint.slice';
@@ -20,17 +21,11 @@ import { NetworkType } from '@shared/constants/network.constants';
 interface DepositTransactionScreenProps {
   handleSignDepositTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
   isBitcoinWalletLoading: [boolean, string];
-  userEthereumAddressRiskLevel: string;
-  fetchUserEthereumAddressRiskLevel: () => Promise<string>;
-  isUserEthereumAddressRiskLevelLoading: boolean;
 }
 
 export function DepositTransactionScreen({
   handleSignDepositTransaction,
   isBitcoinWalletLoading,
-  userEthereumAddressRiskLevel,
-  fetchUserEthereumAddressRiskLevel,
-  isUserEthereumAddressRiskLevelLoading,
 }: DepositTransactionScreenProps): React.JSX.Element {
   const toast = useToast();
   const dispatch = useDispatch();
@@ -39,6 +34,8 @@ export function DepositTransactionScreen({
 
   const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
   const { networkType } = useContext(NetworkConfigurationContext);
+
+  const { risk, fetchUserAddressRisk, isLoading, isRiskCheckingEnabled } = useContext(RiskContext);
 
   const { mintStep } = useSelector((state: RootState) => state.mintunmint);
 
@@ -59,7 +56,7 @@ export function DepositTransactionScreen({
     try {
       setIsSubmitting(true);
       if (networkType === NetworkType.EVM) {
-        const currentRisk = await fetchUserEthereumAddressRiskLevel();
+        const currentRisk = isRiskCheckingEnabled ? await fetchUserAddressRisk() : 'Low';
         if (currentRisk === 'High') throw new Error('Risk Level is too high');
       }
       await handleSignDepositTransaction(currentVault.uuid, depositAmount);
@@ -100,8 +97,8 @@ export function DepositTransactionScreen({
         currentBitcoinPrice={bitcoinPrice}
         bitcoinWalletContextState={bitcoinWalletContextState}
         isBitcoinWalletLoading={isBitcoinWalletLoading}
-        userEthereumAddressRiskLevel={userEthereumAddressRiskLevel}
-        isUserEthereumAddressRiskLevelLoading={isUserEthereumAddressRiskLevelLoading}
+        userEthereumAddressRiskLevel={risk}
+        isUserEthereumAddressRiskLevelLoading={isLoading}
         handleButtonClick={handleButtonClick}
         handleCancelButtonClick={handleCancel}
         depositLimit={depositLimit}

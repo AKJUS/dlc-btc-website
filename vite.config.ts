@@ -83,6 +83,7 @@ export default defineConfig(async ({ mode }) =>  {
   appConfiguration.walletConnectProjectID = env.VITE_WALLET_CONNECT_PROJECT_ID;
   appConfiguration.localAttestorExtendedGroupPublicKey = env.VITE_LOCAL_ATTESTOR_EXTENDED_GROUP_PUBLIC_KEY;
   appConfiguration.feeRateMultiplier = Number(env.VITE_FEE_RATE_MULTIPLIER);
+  appConfiguration.enableRisk = environmentName === 'mainnet';
   
   return {
   plugins: [react(), wasm(), ViteToml()],

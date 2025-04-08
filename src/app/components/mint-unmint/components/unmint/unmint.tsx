@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 
 import { HStack } from '@chakra-ui/react';
 import { usePSBT } from '@hooks/use-psbt';
-import { useRisk } from '@hooks/use-risk';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { RootState } from '@store/index';
 
@@ -18,20 +17,13 @@ export function Unmint(): React.JSX.Element {
   const { networkType } = useContext(NetworkConfigurationContext);
 
   const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
-  const { risk, fetchUserAddressRisk, isLoading } = useRisk();
 
   return (
     <UnmintLayout>
       <ProgressTimeline variant={'unmint'} currentStep={unmintStep.step} />
       <HStack w={'100%'} alignItems={'start'} justifyContent={'space-between'}>
         <Walkthrough flow={'unmint'} currentStep={unmintStep.step} networkType={networkType} />
-        {[0].includes(unmintStep.step) && (
-          <UnmintVaultSelector
-            userEthereumAddressRiskLevel={risk!}
-            fetchUserEthereumAddressRiskLevel={fetchUserAddressRisk}
-            isUserEthereumAddressRiskLevelLoading={isLoading}
-          />
-        )}
+        {[0].includes(unmintStep.step) && <UnmintVaultSelector />}
         {[1, 2].includes(unmintStep.step) && (
           <WithdrawScreen
             isBitcoinWalletLoading={isBitcoinWalletLoading ?? [false, '']}

@@ -49,14 +49,16 @@ interface UseRiskReturnType {
   risk: string | undefined;
   fetchUserAddressRisk: () => Promise<string>;
   isLoading: boolean;
+  isRiskCheckingEnabled: boolean;
 }
 
 export function useRisk(): UseRiskReturnType {
   const { address } = useAccount();
 
   const { data: risk, isLoading } = useQuery({
-    queryKey: ['userAddressRisk'],
+    queryKey: ['userAddressRisk', address],
     queryFn: registerAndFetchUserAddressRisk,
+    enabled: !!address && appConfiguration.enableRisk,
   });
 
   async function registerAndFetchUserAddressRisk(): Promise<string> {
@@ -102,5 +104,6 @@ export function useRisk(): UseRiskReturnType {
     risk,
     fetchUserAddressRisk: registerAndFetchUserAddressRisk,
     isLoading,
+    isRiskCheckingEnabled: appConfiguration.enableRisk,
   };
 }

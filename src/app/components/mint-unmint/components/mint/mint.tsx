@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 
 import { HStack } from '@chakra-ui/react';
 import { usePSBT } from '@hooks/use-psbt';
-import { useRisk } from '@hooks/use-risk';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { RootState } from '@store/index';
 
@@ -18,7 +17,6 @@ export function Mint(): React.JSX.Element {
   const { networkType } = useContext(NetworkConfigurationContext);
 
   const { mintStep } = useSelector((state: RootState) => state.mintunmint);
-  const { risk, fetchUserAddressRisk, isLoading } = useRisk();
 
   return (
     <MintLayout>
@@ -30,9 +28,6 @@ export function Mint(): React.JSX.Element {
           <DepositTransactionScreen
             handleSignDepositTransaction={handleSignDepositTransaction}
             isBitcoinWalletLoading={isBitcoinWalletLoading ?? [false, '']}
-            userEthereumAddressRiskLevel={risk!}
-            fetchUserEthereumAddressRiskLevel={fetchUserAddressRisk}
-            isUserEthereumAddressRiskLevelLoading={isLoading}
           />
         )}
       </HStack>

@@ -10,6 +10,7 @@ import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider
 import { EthereumNetworkConfigurationContext } from '@providers/ethereum-network-configuration.provider';
 import { NetworkConfigurationContext } from '@providers/network-configuration.provider';
 import { ProofOfReserveContext } from '@providers/proof-of-reserve-context-provider';
+import { RiskContext } from '@providers/risk.provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
 import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
@@ -20,16 +21,10 @@ import { NetworkType } from '@shared/constants/network.constants';
 
 interface BurnTokenTransactionFormProps {
   isBitcoinWalletLoading: [boolean, string];
-  userEthereumAddressRiskLevel: string;
-  fetchUserEthereumAddressRiskLevel: () => Promise<string>;
-  isUserEthereumAddressRiskLevelLoading: boolean;
 }
 
 export function BurnTokenTransactionForm({
   isBitcoinWalletLoading,
-  userEthereumAddressRiskLevel,
-  fetchUserEthereumAddressRiskLevel,
-  isUserEthereumAddressRiskLevelLoading,
 }: BurnTokenTransactionFormProps): React.JSX.Element {
   const toast = useToast();
   const dispatch = useDispatch();
@@ -47,6 +42,13 @@ export function BurnTokenTransactionForm({
   const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const {
+    risk,
+    fetchUserAddressRisk,
+    isLoading: isRiskLoading,
+    isRiskCheckingEnabled,
+  } = useContext(RiskContext);
+
   const currentVault = unmintStep.vault;
 
   async function handleButtonClick(withdrawAmount: number): Promise<void> {
@@ -56,7 +58,7 @@ export function BurnTokenTransactionForm({
       if (networkType === NetworkType.XRPL) {
         await handleCreateCheck(currentVault.uuid, withdrawAmount);
       } else if (networkType === NetworkType.EVM) {
-        const currentRisk = await fetchUserEthereumAddressRiskLevel();
+        const currentRisk = isRiskCheckingEnabled ? await fetchUserAddressRisk() : 'Low';
         if (currentRisk === 'High') throw new Error('Risk Level is too high');
         const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
 
@@ -100,8 +102,8 @@ export function BurnTokenTransactionForm({
             ? isLoading
             : isBitcoinWalletLoading
         }
-        userEthereumAddressRiskLevel={userEthereumAddressRiskLevel}
-        isUserEthereumAddressRiskLevelLoading={isUserEthereumAddressRiskLevelLoading}
+        userEthereumAddressRiskLevel={risk}
+        isUserEthereumAddressRiskLevelLoading={isRiskLoading}
         handleCancelButtonClick={handleCancel}
         isSubmitting={isSubmitting}
       />
