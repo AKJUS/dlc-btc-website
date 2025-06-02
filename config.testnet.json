@@ -28,6 +28,11 @@
       "name": "Smart Bitcoin Labs",
       "addresses": ["0x46166fA874AAEDEA8d98b15F9A72C84e22Abe2A1"],
       "logo": "/images/logos/sbl-logotype.svg"
+    },
+    {
+      "name": "Tokka Labs",
+      "addresses": ["0x7794697f0193CcF1A2b3514Fe2C58980fc5Ed358"],
+      "logo": "/images/logos/tokka-labs-logotype.svg"
     }
   ],
   "protocols": [
