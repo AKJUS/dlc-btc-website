@@ -1,7 +1,7 @@
-import { useContext, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
-import { VStack, useToast } from '@chakra-ui/react';
+import { Box, HStack, Switch, Text, VStack, useToast } from '@chakra-ui/react';
 import { VaultTransactionForm } from '@components/transaction-screen/transaction-screen.transaction-form/components/transaction-screen.transaction-form/transaction-screen.transaction-form';
 import { Vault } from '@components/vault/vault';
 import { useEthersSigner } from '@functions/configuration.functions';
@@ -14,6 +14,7 @@ import { RiskContext } from '@providers/risk.provider';
 import { RootState } from '@store/index';
 import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
 import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
+import { getBitsafeAddress } from 'dlc-btc-lib/attestor-request-functions';
 import { withdraw } from 'dlc-btc-lib/ethereum-functions';
 import { shiftValue } from 'dlc-btc-lib/utilities';
 
@@ -39,8 +40,24 @@ export function BurnTokenTransactionForm({
 
   const signer = useEthersSigner();
 
-  const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
+  const { unmintStep, isBitsafeWithdraw } = useSelector((state: RootState) => state.mintunmint);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isBitsafeAvailable, setIsBitsafeAvailable] = useState(false);
+
+  const { coordinatorURL } = appConfiguration;
+
+  useEffect(() => {
+    const checkBitsafeAvailability = async () => {
+      try {
+        await getBitsafeAddress(coordinatorURL);
+        setIsBitsafeAvailable(true);
+      } catch {
+        console.log('Bitsafe withdrawal address is not configured on the attestor');
+        setIsBitsafeAvailable(false);
+      }
+    };
+    checkBitsafeAvailability();
+  }, [coordinatorURL]);
 
   const {
     risk,
@@ -51,10 +68,24 @@ export function BurnTokenTransactionForm({
 
   const currentVault = unmintStep.vault;
 
+  function handleBitsafeToggle() {
+    dispatch(mintUnmintActions.setIsBitsafeWithdraw(!isBitsafeWithdraw));
+  }
+
   async function handleButtonClick(withdrawAmount: number): Promise<void> {
     try {
       if (!currentVault) return;
       setIsSubmitting(true);
+
+      // If Bitsafe withdrawal is enabled, skip the burn and go directly to withdraw step
+      if (isBitsafeWithdraw) {
+        dispatch(
+          mintUnmintActions.setUnmintStep({ step: RedeemSteps.WITHDRAW, vault: currentVault })
+        );
+        setIsSubmitting(false);
+        return;
+      }
+
       if (networkType === NetworkType.XRPL) {
         await handleCreateCheck(currentVault.uuid, withdrawAmount);
       } else if (networkType === NetworkType.EVM) {
@@ -89,6 +120,36 @@ export function BurnTokenTransactionForm({
   return (
     <VStack w={'45%'} spacing={'15px'}>
       <Vault vault={currentVault!} variant={'selected'} />
+      <Box
+        w={'100%'}
+        p={4}
+        bg={'background.content.01'}
+        borderRadius={'md'}
+        border={'1px solid'}
+        borderColor={'border.white.01'}
+      >
+        <HStack justify={'space-between'} align={'start'}>
+          <Box>
+            <Text color={'white'} fontWeight={600} fontSize={'sm'}>
+              Withdraw BTC to Bitsafe (skip iBTC burn)
+            </Text>
+            <Text color={'white.03'} fontSize={'xs'} mt={1}>
+              {!isBitsafeAvailable
+                ? 'Bitsafe withdrawal is not available. The attestor has not configured a Bitsafe address.'
+                : isBitsafeWithdraw
+                  ? 'Your BTC will be sent directly to the Bitsafe address. Your iBTC will remain in your wallet but will no longer be backed by BTC.'
+                  : 'Enable this option to withdraw your BTC without burning iBTC first. Only use this if you are participating in the iBTC sunset program.'}
+            </Text>
+          </Box>
+          <Switch
+            isChecked={isBitsafeWithdraw}
+            onChange={handleBitsafeToggle}
+            isDisabled={!isBitsafeAvailable}
+            colorScheme={'blue'}
+            size={'md'}
+          />
+        </HStack>
+      </Box>
       <VaultTransactionForm
         vault={currentVault!}
         flow={'burn'}
