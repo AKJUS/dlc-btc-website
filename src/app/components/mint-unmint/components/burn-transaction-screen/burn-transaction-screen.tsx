@@ -52,11 +52,12 @@ export function BurnTokenTransactionForm({
         await getBitsafeAddress(coordinatorURL);
         setIsBitsafeAvailable(true);
       } catch {
+        // eslint-disable-next-line no-console
         console.log('Bitsafe withdrawal address is not configured on the attestor');
         setIsBitsafeAvailable(false);
       }
     };
-    checkBitsafeAvailability();
+    void checkBitsafeAvailability();
   }, [coordinatorURL]);
 
   const {

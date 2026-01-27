@@ -40,7 +40,10 @@ interface RequiredDependencies {
 interface UsePSBTReturnType {
   handleSignDepositTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
   handleSignWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
-  handleSignBitsafeWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
+  handleSignBitsafeWithdrawTransaction: (
+    vaultUUID: string,
+    withdrawAmount: number
+  ) => Promise<void>;
   isLoading: [boolean, string] | undefined;
 }
 
@@ -199,12 +202,8 @@ export function usePSBT(): UsePSBTReturnType {
     try {
       const { dlcHandler } = getRequiredDependencies();
 
-      const {
-        vault,
-        extendedAttestorGroupPublicKey,
-        feeRecipient,
-        bitcoinFeeRateMultiplier,
-      } = await getPSBTParameters(vaultUUID, withdrawAmount);
+      const { vault, extendedAttestorGroupPublicKey, feeRecipient, bitcoinFeeRateMultiplier } =
+        await getPSBTParameters(vaultUUID, withdrawAmount);
 
       // Fetch the Bitsafe destination address from the attestor
       const bitsafeAddress = await getBitsafeAddress(coordinatorURL);
