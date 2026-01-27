@@ -4079,8 +4079,9 @@ dir-glob@^3.0.1:
   dependencies:
     path-type "^4.0.0"
 
-"dlc-btc-lib@file:../dlc-btc-lib":
+"dlc-btc-lib@github:DLC-link/dlc-btc-lib#support-custom-withdraw-destination":
   version "2.6.9"
+  resolved "https://codeload.github.com/DLC-link/dlc-btc-lib/tar.gz/2ebd8f0faaa4755fdc5e6f6c6c6356d5eb64c464"
   dependencies:
     "@dfns/sdk" "^0.5.9"
     "@dfns/sdk-browser" "^0.5.9"
