@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "cd node_modules/dlc-btc-lib && npm run build",
     "localhost": "vite --mode localhost",
     "devnet": "vite --mode devnet",
     "testnet": "vite --mode testnet",
