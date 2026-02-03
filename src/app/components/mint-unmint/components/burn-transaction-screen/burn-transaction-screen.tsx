@@ -168,6 +168,7 @@ export function BurnTokenTransactionForm({
         isUserEthereumAddressRiskLevelLoading={isRiskLoading}
         handleCancelButtonClick={handleCancel}
         isSubmitting={isSubmitting}
+        isBitsafeWithdraw={isBitsafeWithdraw}
       />
     </VStack>
   );
