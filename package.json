@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
+    "postinstall": "cd node_modules/dlc-btc-lib && npm run build",
     "localhost": "vite --mode localhost",
     "devnet": "vite --mode devnet",
     "testnet": "vite --mode testnet",
@@ -46,7 +47,7 @@
     "concurrently": "^8.2.2",
     "d3": "^7.9.0",
     "decimal.js": "^10.4.3",
-    "dlc-btc-lib": "2.6.5",
+    "dlc-btc-lib": "github:DLC-link/dlc-btc-lib#support-custom-withdraw-destination",
     "dotenv": "^16.3.1",
     "ethers": "5.7.2",
     "formik": "^2.4.5",

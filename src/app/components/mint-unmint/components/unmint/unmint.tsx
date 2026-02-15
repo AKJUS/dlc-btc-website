@@ -13,10 +13,19 @@ import { UnmintLayout } from './components/unmint.layout';
 import { WithdrawScreen } from './components/withdraw-screen';
 
 export function Unmint(): React.JSX.Element {
-  const { handleSignWithdrawTransaction, isLoading: isBitcoinWalletLoading } = usePSBT();
+  const {
+    handleSignWithdrawTransaction,
+    handleSignBitsafeWithdrawTransaction,
+    isLoading: isBitcoinWalletLoading,
+  } = usePSBT();
   const { networkType } = useContext(NetworkConfigurationContext);
 
-  const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
+  const { unmintStep, isBitsafeWithdraw } = useSelector((state: RootState) => state.mintunmint);
+
+  // Use the appropriate handler based on Bitsafe flag
+  const withdrawHandler = isBitsafeWithdraw
+    ? handleSignBitsafeWithdrawTransaction
+    : handleSignWithdrawTransaction;
 
   return (
     <UnmintLayout>
@@ -27,7 +36,7 @@ export function Unmint(): React.JSX.Element {
         {[1, 2].includes(unmintStep.step) && (
           <WithdrawScreen
             isBitcoinWalletLoading={isBitcoinWalletLoading ?? [false, '']}
-            handleSignWithdrawTransaction={handleSignWithdrawTransaction}
+            handleSignWithdrawTransaction={withdrawHandler}
           />
         )}
       </HStack>

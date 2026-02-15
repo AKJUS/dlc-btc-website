@@ -13,10 +13,13 @@ import { bytesToHex } from '@noble/hashes/utils';
 import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider';
 import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import {
+  getBitsafeAddress,
+  submitBitsafeWithdrawPSBT,
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
 } from 'dlc-btc-lib/attestor-request-functions';
 import { VaultState } from 'dlc-btc-lib/models';
+import { shiftValue } from 'dlc-btc-lib/utilities';
 import { equals } from 'ramda';
 
 import { useAttestorChainID } from './use-attestor-chain-id';
@@ -37,6 +40,10 @@ interface RequiredDependencies {
 interface UsePSBTReturnType {
   handleSignDepositTransaction: (vaultUUID: string, depositAmount: number) => Promise<void>;
   handleSignWithdrawTransaction: (vaultUUID: string, withdrawAmount: number) => Promise<void>;
+  handleSignBitsafeWithdrawTransaction: (
+    vaultUUID: string,
+    withdrawAmount: number
+  ) => Promise<void>;
   isLoading: [boolean, string] | undefined;
 }
 
@@ -188,6 +195,50 @@ export function usePSBT(): UsePSBTReturnType {
       }
     };
 
+  const handleSignBitsafeWithdrawTransaction = async (
+    vaultUUID: string,
+    withdrawAmount: number
+  ): Promise<void> => {
+    try {
+      const { dlcHandler } = getRequiredDependencies();
+
+      const { vault, extendedAttestorGroupPublicKey, feeRecipient, bitcoinFeeRateMultiplier } =
+        await getPSBTParameters(vaultUUID, withdrawAmount);
+
+      // Fetch the Bitsafe destination address from the attestor
+      const bitsafeAddress = await getBitsafeAddress(coordinatorURL);
+
+      const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
+
+      // Create the withdraw PSBT with Bitsafe destination address
+      const withdrawTransaction = await dlcHandler.createWithdrawPSBT(
+        vault,
+        formattedWithdrawAmount,
+        extendedAttestorGroupPublicKey,
+        vault.fundingTxId,
+        feeRecipient,
+        bitcoinFeeRateMultiplier,
+        undefined, // customFeeRate
+        bitsafeAddress // destinationAddress
+      );
+
+      // Sign the transaction
+      const signedTransaction = await dlcHandler.signPSBT(withdrawTransaction, 'withdraw');
+
+      const transactionPSBT = bytesToHex(signedTransaction.toPSBT());
+
+      // Submit via the Bitsafe-specific endpoint
+      await submitBitsafeWithdrawPSBT([coordinatorURL], {
+        vaultUUID: vault.uuid,
+        withdrawDepositPSBT: transactionPSBT,
+      });
+
+      resetBitcoinWalletContext();
+    } catch (error) {
+      throwTransactionError('withdraw', error);
+    }
+  };
+
   const loadingStates = {
     [BitcoinWalletType.Ledger]: ledgerTransactionHandler.isLoading,
     [BitcoinWalletType.Leather]: leatherTransactionHandler.isLoading,
@@ -198,6 +249,7 @@ export function usePSBT(): UsePSBTReturnType {
   return {
     handleSignDepositTransaction: createTransactionHandler('deposit'),
     handleSignWithdrawTransaction: createTransactionHandler('withdraw'),
+    handleSignBitsafeWithdrawTransaction,
     isLoading: loadingStates[bitcoinWalletType!],
   };
 }

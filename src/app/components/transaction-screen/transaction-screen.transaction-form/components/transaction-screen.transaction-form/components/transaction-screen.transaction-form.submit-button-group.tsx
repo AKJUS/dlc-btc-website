@@ -9,7 +9,8 @@ function getButtonLabel(
   flow: 'mint' | 'burn',
   currentStep: number,
   isSubmitting: boolean,
-  walletState: BitcoinWalletContextState
+  walletState: BitcoinWalletContextState,
+  isBitsafeWithdraw?: boolean
 ): string {
   if (isSubmitting) return 'Processing';
 
@@ -19,7 +20,9 @@ function getButtonLabel(
   switch (flow) {
     case 'burn':
       return isCurrentStepZero
-        ? 'Sign Burn Transaction'
+        ? isBitsafeWithdraw
+          ? 'Proceed to BTC Withdrawal'
+          : 'Sign Burn Transaction'
         : isWalletReady
           ? 'Sign Withdraw Transaction'
           : 'Connect Bitcoin Wallet';
@@ -39,6 +42,7 @@ interface TransactionFormSubmitButtonGroupProps {
   bitcoinWalletContextState: any;
   handleCancelButtonClick: () => void;
   isSubmitting: boolean;
+  isBitsafeWithdraw?: boolean;
 }
 
 export function TransactionFormSubmitButtonGroup({
@@ -49,6 +53,7 @@ export function TransactionFormSubmitButtonGroup({
   bitcoinWalletContextState,
   handleCancelButtonClick,
   isSubmitting,
+  isBitsafeWithdraw,
 }: TransactionFormSubmitButtonGroupProps): React.JSX.Element {
   const isButtonDisabledByRiskLevel =
     flow === 'burn' && currentStep === RedeemSteps.BURN && userEthereumAddressRiskLevel === 'High';
@@ -69,7 +74,13 @@ export function TransactionFormSubmitButtonGroup({
             type="submit"
             isDisabled={!canSubmit || isSubmitting || isButtonDisabledByRiskLevel}
           >
-            {getButtonLabel(flow, currentStep, isSubmitting, bitcoinWalletContextState)}
+            {getButtonLabel(
+              flow,
+              currentStep,
+              isSubmitting,
+              bitcoinWalletContextState,
+              isBitsafeWithdraw
+            )}
           </Button>
         )}
       />
