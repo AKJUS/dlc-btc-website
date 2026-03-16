@@ -80,6 +80,7 @@ interface ProgressStackProps {
   currentBitcoinPrice: number;
   components: { A: ProgressStackItemProps; B: ProgressStackItemProps };
   maxAmount?: number;
+  isBitsafeWithdraw?: boolean;
 }
 
 const ProgressStack = ({
@@ -92,6 +93,7 @@ const ProgressStack = ({
   currentBitcoinPrice,
   components,
   maxAmount,
+  isBitsafeWithdraw,
 }: ProgressStackProps): React.JSX.Element => {
   const { A, B } = components;
 
@@ -105,6 +107,7 @@ const ProgressStack = ({
             currentBitcoinPrice={currentBitcoinPrice}
             formType={flow}
             maxAmount={maxAmount}
+            isBitsafeWithdraw={isBitsafeWithdraw}
           />
           <TransactionFormProgressStackItem
             label={B.label}
@@ -175,6 +178,7 @@ const ProgressStackByFlow = ({
       components={components}
       assetAmount={assetAmount}
       maxAmount={maxAmount}
+      isBitsafeWithdraw={isBitsafeWithdraw}
     />
   );
 };
