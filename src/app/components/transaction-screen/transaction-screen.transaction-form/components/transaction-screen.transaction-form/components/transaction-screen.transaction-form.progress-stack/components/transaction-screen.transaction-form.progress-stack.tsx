@@ -79,6 +79,7 @@ interface ProgressStackProps {
   activeStackItem: 0 | 1;
   currentBitcoinPrice: number;
   components: { A: ProgressStackItemProps; B: ProgressStackItemProps };
+  maxAmount?: number;
 }
 
 const ProgressStack = ({
@@ -90,6 +91,7 @@ const ProgressStack = ({
   activeStackItem,
   currentBitcoinPrice,
   components,
+  maxAmount,
 }: ProgressStackProps): React.JSX.Element => {
   const { A, B } = components;
 
@@ -102,6 +104,7 @@ const ProgressStack = ({
             currentStep={currentStep}
             currentBitcoinPrice={currentBitcoinPrice}
             formType={flow}
+            maxAmount={maxAmount}
           />
           <TransactionFormProgressStackItem
             label={B.label}
@@ -139,6 +142,8 @@ interface ProgressStackByFlowProps {
   confirmations?: number;
   currentBitcoinPrice: number;
   assetAmount?: number;
+  isBitsafeWithdraw?: boolean;
+  maxAmount?: number;
 }
 
 const ProgressStackByFlow = ({
@@ -148,9 +153,13 @@ const ProgressStackByFlow = ({
   confirmations = 0,
   currentBitcoinPrice,
   assetAmount,
+  isBitsafeWithdraw,
+  maxAmount,
 }: ProgressStackByFlowProps): React.JSX.Element => {
   const isConfirmed = confirmations >= 6;
-  const isIncludeForm = flow === 'mint' ? currentStep === 1 : currentStep === 0;
+  const isIncludeForm = flow === 'mint'
+    ? currentStep === 1
+    : currentStep === 0 || (!!isBitsafeWithdraw && currentStep === 1);
 
   const components = getComponents(flow, currentStep, isConfirmed);
   const activeStackItem = isIncludeForm || (flow === 'mint' && !isConfirmed) ? 0 : 1;
@@ -165,6 +174,7 @@ const ProgressStackByFlow = ({
       currentBitcoinPrice={currentBitcoinPrice}
       components={components}
       assetAmount={assetAmount}
+      maxAmount={maxAmount}
     />
   );
 };
@@ -204,6 +214,7 @@ interface TransactionFormProgressStackProps {
   valueLocked: number;
   valueMinted: number;
   vaultOutputValue?: number;
+  isBitsafeWithdraw?: boolean;
 }
 
 export const TransactionFormProgressStack = ({
@@ -215,6 +226,7 @@ export const TransactionFormProgressStack = ({
   vaultOutputValue,
   valueLocked,
   valueMinted,
+  isBitsafeWithdraw,
 }: TransactionFormProgressStackProps): React.JSX.Element => {
   return (
     <HStack
@@ -244,6 +256,8 @@ export const TransactionFormProgressStack = ({
           valueMinted,
           vaultOutputValue
         )}
+        isBitsafeWithdraw={isBitsafeWithdraw}
+        maxAmount={valueLocked}
       />
     </HStack>
   );

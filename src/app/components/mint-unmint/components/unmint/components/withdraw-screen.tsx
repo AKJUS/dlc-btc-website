@@ -30,7 +30,7 @@ export function WithdrawScreen({
 
   const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
 
-  const { unmintStep } = useSelector((state: RootState) => state.mintunmint);
+  const { unmintStep, isBitsafeWithdraw } = useSelector((state: RootState) => state.mintunmint);
 
   const currentVault = unmintStep.vault;
 
@@ -90,6 +90,7 @@ export function WithdrawScreen({
         handleCancelButtonClick={handleCancel}
         depositLimit={depositLimit}
         isSubmitting={isSubmitting}
+        isBitsafeWithdraw={isBitsafeWithdraw}
       />
     </VStack>
   );

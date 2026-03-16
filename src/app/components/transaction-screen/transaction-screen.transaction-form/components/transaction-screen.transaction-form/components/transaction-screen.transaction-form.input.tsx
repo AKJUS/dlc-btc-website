@@ -42,6 +42,7 @@ interface TransactionFormInputFieldProps {
   currentStep: number;
   formType: 'mint' | 'burn';
   currentBitcoinPrice: number;
+  maxAmount?: number;
 }
 
 export function TransactionFormInputField({
@@ -49,6 +50,7 @@ export function TransactionFormInputField({
   currentStep,
   currentBitcoinPrice,
   formType,
+  maxAmount,
 }: TransactionFormInputFieldProps): React.JSX.Element {
   const formProperties = getFormProperties(formType, currentStep);
   return (
@@ -69,6 +71,7 @@ export function TransactionFormInputField({
             assetLogo={formProperties.logo}
             assetSymbol={formProperties.symbol}
             formField={field}
+            maxAmount={maxAmount}
           />
           <TransactionFormInputUSDText
             errors={field.state.meta.errors}

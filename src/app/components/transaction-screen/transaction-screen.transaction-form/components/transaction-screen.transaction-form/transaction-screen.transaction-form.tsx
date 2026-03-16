@@ -153,7 +153,7 @@ export function VaultTransactionForm({
       const burnAmount = new Decimal(vault.valueLocked).minus(vault.valueMinted).toNumber();
       const isWithdrawStep = flow === 'burn' && currentStep !== 0;
 
-      const amountToHandle = isWithdrawStep ? burnAmount : assetAmount;
+      const amountToHandle = isWithdrawStep && !isBitsafeWithdraw ? burnAmount : assetAmount;
 
       await handleButtonClick(amountToHandle);
     },
@@ -189,6 +189,7 @@ export function VaultTransactionForm({
           vaultOutputValue={vaultOutputValue}
           valueLocked={vault.valueLocked}
           valueMinted={vault.valueMinted}
+          isBitsafeWithdraw={isBitsafeWithdraw}
         />
         <TransactionFormProtocolFeeStack
           flow={flow}
