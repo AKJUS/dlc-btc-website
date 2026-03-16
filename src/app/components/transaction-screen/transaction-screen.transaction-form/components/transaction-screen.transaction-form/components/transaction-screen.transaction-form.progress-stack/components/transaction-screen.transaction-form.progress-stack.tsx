@@ -160,9 +160,10 @@ const ProgressStackByFlow = ({
   maxAmount,
 }: ProgressStackByFlowProps): React.JSX.Element => {
   const isConfirmed = confirmations >= 6;
-  const isIncludeForm = flow === 'mint'
-    ? currentStep === 1
-    : currentStep === 0 || (!!isBitsafeWithdraw && currentStep === 1);
+  const isIncludeForm =
+    flow === 'mint'
+      ? currentStep === 1
+      : currentStep === 0 || (!!isBitsafeWithdraw && currentStep === 1);
 
   const components = getComponents(flow, currentStep, isConfirmed);
   const activeStackItem = isIncludeForm || (flow === 'mint' && !isConfirmed) ? 0 : 1;
