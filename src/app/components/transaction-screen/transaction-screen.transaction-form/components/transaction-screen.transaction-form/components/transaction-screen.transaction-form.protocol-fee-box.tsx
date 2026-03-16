@@ -14,6 +14,7 @@ interface TransactionFormProtocolFeeStackProps {
   bitcoinPrice?: number;
   protocolFeeBasisPoints?: number;
   isBitcoinWalletLoading: [boolean, string];
+  isBitsafeWithdraw?: boolean;
 }
 
 export function TransactionFormProtocolFeeStack({
@@ -24,11 +25,12 @@ export function TransactionFormProtocolFeeStack({
   bitcoinPrice,
   protocolFeeBasisPoints,
   isBitcoinWalletLoading,
+  isBitsafeWithdraw,
 }: TransactionFormProtocolFeeStackProps): React.JSX.Element | false {
   if (isBitcoinWalletLoading[0] || [0, 2].includes(currentStep)) return false;
 
   const amount =
-    flow === 'burn' && currentStep === 1
+    flow === 'burn' && currentStep === 1 && !isBitsafeWithdraw
       ? shiftValue(new Decimal(vault.valueLocked).minus(vault.valueMinted).toNumber())
       : shiftValue(assetAmount!);
 

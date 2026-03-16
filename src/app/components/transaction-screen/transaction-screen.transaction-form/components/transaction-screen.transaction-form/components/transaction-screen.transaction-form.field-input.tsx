@@ -1,4 +1,4 @@
-import { HStack, Image, NumberInput, NumberInputField, Text } from '@chakra-ui/react';
+import { Button, HStack, Image, NumberInput, NumberInputField, Text } from '@chakra-ui/react';
 import { FieldApi } from '@tanstack/react-form';
 
 interface TransactionFormFieldInputProps {
@@ -13,12 +13,14 @@ interface TransactionFormFieldInputProps {
     undefined,
     string
   >;
+  maxAmount?: number;
 }
 
 export function TransactionFormFieldInput({
   assetLogo,
   assetSymbol,
   formField,
+  maxAmount,
 }: TransactionFormFieldInputProps): React.JSX.Element {
   return (
     <HStack w={'100%'}>
@@ -37,6 +39,18 @@ export function TransactionFormFieldInput({
           <NumberInputField h={'25px'} color={'white.01'} fontWeight={'bold'} fontSize={'sm'} />
         </NumberInput>
       </HStack>
+      {maxAmount !== undefined && (
+        <Button
+          size={'xs'}
+          variant={'outline'}
+          color={'accent.lightBlue.01'}
+          borderColor={'accent.lightBlue.01'}
+          _hover={{ bg: 'white.04' }}
+          onClick={() => formField.handleChange(maxAmount.toString())}
+        >
+          Full Amount
+        </Button>
+      )}
       <Text fontSize={'sm'} fontWeight={'bold'} color={'white.01'}>
         {assetSymbol}
       </Text>

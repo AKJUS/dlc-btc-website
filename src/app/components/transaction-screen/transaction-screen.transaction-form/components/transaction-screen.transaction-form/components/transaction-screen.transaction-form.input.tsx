@@ -5,8 +5,14 @@ import { TransactionFormFieldInput } from './transaction-screen.transaction-form
 import { TransactionFormInputUSDText } from './transaction-screen.transaction-form.input-usd-text';
 import { VaultTransactionFormWarning } from './transaction-screen.transaction-form.warning';
 
-const bitcoinFormProperties = {
+const bitcoinDepositFormProperties = {
   label: 'Deposit BTC',
+  logo: '/images/logos/bitcoin-logo.svg',
+  symbol: 'BTC',
+  color: 'orange.01',
+};
+const bitcoinWithdrawFormProperties = {
+  label: 'Withdraw BTC',
   logo: '/images/logos/bitcoin-logo.svg',
   symbol: 'BTC',
   color: 'orange.01',
@@ -20,7 +26,8 @@ const tokenFormProperties = {
 
 export function getFormProperties(
   flow: 'mint' | 'burn',
-  currentStep: number
+  currentStep: number,
+  isBitsafeWithdraw?: boolean
 ): {
   label: string;
   logo: string;
@@ -29,9 +36,12 @@ export function getFormProperties(
 } {
   switch (flow) {
     case 'mint':
-      return bitcoinFormProperties;
+      return bitcoinDepositFormProperties;
     case 'burn':
-      return currentStep === 1 ? bitcoinFormProperties : tokenFormProperties;
+      if (currentStep === 1) {
+        return isBitsafeWithdraw ? bitcoinWithdrawFormProperties : bitcoinDepositFormProperties;
+      }
+      return tokenFormProperties;
     default:
       throw new Error('Invalid Flow Type');
   }
@@ -42,6 +52,8 @@ interface TransactionFormInputFieldProps {
   currentStep: number;
   formType: 'mint' | 'burn';
   currentBitcoinPrice: number;
+  maxAmount?: number;
+  isBitsafeWithdraw?: boolean;
 }
 
 export function TransactionFormInputField({
@@ -49,8 +61,10 @@ export function TransactionFormInputField({
   currentStep,
   currentBitcoinPrice,
   formType,
+  maxAmount,
+  isBitsafeWithdraw,
 }: TransactionFormInputFieldProps): React.JSX.Element {
-  const formProperties = getFormProperties(formType, currentStep);
+  const formProperties = getFormProperties(formType, currentStep, isBitsafeWithdraw);
   return (
     <formAPI.Field name={'assetAmount'}>
       {field => (
@@ -69,6 +83,7 @@ export function TransactionFormInputField({
             assetLogo={formProperties.logo}
             assetSymbol={formProperties.symbol}
             formField={field}
+            maxAmount={maxAmount}
           />
           <TransactionFormInputUSDText
             errors={field.state.meta.errors}
