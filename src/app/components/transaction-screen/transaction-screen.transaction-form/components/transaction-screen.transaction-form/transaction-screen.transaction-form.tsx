@@ -199,6 +199,7 @@ export function VaultTransactionForm({
           bitcoinPrice={currentBitcoinPrice}
           protocolFeeBasisPoints={vault?.btcMintFeeBasisPoints}
           isBitcoinWalletLoading={isBitcoinWalletLoading}
+          isBitsafeWithdraw={isBitsafeWithdraw}
         />
         <TransactionFormTransactionInformation
           flow={flow}
