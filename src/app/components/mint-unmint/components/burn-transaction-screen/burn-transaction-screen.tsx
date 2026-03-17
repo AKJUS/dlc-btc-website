@@ -52,8 +52,6 @@ export function BurnTokenTransactionForm({
         await getBitsafeAddress(coordinatorURL);
         setIsBitsafeAvailable(true);
       } catch {
-        // eslint-disable-next-line no-console
-        console.log('Bitsafe withdrawal address is not configured on the attestor');
         setIsBitsafeAvailable(false);
       }
     };
@@ -80,6 +78,7 @@ export function BurnTokenTransactionForm({
 
       // If Bitsafe withdrawal is enabled, skip the burn and go directly to withdraw step
       if (isBitsafeWithdraw) {
+        dispatch(mintUnmintActions.setBitsafeWithdrawAmount(withdrawAmount));
         dispatch(
           mintUnmintActions.setUnmintStep({ step: RedeemSteps.WITHDRAW, vault: currentVault })
         );

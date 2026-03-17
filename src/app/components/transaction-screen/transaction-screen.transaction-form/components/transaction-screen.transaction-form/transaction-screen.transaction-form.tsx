@@ -115,6 +115,7 @@ interface VaultTransactionFormProps {
   currentBitcoinPrice?: number;
   depositLimit?: { minimumDeposit: number; maximumDeposit: number } | undefined;
   isBitsafeWithdraw?: boolean;
+  initialAmount?: number;
 }
 
 export function VaultTransactionForm({
@@ -131,8 +132,9 @@ export function VaultTransactionForm({
   currentBitcoinPrice,
   depositLimit,
   isBitsafeWithdraw,
+  initialAmount,
 }: VaultTransactionFormProps): React.JSX.Element {
-  const [currentFieldValue, setCurrentFieldValue] = useState<number>(depositLimit?.minimumDeposit!);
+  const [currentFieldValue, setCurrentFieldValue] = useState<number>(initialAmount ?? depositLimit?.minimumDeposit!);
 
   const { data: vaultOutputValue } = useVaultOutputValue({
     vaultUUID: vault.uuid,
@@ -146,7 +148,7 @@ export function VaultTransactionForm({
 
   const form = useForm({
     defaultValues: {
-      assetAmount: depositLimit?.minimumDeposit!.toString()!,
+      assetAmount: (initialAmount ?? depositLimit?.minimumDeposit!)?.toString()!,
     },
     onSubmit: async ({ value }) => {
       const assetAmount = new Decimal(value.assetAmount).toNumber();

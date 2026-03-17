@@ -1,5 +1,7 @@
 import { useContext } from 'react';
+import { useDispatch } from 'react-redux';
 
+import { formatVault } from '@functions/vault.functions';
 import { BitcoinError } from '@models/error-types';
 import {
   HandlerType,
@@ -9,8 +11,12 @@ import {
   TransactionType,
 } from '@models/transaction.models';
 import { BitcoinWalletType } from '@models/wallet';
+import { sha256 } from '@noble/hashes/sha256';
 import { bytesToHex } from '@noble/hashes/utils';
 import { BitcoinWalletContext } from '@providers/bitcoin-wallet-context-provider';
+import { mintUnmintActions } from '@store/slices/mintunmint/mintunmint.actions';
+import { RedeemSteps } from '@store/slices/mintunmint/mintunmint.slice';
+import { modalActions } from '@store/slices/modal/modal.actions';
 import { LeatherDLCHandler, LedgerDLCHandler, UnisatFordefiDLCHandler } from 'dlc-btc-lib';
 import {
   getBitsafeAddress,
@@ -48,6 +54,8 @@ interface UsePSBTReturnType {
 }
 
 export function usePSBT(): UsePSBTReturnType {
+  const dispatch = useDispatch();
+
   const { dlcHandler, bitcoinWalletType, resetBitcoinWalletContext } =
     useContext(BitcoinWalletContext);
 
@@ -202,36 +210,50 @@ export function usePSBT(): UsePSBTReturnType {
     try {
       const { dlcHandler } = getRequiredDependencies();
 
-      const { vault, extendedAttestorGroupPublicKey, feeRecipient, bitcoinFeeRateMultiplier } =
-        await getPSBTParameters(vaultUUID, withdrawAmount);
+      const {
+        vault,
+        amount,
+        extendedAttestorGroupPublicKey,
+        feeRecipient,
+        bitcoinFeeRateMultiplier,
+      } = await getPSBTParameters(vaultUUID, withdrawAmount);
 
-      // Fetch the Bitsafe destination address from the attestor
       const bitsafeAddress = await getBitsafeAddress(coordinatorURL);
 
-      const formattedWithdrawAmount = BigInt(shiftValue(withdrawAmount));
-
-      // Create the withdraw PSBT with Bitsafe destination address
-      const withdrawTransaction = await dlcHandler.createWithdrawPSBT(
+      const withdrawPSBT = await dlcHandler.createWithdrawPSBT(
         vault,
-        formattedWithdrawAmount,
+        BigInt(shiftValue(amount)),
         extendedAttestorGroupPublicKey,
         vault.fundingTxId,
         feeRecipient,
         bitcoinFeeRateMultiplier,
-        undefined, // customFeeRate
-        bitsafeAddress // destinationAddress
+        undefined,
+        bitsafeAddress
       );
 
-      // Sign the transaction
-      const signedTransaction = await dlcHandler.signPSBT(withdrawTransaction, 'withdraw');
+      const signedTransaction = await dlcHandler.signPSBT(withdrawPSBT, 'withdraw');
+
+      const btcTxId = bytesToHex(sha256(sha256(signedTransaction.unsignedTx)).reverse());
 
       const transactionPSBT = bytesToHex(signedTransaction.toPSBT());
-
-      // Submit via the Bitsafe-specific endpoint
       await submitBitsafeWithdrawPSBT([coordinatorURL], {
         vaultUUID: vault.uuid,
         withdrawDepositPSBT: transactionPSBT,
       });
+
+      dispatch(
+        modalActions.toggleSuccessfulFlowModalVisibility({
+          vaultUUID: vault.uuid,
+          vault: formatVault(vault),
+          flow: 'bitsafe',
+          assetAmount: amount,
+          btcTxId,
+        })
+      );
+
+      dispatch(
+        mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined })
+      );
 
       resetBitcoinWalletContext();
     } catch (error) {

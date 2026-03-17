@@ -36,8 +36,9 @@ export function ModalContainer(): React.JSX.Element {
       <SuccessfulFlowModal
         isOpen={isSuccesfulFlowModalOpen[0]}
         vault={isSuccesfulFlowModalOpen[1]!}
-        flow={isSuccesfulFlowModalOpen[3] as 'mint' | 'burn'}
+        flow={isSuccesfulFlowModalOpen[3] as 'mint' | 'burn' | 'bitsafe'}
         assetAmount={isSuccesfulFlowModalOpen[4]}
+        btcTxId={isSuccesfulFlowModalOpen[5] || undefined}
         handleClose={() =>
           handleClosingModal(() =>
             modalActions.toggleSuccessfulFlowModalVisibility({
