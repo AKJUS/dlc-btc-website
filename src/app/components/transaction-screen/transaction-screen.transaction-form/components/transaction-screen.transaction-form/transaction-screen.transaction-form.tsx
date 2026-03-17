@@ -134,7 +134,9 @@ export function VaultTransactionForm({
   isBitsafeWithdraw,
   initialAmount,
 }: VaultTransactionFormProps): React.JSX.Element {
-  const [currentFieldValue, setCurrentFieldValue] = useState<number>(initialAmount ?? depositLimit?.minimumDeposit!);
+  const [currentFieldValue, setCurrentFieldValue] = useState<number>(
+    initialAmount ?? depositLimit?.minimumDeposit!
+  );
 
   const { data: vaultOutputValue } = useVaultOutputValue({
     vaultUUID: vault.uuid,

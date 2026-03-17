@@ -251,9 +251,7 @@ export function usePSBT(): UsePSBTReturnType {
         })
       );
 
-      dispatch(
-        mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined })
-      );
+      dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined }));
 
       resetBitcoinWalletContext();
     } catch (error) {

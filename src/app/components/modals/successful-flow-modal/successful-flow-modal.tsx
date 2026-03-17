@@ -54,7 +54,10 @@ export function SuccessfulFlowModal({
           </Link>
         )}
         <Vault vault={vault} handleClose={handleClose} />
-        <TransactionFormNavigateButtonGroup flow={flow === 'bitsafe' ? 'burn' : flow} handleClose={handleClose} />
+        <TransactionFormNavigateButtonGroup
+          flow={flow === 'bitsafe' ? 'burn' : flow}
+          handleClose={handleClose}
+        />
       </VStack>
     </ModalVaultLayout>
   );
