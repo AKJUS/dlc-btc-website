@@ -78,7 +78,6 @@ export function BurnTokenTransactionForm({
 
       // If Bitsafe withdrawal is enabled, skip the burn and go directly to withdraw step
       if (isBitsafeWithdraw) {
-        dispatch(mintUnmintActions.setBitsafeWithdrawAmount(withdrawAmount));
         dispatch(
           mintUnmintActions.setUnmintStep({ step: RedeemSteps.WITHDRAW, vault: currentVault })
         );

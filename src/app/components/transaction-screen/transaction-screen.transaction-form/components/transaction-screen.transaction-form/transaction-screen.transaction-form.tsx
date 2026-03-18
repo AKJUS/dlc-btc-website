@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 
 import { VStack } from '@chakra-ui/react';
 import { RiskBox } from '@components/mint-unmint/components/risk-box/risk-box';
@@ -166,6 +166,10 @@ export function VaultTransactionForm({
         const decimalValue = parseAssetAmount(value.assetAmount);
         setCurrentFieldValue(decimalValue.toNumber());
 
+        if (isBitsafeWithdraw) {
+          return { fields: { assetAmount: undefined } };
+        }
+
         return {
           fields: {
             assetAmount: validateFormAmount(decimalValue.toNumber(), flow, depositLimit, vault),
@@ -174,6 +178,14 @@ export function VaultTransactionForm({
       },
     },
   });
+
+  useEffect(() => {
+    if (isBitsafeWithdraw) {
+      form.setFieldValue('assetAmount', vault.valueLocked.toString());
+      setCurrentFieldValue(vault.valueLocked);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isBitsafeWithdraw]);
 
   return (
     <form

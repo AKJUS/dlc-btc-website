@@ -27,7 +27,6 @@ interface MintUnmintState {
   unmintStep: MintRedeemStep;
   activeTab: MintRedeemTabs;
   isBitsafeWithdraw: boolean;
-  bitsafeWithdrawAmount: number | undefined;
 }
 
 const initialMintUnmintState: MintUnmintState = {
@@ -35,7 +34,6 @@ const initialMintUnmintState: MintUnmintState = {
   unmintStep: { step: RedeemSteps.BURN, vault: undefined },
   activeTab: MintRedeemTabs.MINT,
   isBitsafeWithdraw: false,
-  bitsafeWithdrawAmount: undefined,
 };
 
 export const mintUnmintSlice = createSlice({
@@ -56,15 +54,11 @@ export const mintUnmintSlice = createSlice({
     setIsBitsafeWithdraw: (state, action) => {
       state.isBitsafeWithdraw = action.payload;
     },
-    setBitsafeWithdrawAmount: (state, action) => {
-      state.bitsafeWithdrawAmount = action.payload;
-    },
     resetMintUnmintState: state => {
       state.mintStep = { step: MintSteps.SETUP, vault: undefined };
       state.unmintStep = { step: RedeemSteps.BURN, vault: undefined };
       state.activeTab = MintRedeemTabs.MINT;
       state.isBitsafeWithdraw = false;
-      state.bitsafeWithdrawAmount = undefined;
     },
   },
 });

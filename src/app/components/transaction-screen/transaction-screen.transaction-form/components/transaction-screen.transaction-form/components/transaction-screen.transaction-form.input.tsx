@@ -84,6 +84,7 @@ export function TransactionFormInputField({
             assetSymbol={formProperties.symbol}
             formField={field}
             maxAmount={maxAmount}
+            isReadOnly={!!isBitsafeWithdraw}
           />
           <TransactionFormInputUSDText
             errors={field.state.meta.errors}

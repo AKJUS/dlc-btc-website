@@ -24,9 +24,16 @@ import {
   submitFundingPSBT,
   submitWithdrawDepositPSBT,
 } from 'dlc-btc-lib/attestor-request-functions';
+import {
+  fetchBitcoinTransaction,
+  getVaultFundingBitcoinAddress,
+  getVaultPayment,
+} from 'dlc-btc-lib/bitcoin-functions';
 import { VaultState } from 'dlc-btc-lib/models';
 import { shiftValue } from 'dlc-btc-lib/utilities';
 import { equals } from 'ramda';
+
+import { BITCOIN_NETWORK_MAP } from '@shared/constants/bitcoin.constants';
 
 import { useAttestorChainID } from './use-attestor-chain-id';
 import { useExtendedAttestorGroupPublicKey } from './use-extended-attestor-group-public-key';
@@ -149,6 +156,26 @@ export function usePSBT(): UsePSBTReturnType {
     return { dlcHandler, bitcoinWalletType, userAddress };
   };
 
+  const getFundingAddress = async (
+    vault: TransactionParams['vault']
+  ): Promise<string | undefined> => {
+    try {
+      const payment = getVaultPayment(
+        vault.uuid,
+        vault.taprootPubKey,
+        extendedAttestorGroupPublicKey!,
+        BITCOIN_NETWORK_MAP[appConfiguration.bitcoinNetwork as keyof typeof BITCOIN_NETWORK_MAP]
+      );
+      const bitcoinTransaction = await fetchBitcoinTransaction(
+        vault.fundingTxId,
+        appConfiguration.bitcoinBlockchainURL
+      );
+      return getVaultFundingBitcoinAddress(payment, bitcoinTransaction, feeRecipient!);
+    } catch {
+      return undefined;
+    }
+  };
+
   const throwTransactionError = (type: TransactionType, error: any): never => {
     if (error instanceof Error) {
       throw new BitcoinError(`Error signing ${type} Transaction: ${error.message}`);
@@ -165,16 +192,14 @@ export function usePSBT(): UsePSBTReturnType {
   const createTransactionHandler =
     (type: TransactionType) =>
     async (vaultUUID: string, value: number): Promise<void> => {
+      let vault: TransactionParams['vault'] | undefined;
       try {
         const { dlcHandler, bitcoinWalletType, userAddress } = getRequiredDependencies();
 
-        const {
-          vault,
-          amount,
-          extendedAttestorGroupPublicKey,
-          feeRecipient,
-          bitcoinFeeRateMultiplier,
-        } = await getPSBTParameters(vaultUUID, value);
+        const psbtParams = await getPSBTParameters(vaultUUID, value);
+        vault = psbtParams.vault;
+        const { amount, extendedAttestorGroupPublicKey, feeRecipient, bitcoinFeeRateMultiplier } =
+          psbtParams;
 
         const handlerType = handlerTypeMap[type](vault.valueLocked.toNumber());
 
@@ -199,6 +224,21 @@ export function usePSBT(): UsePSBTReturnType {
 
         resetBitcoinWalletContext();
       } catch (error) {
+        if (
+          vault &&
+          error instanceof Error &&
+          error.message.includes('Could not find Funding Transaction Output Index')
+        ) {
+          const fundingAddress = await getFundingAddress(vault);
+          if (fundingAddress) {
+            throwTransactionError(
+              type,
+              new Error(
+                `${error.message}. Please verify you're signing with the BTC wallet that matches the Funding BTC Address: ${fundingAddress}`
+              )
+            );
+          }
+        }
         throwTransactionError(type, error);
       }
     };
@@ -207,16 +247,14 @@ export function usePSBT(): UsePSBTReturnType {
     vaultUUID: string,
     withdrawAmount: number
   ): Promise<void> => {
+    let vault: TransactionParams['vault'] | undefined;
     try {
       const { dlcHandler } = getRequiredDependencies();
 
-      const {
-        vault,
-        amount,
-        extendedAttestorGroupPublicKey,
-        feeRecipient,
-        bitcoinFeeRateMultiplier,
-      } = await getPSBTParameters(vaultUUID, withdrawAmount);
+      const psbtParams = await getPSBTParameters(vaultUUID, withdrawAmount);
+      vault = psbtParams.vault;
+      const { amount, extendedAttestorGroupPublicKey, feeRecipient, bitcoinFeeRateMultiplier } =
+        psbtParams;
 
       const bitsafeAddress = await getBitsafeAddress(coordinatorURL);
 
@@ -253,10 +291,24 @@ export function usePSBT(): UsePSBTReturnType {
 
       dispatch(mintUnmintActions.setUnmintStep({ step: RedeemSteps.BURN, vault: undefined }));
       dispatch(mintUnmintActions.setIsBitsafeWithdraw(false));
-      dispatch(mintUnmintActions.setBitsafeWithdrawAmount(undefined));
 
       resetBitcoinWalletContext();
     } catch (error) {
+      if (
+        vault &&
+        error instanceof Error &&
+        error.message.includes('Could not find Funding Transaction Output Index')
+      ) {
+        const fundingAddress = await getFundingAddress(vault);
+        if (fundingAddress) {
+          throwTransactionError(
+            'withdraw',
+            new Error(
+              `${error.message}. Please verify you're signing with the BTC wallet that matches the Funding BTC Address: ${fundingAddress}`
+            )
+          );
+        }
+      }
       throwTransactionError('withdraw', error);
     }
   };
