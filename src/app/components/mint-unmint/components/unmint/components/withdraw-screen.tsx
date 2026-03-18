@@ -30,7 +30,9 @@ export function WithdrawScreen({
 
   const { bitcoinPrice, depositLimit } = useContext(ProofOfReserveContext);
 
-  const { unmintStep, isBitsafeWithdraw } = useSelector((state: RootState) => state.mintunmint);
+  const { unmintStep, isBitsafeWithdraw, bitsafeWithdrawAmount } = useSelector(
+    (state: RootState) => state.mintunmint
+  );
 
   const currentVault = unmintStep.vault;
 
@@ -48,6 +50,9 @@ export function WithdrawScreen({
       try {
         setIsSubmitting(true);
         await handleSignWithdrawTransaction(currentVault.uuid, withdrawAmount);
+        if (isBitsafeWithdraw) {
+          setIsSubmitting(false);
+        }
       } catch (error) {
         setIsSubmitting(false);
         toast({
@@ -91,6 +96,7 @@ export function WithdrawScreen({
         depositLimit={depositLimit}
         isSubmitting={isSubmitting}
         isBitsafeWithdraw={isBitsafeWithdraw}
+        initialAmount={isBitsafeWithdraw ? bitsafeWithdrawAmount : undefined}
       />
     </VStack>
   );

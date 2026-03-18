@@ -35,9 +35,7 @@ export const BitcoinWalletContext = createContext<BitcoinWalletContextProviderTy
 export function BitcoinWalletContextProvider({ children }: HasChildren): React.JSX.Element {
   const [bitcoinWalletContextState, setBitcoinWalletContextState] =
     useState<BitcoinWalletContextState>(BitcoinWalletContextState.INITIAL);
-  const [bitcoinWalletType, setBitcoinWalletType] = useState<BitcoinWalletType | undefined>(
-    BitcoinWalletType.Leather
-  );
+  const [bitcoinWalletType, setBitcoinWalletType] = useState<BitcoinWalletType | undefined>();
   const [dlcHandler, setDLCHandler] = useState<
     LeatherDLCHandler | UnisatFordefiDLCHandler | LedgerDLCHandler
   >();
